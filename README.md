@@ -3,8 +3,8 @@
 Creado por Eduardo Restrepo (GreenX)
 
   eduardo.restrepo@gmail.com 
-    eduardo.restrepo@protonmail.ch
-
+  eduardo.restrepo@protonmail.ch
+  
 ## 1. Visión general
 
 **OLYMPUS** es una plataforma de inteligencia organizacional diseñada para analizar el funcionamiento real de una organización utilizando **exclusivamente metadatos agregados** de **Microsoft 365 (Exchange y Teams)**.
