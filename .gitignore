@@ -1,0 +1,37 @@
+
+# PHP
+vendor/
+backend/vendor/
+composer.lock
+backend/composer.lock
+
+# Node
+node_modules/
+frontend/node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# OSX
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# Docker
+docker-compose.override.yml
+
+# Build
+dist/
+build/
+frontend/dist/
+frontend/build/

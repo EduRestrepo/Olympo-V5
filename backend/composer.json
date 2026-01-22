@@ -1,0 +1,26 @@
+{
+    "name": "olympus/backend",
+    "description": "Organizational Analytics Platform Backend",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo_pgsql": "*",
+        "symfony/http-foundation": "^6.4",
+        "symfony/routing": "^6.4",
+        "symfony/dotenv": "^6.4",
+        "microsoft/microsoft-graph": "^1.100",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Olympus\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "secure-http": false
+    }
+}

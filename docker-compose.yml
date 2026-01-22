@@ -1,0 +1,64 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: olympus_backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/vendor
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: postgresql://olympus:olympus_secret@db:5432/olympus_db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - olympus_net
+
+  db:
+    image: postgres:15-alpine
+    container_name: olympus_db
+    environment:
+      POSTGRES_USER: olympus
+      POSTGRES_PASSWORD: olympus_secret
+      POSTGRES_DB: olympus_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/src/db/migrations.sql:/docker-entrypoint-initdb.d/01_migrations.sql:ro
+      - ./backend/src/db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U olympus -d olympus_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - olympus_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: olympus_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - olympus_net
+
+networks:
+  olympus_net:
+    driver: bridge
+
+volumes:
+  db_data: {}
