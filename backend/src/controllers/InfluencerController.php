@@ -22,7 +22,7 @@ class InfluencerController
         // Fetch Actors + Email Metrics + Teams Metrics
         $sql = "
             SELECT 
-                a.id, a.name, a.role, a.badge,
+                a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score,
                 -- Email Metrics
                 COALESCE(SUM(i.volume), 0) as total_volume,
                 COALESCE(rt.avg_response_seconds, 0) as avg_response_time,
@@ -45,7 +45,7 @@ class InfluencerController
             LEFT JOIN interactions i ON a.id = i.source_id
             LEFT JOIN response_times rt ON a.id = rt.actor_id
             LEFT JOIN teams_influence_metrics tm ON a.id = tm.id
-            GROUP BY a.id, a.name, a.role, a.badge, rt.avg_response_seconds, 
+            GROUP BY a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score, rt.avg_response_seconds, 
                      tm.total_meetings, tm.avg_participants, tm.total_duration_hours,
                      tm.meetings_organized, tm.video_calls, tm.screenshare_sessions
         ";
@@ -146,7 +146,7 @@ class InfluencerController
 
             $sql = "
                 SELECT 
-                    a.id, a.name, a.role, a.badge,
+                    a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score,
                     -- Email Metrics
                     COALESCE(SUM(i.volume), 0) as total_volume,
                     COALESCE(rt.avg_response_seconds, 0) as avg_response_time,
@@ -160,7 +160,7 @@ class InfluencerController
                 LEFT JOIN interactions i ON a.id = i.source_id
                 LEFT JOIN response_times rt ON a.id = rt.actor_id
                 LEFT JOIN teams_influence_metrics tm ON a.id = tm.id
-                GROUP BY a.id, a.name, a.role, a.badge, rt.avg_response_seconds, 
+                GROUP BY a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score, rt.avg_response_seconds, 
                          tm.total_meetings, tm.avg_participants, tm.total_duration_hours,
                          tm.meetings_organized, tm.video_calls
             ";

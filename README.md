@@ -21,6 +21,8 @@ Permite comprender de forma visual y explicable:
 - Capacidad real de decisión por rol y comportamiento
 - Silos de trabajo e información
 - Comprender como fluye la información y la red de contactos corporativos
+- **NUEVO**: Visualización por Silos (Unidades Organizacionales) y Países
+- **NUEVO**: Detección de "Influencia Opositiva" (Escalada Estratégica)
 
 ### Privacidad por diseño
 - **NO** se analiza contenido
@@ -186,6 +188,11 @@ Interruptor global que permite ofuscar la identidad de todos los actores en tiem
 ### 5.3 Simulación de "Single Point of Failure" (Bajas)
 Herramienta interactiva dentro del grafo de red que permite simular la salida de un actor clave.
 - **Funcionamiento:** Al "eliminar" un nodo en modo simulación, el sistema visualiza instantáneamente cómo se debilitan las conexiones y qué sub-nodos quedan aislados, permitiendo identificar dependencias críticas.
+
+### 5.4 Nuevas Vistas de Análisis
+- **Vista Silos (Departamentos):** Agrupa y colorea el grafo según la Unidad Organizacional, revelando si los departamentos colaboran entre sí o están aislados.
+- **Vista Países:** Permite visualizar la colaboración transfronteriza y detectar si las sedes geográficas operan como islas.
+- **Vista Influencia Opositiva:** Destaca en rojo ("Hotspots") a los actores que presentan un alto índice de escalada (CC excesivo a superiores), permitiendo identificar fricciones políticas o cuellos de botella en la toma de decisiones.
 
 ## 6. Principios de Proyecto
 

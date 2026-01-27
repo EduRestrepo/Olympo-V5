@@ -1,15 +1,15 @@
 -- Seed Actors
-INSERT INTO actors (name, role, badge) VALUES
-('Elena Fisher', 'CEO', '♚'),
-('Nathan Drake', 'CTO', '♛'),
-('Victor Sullivan', 'VP Sales', '♜'),
-('Chloe Frazer', 'Head of Marketing', '♜'),
-('Sam Drake', 'Lead Developer', '♞'),
-('Charlie Cutter', 'Security Specialist', '♗'),
-('Rafe Adler', 'Project Manager', '♞'),
-('Nadine Ross', 'Operations Lead', '♗'),
-('Harry Flynn', 'Sales Rep', '♙'),
-('Marlowe', 'HR Director', '♙');
+INSERT INTO actors (name, role, badge, department, country, escalation_score) VALUES
+('Elena Fisher', 'CEO', '♚', 'Executive', 'USA', 0),
+('Nathan Drake', 'CTO', '♛', 'Technology', 'USA', 2),
+('Victor Sullivan', 'VP Sales', '♜', 'Sales', 'USA', 5),
+('Chloe Frazer', 'Head of Marketing', '♜', 'Marketing', 'UK', 3),
+('Sam Drake', 'Lead Developer', '♞', 'Technology', 'USA', 1),
+('Charlie Cutter', 'Security Specialist', '♗', 'Security', 'UK', 0),
+('Rafe Adler', 'Project Manager', '♞', 'Projects', 'USA', 4),
+('Nadine Ross', 'Operations Lead', '♗', 'Operations', 'South Africa', 2),
+('Harry Flynn', 'Sales Rep', '♙', 'Sales', 'UK', 8),
+('Marlowe', 'HR Director', '♙', 'HR', 'UK', 4);
 
 -- Seed Channel Totals
 INSERT INTO channel_totals (channel, total_count) VALUES

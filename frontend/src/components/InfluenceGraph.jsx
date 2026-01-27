@@ -12,7 +12,7 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
     const [removedNodes, setRemovedNodes] = useState(new Set());
     const [isSimulationMode, setIsSimulationMode] = useState(false);
 
-    const [isSiloMode, setIsSiloMode] = useState(false);
+    const [viewMode, setViewMode] = useState('default'); // default, department, country, oppositional
     const [pathNodes, setPathNodes] = useState(new Set());
     const [pathLinks, setPathLinks] = useState(new Set());
     const [pathSelection, setPathSelection] = useState([]); // [source, target]
@@ -114,10 +114,25 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
         node.append("circle")
             .attr("r", 25)
             .attr("fill", d => {
-                if (isSiloMode) {
+                if (viewMode === 'department') {
+                    const deptHash = d.department ? d.department.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : 0;
                     const clusterColors = ['#f85149', '#a371f7', '#2da44e', '#d29922', '#58a6ff', '#8b949e', '#db61a2'];
-                    return clusterColors[d.cluster % clusterColors.length];
+                    return clusterColors[deptHash % clusterColors.length];
                 }
+                if (viewMode === 'country') {
+                    const countryHash = d.country ? d.country.split('').reduce((a, b) => a + b.charCodeAt(0), 0) : 0;
+                    const clusterColors = ['#58a6ff', '#2da44e', '#d29922', '#a371f7', '#f85149', '#8b949e'];
+                    return clusterColors[countryHash % clusterColors.length];
+                }
+                if (viewMode === 'oppositional') {
+                    const score = d.escalation_score || 0;
+                    if (score >= 5) return '#ff0000';
+                    if (score >= 3) return '#ff8c00';
+                    if (score >= 1) return '#ffd700';
+                    return '#21262d';
+                }
+
+                // Default Role
                 const colors = { '♚': '#f85149', '♛': '#f85149', '♜': '#a371f7', '♞': '#2da44e', '♗': '#d29922', '♙': '#58a6ff' };
                 return colors[d.badge] || '#58a6ff';
             })
@@ -147,7 +162,13 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
             .style("pointer-events", "none");
 
         const labels = node.append("g").attr("transform", "translate(0, 42)");
-        labels.append("text").attr("text-anchor", "middle").attr("fill", "white").style("font-size", "12px").style("font-weight", "600").text(d => isAnonymous ? `Actor ${d.id}` : d.name);
+        labels.append("text").attr("text-anchor", "middle").attr("fill", "white").style("font-size", "12px").style("font-weight", "600").text(d => {
+            if (isAnonymous) return `Actor ${d.id}`;
+            if (viewMode === 'department') return d.department || 'No Dept';
+            if (viewMode === 'country') return d.country || 'No Country';
+            if (viewMode === 'oppositional') return `${d.name} [${d.escalation_score || 0}]`;
+            return d.name;
+        });
         labels.append("text").attr("text-anchor", "middle").attr("dy", 14).attr("fill", "var(--text-muted)").style("font-size", "10px").text(d => d.role);
 
         simulation.on("tick", () => {
@@ -163,7 +184,7 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
         }
 
         return () => simulation.stop();
-    }, [data, depth, selectedGraphActor, removedNodes, isSimulationMode, isAnonymous, isSiloMode, pathNodes, pathLinks, pathSelection]);
+    }, [data, depth, selectedGraphActor, removedNodes, isSimulationMode, isAnonymous, viewMode, pathNodes, pathLinks, pathSelection]);
 
     const toggleNode = (id) => {
         setRemovedNodes(prev => {
@@ -215,17 +236,21 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
             <div className="card-header">
                 <div className="card-title">
                     <Share2 size={20} className={isSimulationMode ? 'text-accent-tertiary' : ''} />
-                    Analizador de Red {isSimulationMode ? '(Simulación)' : isSiloMode ? '(Silos)' : ''}
+                    Analizador de Red {isSimulationMode ? '(Simulación)' : (viewMode !== 'default' ? `(${viewMode})` : '')}
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-                    <button
-                        onClick={() => setIsSiloMode(!isSiloMode)}
-                        className={`btn-toggle ${isSiloMode ? 'active' : ''}`}
-                        title="Agrupar por comunidades"
+                    <select
+                        value={viewMode}
+                        onChange={(e) => setViewMode(e.target.value)}
+                        className="btn-toggle"
+                        style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'white', borderRadius: '4px', padding: '4px 8px' }}
                     >
-                        {isSiloMode ? 'Ver Roles' : 'Ver Silos'}
-                    </button>
+                        <option value="default">Ver Roles</option>
+                        <option value="department">Ver Silos (Depts)</option>
+                        <option value="country">Ver Países</option>
+                        <option value="oppositional">Ver Oposición</option>
+                    </select>
 
                     <button
                         onClick={() => setIsSimulationMode(!isSimulationMode)}

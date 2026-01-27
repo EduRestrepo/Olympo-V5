@@ -18,8 +18,11 @@ class GraphIngestionService
     private array $excludedUsers = [];
     private int $maxUsersToFetch;
 
+    private \PDO $db;
+
     public function __construct()
     {
+        $this->db = \Olympus\Db\Connection::get();
         $repo = new \Olympus\Db\SettingRepository();
 
         $this->clientId = $repo->getByKey('ms_graph_client_id', $_ENV['ms_graph_client_id'] ?? ($_ENV['MS_GRAPH_CLIENT_ID'] ?? ''));
@@ -85,12 +88,54 @@ class GraphIngestionService
             }
 
             echo "Processing User: $email\n";
+            
+            // 0. Upsert Actor (Sync Department/Country)
+            $userId = $this->upsertActor($user);
 
             // 1. Emails Metadata
-            $this->getMailMetadata($user->getId(), $email);
+            $this->getMailMetadata($user->getId(), $email, $userId);
 
             // 2. Teams Calls Metadata
             $this->getTeamsCallMetadata($user->getId(), $email);
+        }
+    }
+
+    private function upsertActor(Model\User $user): int
+    {
+        $name = $user->getDisplayName();
+        $email = $user->getMail(); // Assuming we might store email eventually, but current schema doesn't have it. We map by Name for now or logic needs adaptation.
+        // Wait, current schema 'actors' doesn't have email? It has 'name'. 
+        // We really should have 'email' or 'azure_id' to sync. 
+        // For this prototype, I will query by NAME. 
+        
+        $jobTitle = $user->getJobTitle() ?? 'Employee';
+        $department = $user->getDepartment() ?? 'General';
+        $country = $user->getCountry() ?? ($user->getUsageLocation() ?? 'Unknown');
+
+        // Determine Badge/Role based on Job Title
+        $badge = '♙'; // Pawn default
+        $lowerTitle = strtolower($jobTitle);
+        if (str_contains($lowerTitle, 'ceo') || str_contains($lowerTitle, 'president')) $badge = '♚';
+        elseif (str_contains($lowerTitle, 'cto') || str_contains($lowerTitle, 'cfo') || str_contains($lowerTitle, 'vp')) $badge = '♛';
+        elseif (str_contains($lowerTitle, 'director') || str_contains($lowerTitle, 'head')) $badge = '♜';
+        elseif (str_contains($lowerTitle, 'manager') || str_contains($lowerTitle, 'lead')) $badge = '♞';
+        elseif (str_contains($lowerTitle, 'senior') || str_contains($lowerTitle, 'architect')) $badge = '♗';
+
+        // Check if exists
+        $stmt = $this->db->prepare("SELECT id FROM actors WHERE name = ?");
+        $stmt->execute([$name]);
+        $existing = $stmt->fetch();
+
+        if ($existing) {
+            $id = $existing['id'];
+            $stmt = $this->db->prepare("UPDATE actors SET role = ?, badge = ?, department = ?, country = ? WHERE id = ?");
+            $stmt->execute([$jobTitle, $badge, $department, $country, $id]);
+            return $id;
+        } else {
+            $stmt = $this->db->prepare("INSERT INTO actors (name, role, badge, department, country) VALUES (?, ?, ?, ?, ?) RETURNING id");
+            $stmt->execute([$name, $jobTitle, $badge, $department, $country]);
+            $row = $stmt->fetch();
+            return $row['id'];
         }
     }
 
@@ -243,7 +288,7 @@ class GraphIngestionService
         return $allUsers;
     }
 
-    private function getMailMetadata(string $userId, string $userEmail): void
+    private function getMailMetadata(string $userId, string $userEmail, int $dbUserId): void
     {
         $repo = new \Olympus\Db\SettingRepository();
         // Get configurable lookback period (default 30 days, minimum 15)
@@ -262,18 +307,57 @@ class GraphIngestionService
             $count = count($messages);
             echo "  - Imported $count message headers (last {$lookbackDays} days).\n";
 
+            $totalEscalations = 0;
+
             foreach ($messages as $msg) {
-                // Here we would SAVE to Database. 
-                // For now, we will just output to demonstrate successful fetch of ONLY metadata.
-                $subject = $msg->getSubject(); // We might mask this too if needed, but usually metadata extraction keeps subject for sentiment/topic analysis (optional)
+                // Here we would SAVE to Database table 'interactions' (skipping for this prototype to focus on Actor Escalation Score)
+                
+                // Calculate Escalation Impact
+                if ($this->calculateEscalationImpact($msg)) {
+                    $totalEscalations++;
+                    
+                    // Simple increment for Prototype
+                    $stmt = $this->db->prepare("UPDATE actors SET escalation_score = escalation_score + 1 WHERE id = ?");
+                    $stmt->execute([$dbUserId]);
+                }
+                
                 $sender = $msg->getSender()->getEmailAddress()->getAddress();
                 $date = $msg->getSentDateTime()->format('Y-m-d H:i:s');
+                // echo "    [MAIL] $date | From: $sender | To: " . count($msg->getToRecipients()) . "\n";
+            }
 
-                echo "    [MAIL] $date | From: $sender | To: (Count: " . count($msg->getToRecipients()) . ")\n";
+            if ($totalEscalations > 0) {
+                echo "  - Detected $totalEscalations escalation events (Oppositional Influence).\n";
             }
 
         } catch (\Exception $e) {
             echo "  - Error fetching messages for $userEmail: " . $e->getMessage() . "\n";
         }
+    }
+
+    private function calculateEscalationImpact(Model\Message $msg): bool
+    {
+        // Logic: 
+        // 1. If Importance is High AND there are CC recipients -> Potential escalation.
+        // 2. Or if Subject contains "Urgent", "Important" AND CC exists.
+        
+        $ccRecipients = $msg->getCcRecipients();
+        if (empty($ccRecipients)) {
+            return false;
+        }
+
+        // Check Importance
+        $importance = $msg->getImportance(); // 'low', 'normal', 'high'
+        if ($importance && strtolower($importance) === 'high') {
+            return true;
+        }
+
+        // Check Subject keywords
+        $subject = strtolower($msg->getSubject() ?? '');
+        if (str_contains($subject, 'urgent') || str_contains($subject, 'attention') || str_contains($subject, 'escalation')) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -13,7 +13,10 @@ CREATE TABLE actors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL, -- 'Manager', 'Developer', 'Designer', etc.
-    badge VARCHAR(10) NOT NULL -- '♚', '♛', '♜', '♞', '♗', '♙'
+    badge VARCHAR(10) NOT NULL, -- '♚', '♛', '♜', '♞', '♗', '♙'
+    department VARCHAR(255),
+    country VARCHAR(100),
+    escalation_score INT DEFAULT 0 -- Count of 'political' escalations (CC > To)
 );
 
 -- Interactions Table (Aggregated)
