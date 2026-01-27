@@ -33,5 +33,21 @@ El diseño de esta solución se apoya en conceptos ampliamente estudiados:
 *   **Rob Cross (Beyond Collaboration Overload)**: Sus investigaciones muestran cómo la colaboración excesiva puede quemar a los empleados más valiosos. Olympus ayuda a detectar esta sobrecarga midiendo el volumen y la "centralidad" en la red.
 *   **Dunbar's Number**: El límite cognitivo de las relaciones humanas (aprox. 150). Olympus ayuda a gestionar organizaciones que superan este límite, donde nadie puede conocer a todos.
 
+
+* ** Ley de Conway**
+La Ley de Conway, formulada en 1968 por Melvin Conway, establece que los sistemas de software producidos por una organización tienden a copiar la estructura de comunicación de dicha organización. Esta ley destaca que las interfaces entre módulos reflejan las líneas de comunicación entre equipos, influyendo directamente en la arquitectura final. 
+
+Aspectos Clave de la Ley de Conway:
+
+Reflejo Organizacional: La forma en que equipos separados (frontend, backend, QA) interactúan determina cómo se conectan los componentes del software.
+Influencia del Diseño: Si una organización está fragmentada o trabaja en silos, el sistema resultante será probablemente modular y de difícil integración.
+Impacto en la Gestión: Las decisiones arquitectónicas no son puramente técnicas; la estructura organizativa limita las opciones de diseño, haciendo prevalecer la estructura social sobre la técnica. 
+
+Aplicación Práctica:
+Equipos pequeños y ágiles: Fomentan una arquitectura más cohesionada y microservicios más efectivos.
+Equipos desalineados: Producen sistemas con altos niveles de "acoplamiento" y fricción en la comunicación. 
+
+
+
 ---
 **En resumen**: Olympus es un espejo digital que refleja la salud, la política y la realidad operativa de la organización, permitiendo a los líderes gestionar basándose en evidencia real, no en suposiciones.
