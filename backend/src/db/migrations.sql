@@ -14,6 +14,7 @@ CREATE TABLE actors (
     name VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL, -- 'Manager', 'Developer', 'Designer', etc.
     badge VARCHAR(10) NOT NULL, -- '♚', '♛', '♜', '♞', '♗', '♙'
+    email VARCHAR(255) UNIQUE, 
     department VARCHAR(255),
     country VARCHAR(100),
     escalation_score INT DEFAULT 0 -- Count of 'political' escalations (CC > To)

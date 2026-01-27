@@ -43,4 +43,29 @@ $routes->add('save_settings', new Route('/api/settings', [
     '_methods' => ['POST']
 ]));
 
+$routes->add('test_connection', new Route('/api/settings/test-connection', [
+    '_controller' => ['Olympus\Controllers\SettingsController', 'testConnection'],
+    '_methods' => ['POST']
+]));
+
+$routes->add('trigger_extraction', new Route('/api/settings/extract-data', [
+    '_controller' => ['Olympus\Controllers\SettingsController', 'triggerExtraction'],
+    '_methods' => ['POST']
+]));
+
+$routes->add('wipe_database', new Route('/api/settings/wipe-database', [
+    '_controller' => ['Olympus\Controllers\SettingsController', 'wipeDatabase'],
+    '_methods' => ['POST']
+]));
+
+$routes->add('seed_database', new Route('/api/settings/seed-database', [
+    '_controller' => ['Olympus\Controllers\SettingsController', 'seedDatabase'],
+    '_methods' => ['POST']
+]));
+
+$routes->add('get_logs', new Route('/api/settings/logs', [
+    '_controller' => ['Olympus\Controllers\SettingsController', 'getLogs'],
+    '_methods' => ['GET']
+]));
+
 return $routes;

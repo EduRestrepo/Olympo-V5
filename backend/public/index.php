@@ -17,6 +17,28 @@ if (file_exists(__DIR__ . '/../.env')) {
 
 $request = Request::createFromGlobals();
 
+// Auto-Seed Logic for DEV environment
+$env = $_ENV['APP_ENV'] ?? 'dev';
+if ($env !== 'prod') {
+    try {
+        $repo = new \Olympus\Db\SettingRepository();
+        // Check if actors table is empty
+        $conn = \Olympus\Db\Connection::get();
+        $stmt = $conn->query("SELECT count(*) as count FROM actors");
+        $count = $stmt->fetch()['count'];
+
+        if ($count == 0) {
+            // Auto-seed
+            $repo->resetData(true); 
+        }
+    } catch (\Exception $e) {
+        // Silently fail or log, don't break the app boot?
+        // Actually, if seeding fails, we might want to know.
+        // But for OPTIONS requests or other noise, maybe keep silent or log to file.
+        // process continues...
+    }
+}
+
 // CORS Handling
 if ($request->getMethod() === 'OPTIONS') {
     $response = new JsonResponse(null, 204);

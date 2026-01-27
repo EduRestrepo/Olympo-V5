@@ -26,9 +26,8 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 COPY . /var/www/html
 
 # Install dependencies
-# RUN composer config -g disable-tls true && \
-#     composer config -g secure-http false && \
-#     composer update --no-interaction --optimize-autoloader --ignore-platform-reqs
+# Install dependencies
+RUN composer install --no-interaction --optimize-autoloader --prefer-dist
 
 # Adjust permissions
 RUN chown -R www-data:www-data /var/www/html

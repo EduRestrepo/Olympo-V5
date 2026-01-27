@@ -30,6 +30,13 @@ export const api = {
     getChannelTotals: () => fetchJson('/api/channel-totals'),
     getNetworkPulse: () => fetchJson('/api/network-pulse'),
     getToneIndex: () => fetchJson('/api/tone-index'),
-    getInfluenceGraph: () => fetchJson('/api/influence-graph'),
     getAbout: () => fetchJson('/api/about'),
+    // Settings
+    getSettings: () => fetchJson('/api/settings'),
+    saveSettings: (data) => api.post('/api/settings', data),
+    testConnection: () => api.post('/api/settings/test-connection', {}),
+    extractData: () => api.post('/api/settings/extract-data', {}),
+    wipeDatabase: () => api.post('/api/settings/wipe-database', {}),
+    seedDatabase: () => api.post('/api/settings/seed-database', {}),
+    getLogs: () => fetchJson('/api/settings/logs'),
 };

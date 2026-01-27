@@ -1,15 +1,69 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { Crown, Trophy, Activity, Medal } from 'lucide-react';
+import { Crown, Trophy, Activity, Medal, Search, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function TopInfluencers({ onSelectActor, isAnonymous }) {
     const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     useEffect(() => {
         api.getTopInfluencers().then(res => {
-            if (res) setData(res);
+            if (res) {
+                setData(res);
+                setFilteredData(res);
+            }
         });
     }, []);
+
+    useEffect(() => {
+        const results = data.filter(actor =>
+            actor.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredData(results);
+        setCurrentPage(1); // Reset to page 1 on search
+    }, [searchTerm, data]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Top Influyentes - Olympo", 14, 15);
+        doc.setFontSize(10);
+        doc.text(`Generado: ${new Date().toLocaleDateString()}`, 14, 22);
+
+        const tableColumn = ["Rank", "Nombre", "Unified Score", "Badge", "Volumen", "Respuesta Avg", "Canal"];
+        const tableRows = [];
+
+        filteredData.forEach(actor => {
+            const displayName = isAnonymous ? `Actor ${actor.id}` : actor.name;
+            const actorData = [
+                actor.rank,
+                displayName,
+                actor.unified_score,
+                actor.badge,
+                Math.round(actor.total_volume),
+                actor.avg_response_formatted,
+                actor.dominant_channel
+            ];
+            tableRows.push(actorData);
+        });
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 25,
+        });
+
+        doc.save("olympo_influencers.pdf");
+    };
 
     return (
         <div className="card animate-in" style={{ animationDelay: '0ms' }}>
@@ -18,8 +72,31 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                     <Trophy className="w-5 h-5 text-yellow-500" />
                     Top Influyentes
                 </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <div className="search-container" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <Search size={16} style={{ position: 'absolute', left: '8px', color: '#8b949e' }} />
+                        <input
+                            type="text"
+                            placeholder="Buscar..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{
+                                background: '#0d1117',
+                                border: '1px solid #30363d',
+                                borderRadius: '4px',
+                                padding: '4px 8px 4px 30px',
+                                color: 'white',
+                                fontSize: '0.85rem'
+                            }}
+                        />
+                    </div>
+                    <button onClick={handleExportPDF} title="Exportar PDF" style={{ background: 'transparent', border: '1px solid #30363d', color: 'var(--text-main)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Download size={16} /> PDF
+                    </button>
+                </div>
             </div>
-            <div style={{ overflowX: 'auto' }}>
+
+            <div style={{ overflowX: 'auto', minHeight: '300px' }}>
                 <table>
                     <thead>
                         <tr>
@@ -33,7 +110,7 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((actor) => {
+                        {currentItems.map((actor) => {
                             const displayName = isAnonymous ? `Actor ${actor.id}` : actor.name;
                             return (
                                 <tr
@@ -74,9 +151,39 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                                 </tr>
                             );
                         })}
+                        {currentItems.length === 0 && (
+                            <tr>
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                                    No se encontraron resultados
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', gap: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        style={{ background: 'transparent', border: 'none', color: currentPage === 1 ? '#444' : 'var(--accent-primary)', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        style={{ background: 'transparent', border: 'none', color: currentPage === totalPages ? '#444' : 'var(--accent-primary)', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
