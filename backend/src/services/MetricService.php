@@ -15,13 +15,16 @@ class MetricService
 
     public function calculateAggregates(): void
     {
+        error_log("[MetricService] Recalculating all aggregates...");
         $this->calculateChannelTotals();
         $this->calculateNetworkPulse();
         $this->calculateToneIndex();
+        error_log("[MetricService] Recalculation complete.");
     }
 
     private function calculateChannelTotals(): void
     {
+        error_log("[MetricService] Calculating channel totals...");
         // Email Count
         $stmt = $this->db->query("SELECT SUM(volume) FROM interactions WHERE channel = 'Email'");
         $emailCount = (int)$stmt->fetchColumn();
@@ -29,6 +32,8 @@ class MetricService
         // Teams Count
         $stmt = $this->db->query("SELECT COUNT(*) FROM teams_call_records");
         $teamsCount = (int)$stmt->fetchColumn();
+
+        error_log("[MetricService] Totals: Email=$emailCount, Teams=$teamsCount");
 
         // Upsert Email
         $this->upsertChannel('Email', $emailCount);
@@ -55,6 +60,7 @@ class MetricService
 
     private function calculateNetworkPulse(): void
     {
+        error_log("[MetricService] Calculating network pulse...");
         // Clear old pulse data
         $this->db->query("TRUNCATE TABLE network_pulse_daily");
 

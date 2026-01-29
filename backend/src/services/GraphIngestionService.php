@@ -244,7 +244,7 @@ class GraphIngestionService
         $this->log("Fetching global Teams call records (last $lookbackDays days)...");
 
         try {
-            // Fetch all call records in one go
+            // Fetch call records (Note: $top is not supported here by Graph API)
             $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}");
             $response = $request->execute();
             
@@ -256,37 +256,52 @@ class GraphIngestionService
                 return;
             }
 
+            $this->log("Syncing " . count($callRecords) . " Teams call records...");
+
             // Create a map of Graph User ID -> DB Actor ID for fast lookup
             $userMap = [];
             foreach ($processedUsers as $u) {
                 if (isset($u['id'])) {
                     $email = strtolower(trim($u['mail'] ?? ($u['userPrincipalName'] ?? '')));
+                    if (empty($email)) continue;
+                    
                     $dbId = $this->getDbIdByEmail($email);
                     if ($dbId) {
                         $userMap[$u['id']] = $dbId;
                     }
                 }
             }
+            
+            $this->log("User map built with " . count($userMap) . " valid mappings.");
 
             $count = 0;
+            $unmappedIds = [];
             foreach ($callRecords as $record) {
                 if (!is_array($record)) continue;
                 
                 $organizer = $record['organizer'] ?? null;
                 $participants = $record['participants'] ?? [];
                 
-                // Identify which of our target users are in this call
                 $involvedUsers = []; // Graphite User ID -> isOrganizer
                 
-                if ($organizer && isset($organizer['user']['id']) && isset($userMap[$organizer['user']['id']])) {
-                    $involvedUsers[$organizer['user']['id']] = true;
+                if ($organizer && isset($organizer['user']['id'])) {
+                    $gId = $organizer['user']['id'];
+                    if (isset($userMap[$gId])) {
+                        $involvedUsers[$gId] = true;
+                    } else {
+                        $unmappedIds[$gId] = $organizer['user']['displayName'] ?? 'Unknown';
+                    }
                 }
 
                 foreach ($participants as $p) {
-                    if (isset($p['user']['id']) && isset($userMap[$p['user']['id']])) {
-                        // If not already in (as organizer), add as participant
-                        if (!isset($involvedUsers[$p['user']['id']])) {
-                            $involvedUsers[$p['user']['id']] = false;
+                    if (isset($p['user']['id'])) {
+                        $gId = $p['user']['id'];
+                        if (isset($userMap[$gId])) {
+                            if (!isset($involvedUsers[$gId])) {
+                                $involvedUsers[$gId] = false;
+                            }
+                        } else {
+                            $unmappedIds[$gId] = $p['user']['displayName'] ?? 'Unknown';
                         }
                     }
                 }
@@ -320,7 +335,11 @@ class GraphIngestionService
                 }
             }
 
-            $this->log("Global Teams sync: Processed $count record-user involvements.");
+            $this->log("Teams sync: Processed $count record-user involvements.");
+            if (!empty($unmappedIds)) {
+                $names = array_unique(array_values($unmappedIds));
+                $this->log("Found " . count($unmappedIds) . " users in calls not in our target list (Top 10: " . implode(', ', array_slice($names, 0, 10)) . ")");
+            }
 
         } catch (\Exception $e) {
             $this->log("Error during global Teams ingestion: " . $e->getMessage());
