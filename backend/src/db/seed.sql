@@ -111,6 +111,17 @@ SELECT
     NOW() - (random() * INTERVAL '14 days')
 FROM generate_series(1, 300);
 
+-- 8. Seed Interactions (Historical Trends)
+INSERT INTO interactions (source_id, target_id, channel, interaction_date, volume)
+SELECT
+    (floor(random() * 119 + 1))::int as source_id,
+    (floor(random() * 119 + 1))::int as target_id,
+    'Email',
+    (CURRENT_DATE - (random() * INTERVAL '14 days'))::DATE as interaction_date,
+    (floor(random() * 50 + 10))::int as volume
+FROM generate_series(1, 400)
+ON CONFLICT (source_id, target_id, channel, interaction_date) DO UPDATE SET volume = interactions.volume + EXCLUDED.volume;
+
 -- 8. Seed Default Settings
 INSERT INTO settings (key, value, description) VALUES
 ('threshold_email_vol', '500', 'Goal for monthly email volume'),

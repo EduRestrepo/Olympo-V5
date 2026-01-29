@@ -18,7 +18,7 @@ class MetricController
     {
         try {
             $stmt = $this->db->query("SELECT channel, total_count FROM channel_totals");
-            $data = $stmt->fetchAll();
+            $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return new JsonResponse($data);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
@@ -30,7 +30,7 @@ class MetricController
         try {
             // Return last 10-30 days of activity
             $stmt = $this->db->query("SELECT date, activity_level as value FROM network_pulse_daily ORDER BY date ASC LIMIT 30");
-            $data = $stmt->fetchAll();
+            $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return new JsonResponse($data);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
@@ -41,7 +41,7 @@ class MetricController
     {
         try {
             $stmt = $this->db->query("SELECT date, score as value FROM tone_index_daily ORDER BY date ASC LIMIT 30");
-            $data = $stmt->fetchAll();
+            $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             return new JsonResponse($data);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);

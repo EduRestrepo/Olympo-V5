@@ -405,7 +405,8 @@ class GraphIngestionService
         // 2. Record Interaction (Sender -> Target)
         // We consider the "User being processed" ($targetActorId) as the RECIPIENT since we are reading their inbox.
         // So Interaction: Sender -> Target
-        $this->recordInteraction($senderActorId, $targetActorId, 'Email');
+        // Interaction: Sender -> Target
+        $this->recordInteraction($senderActorId, $targetActorId, 'Email', $date);
 
         // 3. Response Time Calculation (Heuristic)
         // If we also find a message FROM Target TO Sender close in time, we could calculate response time.
@@ -442,32 +443,16 @@ class GraphIngestionService
         return (int)$insert->fetchColumn();
     }
 
-    private function recordInteraction(int $sourceId, int $targetId, string $channel): void
+    private function recordInteraction(int $sourceId, int $targetId, string $channel, string $date): void
     {
-        // Upsert interaction volume
+        // Efficient Daily Upsert
         $stmt = $this->db->prepare("
-            INSERT INTO interactions (source_id, target_id, channel, volume) 
-            VALUES (:source, :target, :channel, 1)
-            ON CONFLICT (source_id, target_id, channel) 
+            INSERT INTO interactions (source_id, target_id, channel, interaction_date, volume) 
+            VALUES (:source, :target, :channel, :date, 1)
+            ON CONFLICT (source_id, target_id, channel, interaction_date) 
             DO UPDATE SET volume = interactions.volume + 1
-        "); // Note: ON CONFLICT requires a unique constraint which we need to check if exists. 
-            // If constraint works by id, fine, but typically we need a constraint on (source, target, channel).
-            // Let's assume schema allows duplicates or we handle it manually.
-            // Actually, the schema doesn't seem to have a UNIQUE constraint on (source, target, channel).
-            // Let's check first.
-        
-        // Manual Upsert check
-        $check = $this->db->prepare("SELECT id, volume FROM interactions WHERE source_id = :s AND target_id = :t AND channel = :c");
-        $check->execute(['s' => $sourceId, 't' => $targetId, 'c' => $channel]);
-        $existing = $check->fetch(\PDO::FETCH_ASSOC);
-
-        if ($existing) {
-            $update = $this->db->prepare("UPDATE interactions SET volume = volume + 1 WHERE id = :id");
-            $update->execute(['id' => $existing['id']]);
-        } else {
-            $insert = $this->db->prepare("INSERT INTO interactions (source_id, target_id, channel, volume) VALUES (:s, :t, :c, 1)");
-            $insert->execute(['s' => $sourceId, 't' => $targetId, 'c' => $channel]);
-        }
+        ");
+        $stmt->execute(['source' => $sourceId, 'target' => $targetId, 'channel' => $channel, 'date' => $date]);
     }
 
     private function calculateEscalationImpact($msg): bool

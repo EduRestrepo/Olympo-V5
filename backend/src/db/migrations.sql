@@ -27,7 +27,9 @@ CREATE TABLE interactions (
     target_id INT NOT NULL REFERENCES actors(id),
     channel VARCHAR(20) NOT NULL, -- 'Email', 'Chat', 'Calls', 'Meetings'
     volume INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    interaction_date DATE DEFAULT CURRENT_DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT interactions_unique_daily UNIQUE (source_id, target_id, channel, interaction_date)
 );
 
 -- Channel Totals (Global aggregation for speed, or can be view)
