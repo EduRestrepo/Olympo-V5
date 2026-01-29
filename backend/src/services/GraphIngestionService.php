@@ -326,9 +326,9 @@ class GraphIngestionService
                         'call_type' => $type,
                         'duration_seconds' => $duration,
                         'participant_count' => $participantCount,
-                        'is_organizer' => $isOrg ? 'true' : 'false',
-                        'used_video' => $hasVideo ? 'true' : 'false',
-                        'used_screenshare' => $hasScreenShare ? 'true' : 'false',
+                        'is_organizer' => $isOrg,
+                        'used_video' => $hasVideo,
+                        'used_screenshare' => $hasScreenShare,
                         'call_timestamp' => $timestamp
                     ]);
                     $count++;
@@ -355,8 +355,23 @@ class GraphIngestionService
 
     private function saveTeamsCallRecord(array $data): void 
     {
-        $stmt = $this->db->prepare("INSERT INTO teams_call_records (user_id, call_type, duration_seconds, participant_count, is_organizer, used_video, used_screenshare, call_timestamp) VALUES (:user_id, :call_type, :duration_seconds, :participant_count, :is_organizer, :used_video, :used_screenshare, :call_timestamp)");
-        $stmt->execute($data);
+        $stmt = $this->db->prepare("
+            INSERT INTO teams_call_records 
+            (user_id, call_type, duration_seconds, participant_count, is_organizer, used_video, used_screenshare, call_timestamp) 
+            VALUES 
+            (:user_id, :call_type, :duration_seconds, :participant_count, :is_organizer, :used_video, :used_screenshare, :call_timestamp)
+        ");
+        
+        $stmt->bindValue(':user_id', $data['user_id'], \PDO::PARAM_INT);
+        $stmt->bindValue(':call_type', $data['call_type'], \PDO::PARAM_STR);
+        $stmt->bindValue(':duration_seconds', $data['duration_seconds'], \PDO::PARAM_INT);
+        $stmt->bindValue(':participant_count', $data['participant_count'], \PDO::PARAM_INT);
+        $stmt->bindValue(':is_organizer', $data['is_organizer'], \PDO::PARAM_BOOL);
+        $stmt->bindValue(':used_video', $data['used_video'], \PDO::PARAM_BOOL);
+        $stmt->bindValue(':used_screenshare', $data['used_screenshare'], \PDO::PARAM_BOOL);
+        $stmt->bindValue(':call_timestamp', $data['call_timestamp'], \PDO::PARAM_STR);
+        
+        $stmt->execute();
     }
 
     private function getMailMetadata(string $userId, string $userEmail, int $dbUserId): void
