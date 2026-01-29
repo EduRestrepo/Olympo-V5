@@ -29,16 +29,23 @@ class MetricService
         $stmt = $this->db->query("SELECT SUM(volume) FROM interactions WHERE channel = 'Email'");
         $emailCount = (int)$stmt->fetchColumn();
 
-        // Teams Count
-        $stmt = $this->db->query("SELECT COUNT(*) FROM teams_call_records");
-        $teamsCount = (int)$stmt->fetchColumn();
+        // Teams Count - Segregated by call type
+        // 1-a-1 Calls (peerToPeer)
+        $stmt = $this->db->query("SELECT COUNT(*) FROM teams_call_records WHERE call_type = 'peerToPeer'");
+        $teamsPeerToPeerCount = (int)$stmt->fetchColumn();
+        
+        // Group Calls/Meetings (groupCall)
+        $stmt = $this->db->query("SELECT COUNT(*) FROM teams_call_records WHERE call_type = 'groupCall'");
+        $teamsGroupCallCount = (int)$stmt->fetchColumn();
 
-        error_log("[MetricService] Totals: Email=$emailCount, Teams=$teamsCount");
+        error_log("[MetricService] Totals: Email=$emailCount, Teams 1-a-1=$teamsPeerToPeerCount, Teams Meetings=$teamsGroupCallCount");
 
         // Upsert Email
         $this->upsertChannel('Email', $emailCount);
-        // Upsert Teams
-        $this->upsertChannel('Teams', $teamsCount);
+        // Upsert Teams: Llamadas 1-a-1
+        $this->upsertChannel('Teams: Llamadas 1-a-1', $teamsPeerToPeerCount);
+        // Upsert Teams: Reuniones
+        $this->upsertChannel('Teams: Reuniones', $teamsGroupCallCount);
     }
 
     private function upsertChannel(string $channel, int $count): void

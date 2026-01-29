@@ -183,7 +183,9 @@ Ranking de usuarios más influyentes con **scoring unificado** (Email + Teams).
 
 ### Otros Endpoints
 - `GET /api/balance-power` : Distribución de poder organizacional (por badge/rol).
-- `GET /api/channel-totals` : Volumen de uso por canal de comunicación.
+- `GET /api/channel-totals` : Volumen de uso por canal de comunicación. **Nota**: Los datos de Teams se segregan en dos categorías:
+  - **Teams: Llamadas 1-a-1**: Llamadas directas entre dos personas (`peerToPeer`)
+  - **Teams: Reuniones**: Llamadas grupales y reuniones (`groupCall`)
 - `GET /api/network-pulse` : **Pulso de Red**. Mide la "salud vital" de la comunicación. Evalúa la densidad de conexiones, la agilidad de respuesta y la estabilidad de los flujos de información en tiempo real. Un pulso alto indica una organización altamente conectada y dinámica.
 - `GET /api/tone-index` : **Índice de Tono Organizacional**. Representa el "clima" o "vibración" de las interacciones. Se calcula a partir de patrones de metadatos como la urgencia, la consistencia en las respuestas y los horarios de interacción, permitiendo inferir niveles de compromiso o presión sin leer el contenido.
 - `GET /api/influence-graph`
