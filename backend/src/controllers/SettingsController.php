@@ -152,6 +152,11 @@ class SettingsController
             // resetData(true) wipes and then seeds
             // Use this for "Simulate" (Clean slate demo)
             $this->repository->resetData(true);
+
+            // Important: Recalculate metrics so dashboard is populated immediately
+            $metricService = new \Olympus\Services\MetricService();
+            $metricService->calculateAggregates();
+
             return new JsonResponse(['status' => 'success', 'message' => 'Carga de datos de simulación (120 usuarios) completada.']);
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 'error', 'message' => 'Error al simular datos: ' . $e->getMessage()], 500);
