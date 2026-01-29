@@ -20,7 +20,7 @@ export default function ChannelTotals() {
                     Totales por Canal
                 </div>
             </div>
-            <div style={{ height: 300 }}>
+            <div style={{ height: 300, minWidth: 0, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#30363d" horizontal={false} />

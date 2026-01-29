@@ -22,6 +22,7 @@ function App() {
         api.getAbout().then(setAbout);
     }, []);
 
+
     return (
         <div className="container">
             <header style={{

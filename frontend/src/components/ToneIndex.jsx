@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { api } from '../services/api';
-import { HeartPulse } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 export default function ToneIndex() {
     const [data, setData] = useState([]);
@@ -17,13 +17,13 @@ export default function ToneIndex() {
             <div className="card-header">
                 <div className="card-title">
                     <div className="animate-pulse-heart">
-                        <HeartPulse size={20} className="text-red-500" />
+                        <Activity size={20} className="text-red-500" />
                     </div>
                     Índice de Tono Organizacional
                 </div>
             </div>
             <div className="split-cols">
-                <div style={{ height: 250 }}>
+                <div style={{ height: 250, minWidth: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data}>
                             <defs>

@@ -61,18 +61,21 @@ INSERT INTO channel_totals (channel, total_count) VALUES
 
 -- 3. Seed Interactions (Historical Trends & Large Volume)
 INSERT INTO interactions (source_id, target_id, channel, interaction_date, volume)
-SELECT 
-  (random() * 119 + 1)::int, 
-  (random() * 119 + 1)::int, 
-  CASE (floor(random() * 4)) 
-    WHEN 0 THEN 'Email' 
-    WHEN 1 THEN 'Chat' 
-    WHEN 2 THEN 'Calls' 
-    ELSE 'Meetings' 
-  END,
-  (CURRENT_DATE - (random() * INTERVAL '14 days'))::DATE as interaction_date,
-  (random() * 50 + 1)::int
-FROM generate_series(1, 1500)
+SELECT s, t, c, d, SUM(v) FROM (
+    SELECT 
+      (random() * 119 + 1)::int as s, 
+      (random() * 119 + 1)::int as t, 
+      CASE (floor(random() * 4)) 
+        WHEN 0 THEN 'Email' 
+        WHEN 1 THEN 'Chat' 
+        WHEN 2 THEN 'Calls' 
+        ELSE 'Meetings' 
+      END as c,
+      (CURRENT_DATE - (random() * INTERVAL '14 days'))::DATE as d,
+      (random() * 50 + 1)::int as v
+    FROM generate_series(1, 1500)
+) as sub
+GROUP BY s, t, c, d
 ON CONFLICT (source_id, target_id, channel, interaction_date) DO UPDATE SET volume = interactions.volume + EXCLUDED.volume;
 
 -- 4. Seed Influence Links (High Value Graph)

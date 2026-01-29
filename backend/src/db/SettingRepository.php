@@ -95,7 +95,15 @@ class SettingRepository
                 $seedFile = __DIR__ . '/seed.sql';
                 if (file_exists($seedFile)) {
                     $sql = file_get_contents($seedFile);
-                    $this->db->exec($sql);
+                    // Simple split by semicolon to handle multi-statement files
+                    // Note: This is a simple heuristic and might fail with semicolons in strings, 
+                    // but for seed.sql it should be fine.
+                    $statements = array_filter(array_map('trim', explode(';', $sql)));
+                    foreach ($statements as $stmt) {
+                        if (!empty($stmt)) {
+                            $this->db->exec($stmt);
+                        }
+                    }
                 } else {
                     throw new \Exception("Seed file not found at $seedFile");
                 }

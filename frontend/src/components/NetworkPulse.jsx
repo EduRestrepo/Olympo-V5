@@ -23,7 +23,7 @@ export default function NetworkPulse() {
                 </div>
             </div>
             <div className="split-cols">
-                <div style={{ height: 250 }}>
+                <div style={{ height: 250, minWidth: 0, width: '100%' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data}>
                             <defs>
