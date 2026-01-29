@@ -55,17 +55,13 @@ class MetricService
 
     private function calculateNetworkPulse(): void
     {
-        // Aggregate Interactions by Day (Last 30 days)
-        // Combine Email (interactions.created_at) and Teams (teams_call_records.call_timestamp)
-        
-        // Clear old pulse data? Or just upsert. Let's truncate and rebuild for simplicity/speed in this context
-        // as we are aggregating history.
+        // Clear old pulse data
         $this->db->query("TRUNCATE TABLE network_pulse_daily");
 
         $sql = "
             INSERT INTO network_pulse_daily (date, activity_level)
             SELECT date, SUM(cnt) as activity_level FROM (
-                SELECT DATE(created_at) as date, SUM(volume) as cnt FROM interactions GROUP BY DATE(created_at)
+                SELECT interaction_date as date, SUM(volume) as cnt FROM interactions GROUP BY interaction_date
                 UNION ALL
                 SELECT DATE(call_timestamp) as date, COUNT(*) as cnt FROM teams_call_records GROUP BY DATE(call_timestamp)
             ) as combined

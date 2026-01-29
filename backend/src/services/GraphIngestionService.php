@@ -372,7 +372,8 @@ class GraphIngestionService
                 }
                 
                 // NEW: Process Interaction (Influence Graph)
-                $this->processEmailInteractions($msg, $dbUserId);
+                $msgDate = isset($msg['receivedDateTime']) ? (new \DateTime($msg['receivedDateTime']))->format('Y-m-d') : date('Y-m-d');
+                $this->processEmailInteractions($msg, $dbUserId, $msgDate);
             }
 
             if ($totalEscalations > 0) {
@@ -384,7 +385,7 @@ class GraphIngestionService
         }
     }
 
-    private function processEmailInteractions(array $msg, int $targetActorId): void
+    private function processEmailInteractions(array $msg, int $targetActorId, string $date): void
     {
         // 1. Resolve Sender
         $senderData = $msg['from']['emailAddress'] ?? null;
@@ -419,7 +420,7 @@ class GraphIngestionService
             if ($ccEmail) {
                 $ccActorId = $this->upsertActiveActor($ccName, $ccEmail);
                 if ($ccActorId !== $senderActorId) {
-                    $this->recordInteraction($senderActorId, $ccActorId, 'Email');
+                    $this->recordInteraction($senderActorId, $ccActorId, 'Email', $date);
                 }
             }
         }
