@@ -274,34 +274,71 @@ class GraphIngestionService
             
             $this->log("User map built with " . count($userMap) . " valid mappings.");
 
+
             $count = 0;
             $unmappedIds = [];
+            $newActorsCreated = 0;
+            
             foreach ($callRecords as $record) {
                 if (!is_array($record)) continue;
                 
                 $organizer = $record['organizer'] ?? null;
                 $participants = $record['participants'] ?? [];
                 
-                $involvedUsers = []; // Graphite User ID -> isOrganizer
+                $involvedUsers = []; // Graph User ID => [isOrganizer, displayName, email]
                 
+                // Process organizer
                 if ($organizer && isset($organizer['user']['id'])) {
                     $gId = $organizer['user']['id'];
+                    $displayName = $organizer['user']['displayName'] ?? 'Unknown';
+                    $email = $organizer['user']['userPrincipalName'] ?? null;
+                    
                     if (isset($userMap[$gId])) {
-                        $involvedUsers[$gId] = true;
+                        $involvedUsers[$gId] = ['isOrganizer' => true, 'dbId' => $userMap[$gId]];
                     } else {
-                        $unmappedIds[$gId] = $organizer['user']['displayName'] ?? 'Unknown';
+                        // If email not available, try to fetch it from Graph API
+                        if (!$email) {
+                            $email = $this->getUserEmailById($gId);
+                        }
+                        
+                        if ($email) {
+                            $dbId = $this->upsertActiveActor($displayName, $email);
+                            $userMap[$gId] = $dbId; // Add to map for future calls
+                            $involvedUsers[$gId] = ['isOrganizer' => true, 'dbId' => $dbId];
+                            $newActorsCreated++;
+                        } else {
+                            $unmappedIds[$gId] = $displayName;
+                        }
                     }
                 }
 
+                // Process participants
                 foreach ($participants as $p) {
                     if (isset($p['user']['id'])) {
                         $gId = $p['user']['id'];
+                        $displayName = $p['user']['displayName'] ?? 'Unknown';
+                        $email = $p['user']['userPrincipalName'] ?? null;
+                        
                         if (isset($userMap[$gId])) {
                             if (!isset($involvedUsers[$gId])) {
-                                $involvedUsers[$gId] = false;
+                                $involvedUsers[$gId] = ['isOrganizer' => false, 'dbId' => $userMap[$gId]];
                             }
                         } else {
-                            $unmappedIds[$gId] = $p['user']['displayName'] ?? 'Unknown';
+                            // If email not available, try to fetch it from Graph API
+                            if (!$email) {
+                                $email = $this->getUserEmailById($gId);
+                            }
+                            
+                            if ($email) {
+                                $dbId = $this->upsertActiveActor($displayName, $email);
+                                $userMap[$gId] = $dbId; // Add to map for future calls
+                                if (!isset($involvedUsers[$gId])) {
+                                    $involvedUsers[$gId] = ['isOrganizer' => false, 'dbId' => $dbId];
+                                }
+                                $newActorsCreated++;
+                            } else {
+                                $unmappedIds[$gId] = $displayName;
+                            }
                         }
                     }
                 }
@@ -319,14 +356,13 @@ class GraphIngestionService
                 $hasScreenShare = in_array('screenShare', $modalities);
                 $timestamp = $start->format('Y-m-d H:i:s');
 
-                foreach ($involvedUsers as $graphId => $isOrg) {
-                    $dbId = $userMap[$graphId];
+                foreach ($involvedUsers as $graphId => $userData) {
                     $this->saveTeamsCallRecord([
-                        'user_id' => $dbId,
+                        'user_id' => $userData['dbId'],
                         'call_type' => $type,
                         'duration_seconds' => $duration,
                         'participant_count' => $participantCount,
-                        'is_organizer' => $isOrg,
+                        'is_organizer' => $userData['isOrganizer'],
                         'used_video' => $hasVideo,
                         'used_screenshare' => $hasScreenShare,
                         'call_timestamp' => $timestamp
@@ -336,10 +372,14 @@ class GraphIngestionService
             }
 
             $this->log("Teams sync: Processed $count record-user involvements.");
+            if ($newActorsCreated > 0) {
+                $this->log("Created $newActorsCreated new actors from Teams call participants.");
+            }
             if (!empty($unmappedIds)) {
                 $names = array_unique(array_values($unmappedIds));
-                $this->log("Found " . count($unmappedIds) . " users in calls not in our target list (Top 10: " . implode(', ', array_slice($names, 0, 10)) . ")");
+                $this->log("Found " . count($unmappedIds) . " users in calls without email (Top 10: " . implode(', ', array_slice($names, 0, 10)) . ")");
             }
+
 
         } catch (\Exception $e) {
             $this->log("Error during global Teams ingestion: " . $e->getMessage());
@@ -351,6 +391,21 @@ class GraphIngestionService
         $stmt->execute(['email' => $email]);
         $res = $stmt->fetchColumn();
         return $res ? (int)$res : null;
+    }
+
+    private function getUserEmailById(string $userId): ?string {
+        try {
+            $request = $this->graph->createRequest('GET', "/users/$userId?\$select=userPrincipalName,mail");
+            $response = $request->execute();
+            
+            $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
+            
+            // Try userPrincipalName first, then mail
+            return $body['userPrincipalName'] ?? ($body['mail'] ?? null);
+        } catch (\Exception $e) {
+            // User might not have a mailbox or might be external
+            return null;
+        }
     }
 
     private function saveTeamsCallRecord(array $data): void 
