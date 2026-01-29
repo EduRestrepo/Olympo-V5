@@ -19,6 +19,53 @@ class InfluencerController
 
     public function getTopInfluencers(): JsonResponse
     {
+        $repo = new \Olympus\Db\SettingRepository();
+
+        // 1. Allowed Domains Filter
+        $allowedDomainsStr = $repo->getByKey('allowed_domains', '');
+        $allowedDomains = [];
+        if (!empty($allowedDomainsStr)) {
+            $allowedDomains = array_map('trim', explode(',', strtolower($allowedDomainsStr)));
+        }
+
+        // 2. Excluded Users Filter
+        $excludedUsersStr = $repo->getByKey('excluded_users', '');
+        $excludedUsers = [];
+        if (!empty($excludedUsersStr)) {
+            $excludedUsers = array_map('trim', explode(',', strtolower($excludedUsersStr)));
+        }
+
+        $filters = [];
+
+        // Apply Domain Filter
+        if (!empty($allowedDomains)) {
+            $clauses = [];
+            foreach ($allowedDomains as $domain) {
+                $d = ltrim($domain, '@');
+                $clauses[] = "LOWER(a.email) LIKE '%@$d'";
+            }
+            if (!empty($clauses)) {
+                $filters[] = "(" . implode(' OR ', $clauses) . ")";
+            }
+        }
+
+        // Apply Excluded Users Filter
+        if (!empty($excludedUsers)) {
+             $excludes = [];
+             foreach ($excludedUsers as $email) {
+                 // Sanitize simple email check
+                 $excludes[] = "LOWER(a.email) != '" . str_replace("'", "''", $email) . "'";
+             }
+             if (!empty($excludes)) {
+                 $filters[] = "(" . implode(' AND ', $excludes) . ")";
+             }
+        }
+
+        $whereClause = "";
+        if (!empty($filters)) {
+            $whereClause = "WHERE " . implode(' AND ', $filters);
+        }
+
         // Fetch Actors + Email Metrics + Teams Metrics
         $sql = "
             SELECT 
@@ -45,6 +92,7 @@ class InfluencerController
             LEFT JOIN interactions i ON a.id = i.source_id
             LEFT JOIN response_times rt ON a.id = rt.actor_id
             LEFT JOIN teams_influence_metrics tm ON a.id = tm.id
+            $whereClause
             GROUP BY a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score, a.email, rt.avg_response_seconds, 
                      tm.total_meetings, tm.avg_participants, tm.total_duration_hours,
                      tm.meetings_organized, tm.video_calls, tm.screenshare_sessions
@@ -161,6 +209,52 @@ class InfluencerController
             $limit = $request->query->get('limit', 50); // Default 50 nodes
             $minWeight = $request->query->get('min_weight', 1); // Default weight 1
 
+             $repo = new \Olympus\Db\SettingRepository();
+
+            // 1. Allowed Domains Filter
+            $allowedDomainsStr = $repo->getByKey('allowed_domains', '');
+            $allowedDomains = [];
+            if (!empty($allowedDomainsStr)) {
+                $allowedDomains = array_map('trim', explode(',', strtolower($allowedDomainsStr)));
+            }
+
+            // 2. Excluded Users Filter
+            $excludedUsersStr = $repo->getByKey('excluded_users', '');
+            $excludedUsers = [];
+            if (!empty($excludedUsersStr)) {
+                $excludedUsers = array_map('trim', explode(',', strtolower($excludedUsersStr)));
+            }
+
+            $filters = [];
+
+            // Apply Domain Filter
+            if (!empty($allowedDomains)) {
+                $clauses = [];
+                foreach ($allowedDomains as $domain) {
+                    $d = ltrim($domain, '@');
+                    $clauses[] = "LOWER(a.email) LIKE '%@$d'";
+                }
+                if (!empty($clauses)) {
+                    $filters[] = "(" . implode(' OR ', $clauses) . ")";
+                }
+            }
+
+            // Apply Excluded Users Filter
+            if (!empty($excludedUsers)) {
+                 $excludes = [];
+                 foreach ($excludedUsers as $email) {
+                     $excludes[] = "LOWER(a.email) != '" . str_replace("'", "''", $email) . "'";
+                 }
+                 if (!empty($excludes)) {
+                     $filters[] = "(" . implode(' AND ', $excludes) . ")";
+                 }
+            }
+
+            $whereClause = "";
+            if (!empty($filters)) {
+                $whereClause = "WHERE " . implode(' AND ', $filters);
+            }
+
             // 1. Fetch Top N Actors first
             $sqlActors = "
                 SELECT 
@@ -178,6 +272,7 @@ class InfluencerController
                 LEFT JOIN interactions i ON a.id = i.source_id
                 LEFT JOIN response_times rt ON a.id = rt.actor_id
                 LEFT JOIN teams_influence_metrics tm ON a.id = tm.id
+                $whereClause
                 GROUP BY a.id, a.name, a.role, a.badge, a.department, a.country, a.escalation_score, a.email, rt.avg_response_seconds, 
                          tm.total_meetings, tm.avg_participants, tm.total_duration_hours,
                          tm.meetings_organized, tm.video_calls

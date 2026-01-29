@@ -376,6 +376,20 @@ const Settings = () => {
                         <label className="stat-label">Max Usuarios</label>
                         <input type="number" className="graph-search-input" name="extraction_max_users" value={settings.extraction_max_users} onChange={handleChange} style={{ width: '100%', marginTop: '0.5rem' }} />
                     </div>
+                    <div className="stat-item" style={{ gridColumn: 'span 2' }}>
+                         <label className="stat-label" style={{ color: 'var(--accent-primary)' }}>Dominios Permitidos (Filtro Visual)</label>
+                         <p style={{ fontSize: '0.75rem', color: '#8b949e', marginBottom: '0.5rem' }}>
+                             Si se especifica, solo se mostrarán usuarios con emails de estos dominios (e.g. "miempresa.com, partner.com"). Dejar vacío para ver todos.
+                         </p>
+                         <input 
+                            className="graph-search-input" 
+                            name="allowed_domains" 
+                            value={settings.allowed_domains || ''} 
+                            onChange={handleChange} 
+                            placeholder="ej. empresa.com, filial.com" 
+                            style={{ width: '100%' }} 
+                        />
+                    </div>
                     <div className="stat-item">
                         <label className="stat-label">Exclusiones (Emails)</label>
                         <textarea className="graph-search-input" name="excluded_users" value={settings.excluded_users} onChange={handleChange} placeholder="user1@example.com, user2@example.com" style={{ width: '100%', marginTop: '0.5rem', minHeight: '80px', fontFamily: 'monospace' }} />
