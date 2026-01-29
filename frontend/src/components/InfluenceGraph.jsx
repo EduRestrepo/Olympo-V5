@@ -246,7 +246,62 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                 return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
             }
 
-            return () => simulation.stop();
+            // Particles Layer (Energy Balls)
+            const particlesLayer = container.append("g").attr("class", "particles");
+
+            // Particle System
+            const particles = [];
+            filteredLinks.forEach(l => {
+                // Add 1-2 particles per link depending on weight interaction
+                const count = Math.ceil((l.weight || 1) / 500) || 1;
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        link: l,
+                        t: Math.random(), // random start pos
+                        speed: 0.005 + (Math.random() * 0.005) // random speed
+                    });
+                }
+            });
+
+            // Animation Loop for Particles
+            const particleTimer = d3.timer(() => {
+                const particleSelection = particlesLayer.selectAll("circle.particle")
+                    .data(particles);
+
+                particleSelection.enter()
+                    .append("circle")
+                    .attr("class", "particle")
+                    .attr("r", 3)
+                    .attr("fill", "var(--accent-tertiary)")
+                    .attr("filter", "url(#glow)") // reused glow filter
+                    .merge(particleSelection)
+                    .each(function (d) {
+                        d.t += d.speed;
+                        if (d.t > 1) d.t = 0;
+
+                        const source = d.link.source;
+                        const target = d.link.target;
+                        // Interpolate position
+                        // Note: source/target in d3 link become objects after simulation starts
+                        const sx = source.x;
+                        const sy = source.y;
+                        const tx = target.x;
+                        const ty = target.y;
+
+                        if (sx !== undefined && tx !== undefined) {
+                            const x = sx + (tx - sx) * d.t;
+                            const y = sy + (ty - sy) * d.t;
+                            d3.select(this).attr("cx", x).attr("cy", y);
+                        }
+                    });
+
+                particleSelection.exit().remove();
+            });
+
+            return () => {
+                simulation.stop();
+                particleTimer.stop();
+            };
 
         } catch (err) {
             console.error("Critical D3 Error:", err);

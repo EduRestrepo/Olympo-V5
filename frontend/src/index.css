@@ -368,3 +368,4 @@ tr:last-child td {
 .btn-toggle:hover {
     border-color: var(--accent-primary);
 }
+@keyframes badge-pulse { 0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); } 50% { transform: scale(1.2); filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)); } 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); } } .badge-animated { display: inline-block; animation: badge-pulse 2s infinite ease-in-out; } .badge-fast { animation-duration: 1.5s; } .badge-slow { animation-duration: 3s; }

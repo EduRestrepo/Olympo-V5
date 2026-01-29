@@ -214,18 +214,20 @@ class InfluencerController
              $repo = new \Olympus\Db\SettingRepository();
 
             // 1. Allowed Domains Filter
-            $allowedDomainsStr = $repo->getByKey('allowed_domains', '');
-            $allowedDomains = [];
-            if (!empty($allowedDomainsStr)) {
-                $allowedDomains = array_map('trim', explode(',', strtolower($allowedDomainsStr)));
-            }
+        $allowedDomainsStr = $repo->getByKey('allowed_domains', '');
+        $allowedDomains = [];
+        if (!empty($allowedDomainsStr)) {
+             // Split by comma, newline, or space
+            $allowedDomains = preg_split('/[\s,]+/', strtolower($allowedDomainsStr), -1, PREG_SPLIT_NO_EMPTY);
+        }
 
-            // 2. Excluded Users Filter
-            $excludedUsersStr = $repo->getByKey('excluded_users', '');
-            $excludedUsers = [];
-            if (!empty($excludedUsersStr)) {
-                $excludedUsers = array_map('trim', explode(',', strtolower($excludedUsersStr)));
-            }
+        // 2. Excluded Users Filter
+        $excludedUsersStr = $repo->getByKey('excluded_users', '');
+        $excludedUsers = [];
+        if (!empty($excludedUsersStr)) {
+             // Split by comma, newline, or space
+            $excludedUsers = preg_split('/[\s,]+/', strtolower($excludedUsersStr), -1, PREG_SPLIT_NO_EMPTY);
+        }
 
             $filters = [];
 

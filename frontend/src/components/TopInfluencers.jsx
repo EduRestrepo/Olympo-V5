@@ -138,7 +138,11 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                                             {actor.unified_score || 0}
                                         </span>
                                     </td>
-                                    <td style={{ fontSize: '1.2em' }}>{actor.badge}</td>
+                                    <td style={{ fontSize: '1.2em' }}>
+                                        <span className={`badge-animated ${actor.rank <= 3 ? 'badge-fast' : 'badge-slow'}`} style={{ display: 'inline-block' }}>
+                                            {actor.badge}
+                                        </span>
+                                    </td>
                                     <td>{Math.round(actor.total_volume)}</td>
                                     <td>{actor.teams_metrics ? actor.teams_metrics.total_meetings : 0}</td>
                                     <td>{actor.avg_response_formatted}</td>
