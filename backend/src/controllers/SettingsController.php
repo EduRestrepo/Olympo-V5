@@ -118,7 +118,7 @@ class SettingsController
                 'message' => 'Extracción completada',
                 'logs' => file_get_contents($logFile)
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return new JsonResponse([
                 'status' => 'error', 
                 'message' => 'Error durante la extracción: ' . $e->getMessage()

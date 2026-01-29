@@ -1,4 +1,4 @@
-# Olympus Platform de Analítica Organizacional basada en Metadatos de Microsoft 365 y Teams**
+# Olympus Platform v5.0 Stable (Analítica Organizacional basada en Metadatos)
 
 Creado por Eduardo Restrepo (GreenX)
 
@@ -131,6 +131,26 @@ TEAMS_LOOKBACK_DAYS=30  # Analizar últimos 30 días de llamadas/reuniones
    - **Frontend:** http://localhost:5173
    - **Backend API:** http://localhost:8000 (o el puerto asignado)
 
+### 2.5 Lógica de Cálculo de Scoring
+
+La puntuación de influencia (0-100) **NO se basa en percentiles** (comparación con otros), sino en el cumplimiento de **Umbrales de Referencia (Benchmarks)** predefinidos. Esto garantiza que el score sea objetivo y no dependa del desempeño de los demás.
+
+**Fórmula General:**
+`Score Unificado = (Score Email × 0.6) + (Score Teams × 0.4)`
+
+**Umbrales de Referencia (Benchmark = 100 puntos):**
+
+1.  **Email (Peso 60%)**
+    *   **Volumen:** Se requieren **500 emails/mes** para obtener el puntaje máximo en volumen.
+    *   **Respuesta:** Se penaliza el tiempo de respuesta (Ideal: < 1 hora).
+
+2.  **Teams (Peso 40%)**
+    *   **Frecuencia:** Se requieren **50 reuniones/mes** para el puntaje máximo de frecuencia.
+    *   **Liderazgo:** Se otorgan puntos extra por ser organizador.
+    *   **Audiencia:** Se valora el número de participantes promedio.
+
+> **Ejemplo:** Si un usuario envía **425 emails**, su score de volumen será `(425 / 500) * 100 = 85 pts`.
+
 ## 3. Stack Tecnológico
 
 ### Backend
@@ -166,11 +186,22 @@ Ranking de usuarios más influyentes con **scoring unificado** (Email + Teams).
 - `GET /api/channel-totals` : Volumen de uso por canal de comunicación.
 - `GET /api/network-pulse` : **Pulso de Red**. Mide la "salud vital" de la comunicación. Evalúa la densidad de conexiones, la agilidad de respuesta y la estabilidad de los flujos de información en tiempo real. Un pulso alto indica una organización altamente conectada y dinámica.
 - `GET /api/tone-index` : **Índice de Tono Organizacional**. Representa el "clima" o "vibración" de las interacciones. Se calcula a partir de patrones de metadatos como la urgencia, la consistencia en las respuestas y los horarios de interacción, permitiendo inferir niveles de compromiso o presión sin leer el contenido.
+- `GET /api/influence-graph`
+
+### Sistema de Badges (Gamificación)
+La plataforma asigna badges automáticos basados en el ranking de influencia unificado:
+- ♚ **King / Reina**: Top #1 (El más influyente).
+- ♛ **Queen / Alfil**: Top #2 - #3.
+- ♜ **Rook (Torre)**: Top #4 - #10 (Hubs de comunicación).
+- ♗ **Bishop (Alfil)**: Top 15% (Influencia técnica/especializada).
+- ♞ **Knight (Caballo)**: Top 30% (Agilidad).
+- ♙ **Pawn (Peón)**: Resto de la organización (Operativo).
+
 ### `GET /api/influence-graph`
 Estructura de red (nodos y aristas) para visualización D3.js. Soporta filtrado por pesos y búsqueda interactiva.
 
 ### `GET /api/about`
-Metadatos del sistema y versión.
+Metadatos del sistema y versión (v5.0 Stable).
 
 ## 5. Características Avanzadas (Nuevas)
 

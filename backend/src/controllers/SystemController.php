@@ -9,10 +9,10 @@ class SystemController
     public function getAbout(): JsonResponse
     {
         return new JsonResponse([
-            'project' => 'Olympus Organizational Analytics',
-            'version' => 'v4.0.0',
+            'project' => 'Olympus Analytics',
+            'version' => 'v5.0 Stable (Milestone)',
             'developer' => 'Eduardo Restrepo',
-            'description' => 'A robust, enterprise-grade organizational intelligence platform based on Office365 metadata.'
+            'description' => 'Organizational Network Analysis based on Microsoft 365 Metadata.'
         ]);
     }
 }

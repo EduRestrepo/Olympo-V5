@@ -1,0 +1,23 @@
+[2026-01-29 11:17:26] Authenticating with Azure AD...
+[2026-01-29 11:17:26] Authentication successful.
+[2026-01-29 11:17:26] Starting ingestion in mode: PROD
+[2026-01-29 11:17:26] Fetching 3 mandatory users...
+[2026-01-29 11:17:27] Ingestion ready. Total unique users to process: 5
+[2026-01-29 11:17:27] Found 5 users to process.
+[2026-01-29 11:17:27] Processing User: eduardo.restrepo@perezllorca.com
+[2026-01-29 11:17:29]   - Imported 100 message headers (last 15 days).
+[2026-01-29 11:17:30]   - Detected 4 escalation events.
+[2026-01-29 11:17:30] Processing User: ricardo.amo@perezllorca.com
+[2026-01-29 11:17:31]   - Imported 100 message headers (last 15 days).
+[2026-01-29 11:17:32]   - Detected 1 escalation events.
+[2026-01-29 11:17:33] Processing User: dpardo@perezllorca.com
+[2026-01-29 11:17:34]   - Imported 100 message headers (last 15 days).
+[2026-01-29 11:17:35]   - Detected 1 escalation events.
+[2026-01-29 11:17:35] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
+[2026-01-29 11:17:35]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-14T11:17:35Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-01-29 11:17:36] Processing User: _oposicionesCOL@perezllorca.com
+[2026-01-29 11:17:38]   - Imported 31 message headers (last 15 days).
+[2026-01-29 11:17:38] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
+[2026-01-29 11:17:38] Ingestion completed successfully.

@@ -128,4 +128,6 @@ INSERT INTO settings (key, value, description) VALUES
 ('w_teams_audience', '0.25', 'Weight of Teams Audience'),
 ('w_teams_duration', '0.20', 'Weight of Teams Duration'),
 ('w_teams_organizer', '0.15', 'Weight of Teams Organizer'),
-('w_teams_video', '0.10', 'Weight of Teams Video');
+('w_teams_video', '0.10', 'Weight of Teams Video'),
+('threshold_email_vol', '500', 'Target monthly emails for 100% score'),
+('threshold_teams_freq', '50', 'Target monthly meetings for 100% score');

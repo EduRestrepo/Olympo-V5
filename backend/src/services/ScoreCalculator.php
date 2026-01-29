@@ -19,6 +19,11 @@ class ScoreCalculator
     private float $emailWeight;
     private float $teamsWeight;
 
+    // Thresholds
+    private int $thresholdEmailVol;
+    private int $thresholdTeamsFreq;
+
+
     public function __construct()
     {
         $repo = new \Olympus\Db\SettingRepository();
@@ -26,6 +31,10 @@ class ScoreCalculator
         // Unified Weights
         $this->emailWeight = (float) $repo->getByKey('influence_weight_email', 0.6);
         $this->teamsWeight = (float) $repo->getByKey('influence_weight_teams', 0.4);
+
+        // Thresholds
+        $this->thresholdEmailVol = (int) $repo->getByKey('threshold_email_vol', 500);
+        $this->thresholdTeamsFreq = (int) $repo->getByKey('threshold_teams_freq', 50);
 
         // Email Sub-weights
         $this->wEmailVol = (float) $repo->getByKey('w_email_vol', 0.6);
@@ -76,8 +85,8 @@ class ScoreCalculator
             return 0;
         }
 
-        // Normalize volume (cap at 500 messages)
-        $volNorm = min($volume / 500, 1);
+        // Normalize volume (cap at threshold)
+        $volNorm = min($volume / max($this->thresholdEmailVol, 1), 1);
 
         // Normalize response time (cap at 2 hours = 7200 seconds, inverted)
         $rtNorm = $responseTime > 0 ? (1 - min($responseTime / 7200, 1)) : 0;
@@ -112,7 +121,7 @@ class ScoreCalculator
         }
 
         // Normalize metrics
-        $freqNorm = min($totalMeetings / 50, 1); // Cap at 50 meetings/month
+        $freqNorm = min($totalMeetings / max($this->thresholdTeamsFreq, 1), 1); // Cap at threshold
         $audienceNorm = min($avgParticipants / 20, 1); // Cap at 20 avg participants
         $durationNorm = min($totalDurationHours / 40, 1); // Cap at 40 hours/month
         $organizerRatio = $meetingsOrganized / max($totalMeetings, 1);

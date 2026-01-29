@@ -39,7 +39,7 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
         doc.setFontSize(10);
         doc.text(`Generado: ${new Date().toLocaleDateString()}`, 14, 22);
 
-        const tableColumn = ["Rank", "Nombre", "Unified Score", "Badge", "Volumen", "Respuesta Avg", "Canal"];
+        const tableColumn = ["Rank", "Nombre", "Unified Score", "Badge", "Volumen (Email)", "Volumen (Teams)", "Respuesta Avg", "Canal"];
         const tableRows = [];
 
         filteredData.forEach(actor => {
@@ -50,6 +50,7 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                 actor.unified_score,
                 actor.badge,
                 Math.round(actor.total_volume),
+                actor.teams_metrics ? actor.teams_metrics.total_meetings : 0,
                 actor.avg_response_formatted,
                 actor.dominant_channel
             ];
@@ -104,7 +105,8 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                             <th>Nombre</th>
                             <th>Unified Score</th>
                             <th>Badge</th>
-                            <th>Volumen</th>
+                            <th>Volumen (Email)</th>
+                            <th>Volumen (Teams)</th>
                             <th>Respuesta Avg</th>
                             <th>Canal</th>
                         </tr>
@@ -138,6 +140,7 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                                     </td>
                                     <td style={{ fontSize: '1.2em' }}>{actor.badge}</td>
                                     <td>{Math.round(actor.total_volume)}</td>
+                                    <td>{actor.teams_metrics ? actor.teams_metrics.total_meetings : 0}</td>
                                     <td>{actor.avg_response_formatted}</td>
                                     <td>
                                         <span style={{

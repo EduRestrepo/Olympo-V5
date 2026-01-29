@@ -97,3 +97,25 @@ INSERT INTO network_pulse_daily (date, activity_level) VALUES
 (CURRENT_DATE - INTERVAL '5 days', 6000), (CURRENT_DATE - INTERVAL '4 days', 5500),
 (CURRENT_DATE - INTERVAL '3 days', 7000), (CURRENT_DATE - INTERVAL '2 days', 8000),
 (CURRENT_DATE - INTERVAL '1 days', 6500), (CURRENT_DATE, 7500);
+
+-- 7. Seed Teams Call Records (NEW)
+INSERT INTO teams_call_records (user_id, call_type, duration_seconds, participant_count, is_organizer, used_video, used_screenshare, call_timestamp)
+SELECT
+    (floor(random() * 119 + 1))::int,
+    'groupCall',
+    (floor(random() * 3000 + 300))::int,
+    (floor(random() * 10 + 2))::int,
+    (random() > 0.6),
+    (random() > 0.3),
+    (random() > 0.8),
+    NOW() - (random() * INTERVAL '14 days')
+FROM generate_series(1, 300);
+
+-- 8. Seed Default Settings
+INSERT INTO settings (key, value, description) VALUES
+('threshold_email_vol', '500', 'Goal for monthly email volume'),
+('threshold_teams_freq', '50', 'Goal for monthly teams meetings'),
+('influence_weight_email', '0.6', 'Weight of Email Activity in Unified Score'),
+('influence_weight_teams', '0.4', 'Weight of Teams Activity in Unified Score')
+ON CONFLICT (key) DO NOTHING;
+

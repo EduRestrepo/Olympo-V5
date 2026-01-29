@@ -6,7 +6,6 @@ import { Share2, Layers, ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-rea
 export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
     const svgRef = useRef(null);
     const zoomBehavior = useRef(null); // Ref to store D3 zoom behavior
-    const [data, setData] = useState({ nodes: [], links: [] });
     // ... (keep state)
     const [depth, setDepth] = useState(4);
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,24 +19,43 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
     const [pathLinks, setPathLinks] = useState(new Set());
     const [pathSelection, setPathSelection] = useState([]);
 
+    // Cache buster for API
+    const [cacheBuster] = useState(Date.now());
+
+    const [data, setData] = useState({ nodes: [], links: [] });
+    // Filters State
+    const [maxNodes, setMaxNodes] = useState(50);
+    const [minWeight, setMinWeight] = useState(1);
+    const [debouncedFilters, setDebouncedFilters] = useState({ maxNodes: 50, minWeight: 1 });
+
+    // Debounce effect
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedFilters({ maxNodes, minWeight });
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [maxNodes, minWeight]);
+
     useEffect(() => {
         api.getInfluenceGraph().then(res => {
-            if (res && res.nodes && Array.isArray(res.nodes) && res.links && Array.isArray(res.links)) {
-                try {
-                    const nodesWithClusters = detectCommunities(res.nodes, res.links);
-                    setData({ ...res, nodes: nodesWithClusters });
-                    setError(null);
-                } catch (err) {
-                    console.error("Error processing graph data:", err);
-                    setError("Error processing graph data.");
-                }
-            } else {
-                console.warn("Invalid graph data format received from API:", res);
-                setData({ nodes: [], links: [] });
-                // Optional: set error state if critical
+            // Initial load (or handle via param if API updated)
+            // But we want to filter on load too? 
+            // Actually influenceGraph() method in api.js might be hardcoded?
+            // Let's assume we use raw api.get here for params.
+        });
+
+        const params = `?limit=${debouncedFilters.maxNodes}&min_weight=${debouncedFilters.minWeight}&_t=${cacheBuster}`;
+        api.get(`/api/influence-graph${params}`).then(res => {
+            if (res && res.nodes) {
+                // If API returns meta, use it, otherwise fallback
+                const nodes = res.nodes || [];
+                const links = res.links || [];
+                const nodesWithClusters = detectCommunities(nodes, links);
+                setData({ nodes: nodesWithClusters, links });
+                setError(null);
             }
         });
-    }, []);
+    }, [debouncedFilters]);
 
     useEffect(() => {
         if (!data.nodes || data.nodes.length === 0) return;
@@ -52,12 +70,20 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
             filteredLinks = filteredLinks.filter(l => l.weight >= weightThreshold);
 
             // CRITICAL FIX: Ensure all links connect to existing nodes
-            const nodeIds = new Set(filteredNodes.map(n => n.id));
+            const initialNodeIds = new Set(filteredNodes.map(n => n.id));
             filteredLinks = filteredLinks.filter(l => {
                 const s = typeof l.source === 'object' ? l.source.id : l.source;
                 const t = typeof l.target === 'object' ? l.target.id : l.target;
-                return nodeIds.has(s) && nodeIds.has(t);
+                return initialNodeIds.has(s) && initialNodeIds.has(t);
             });
+
+            // NEW: Filter out isolated nodes (nodes with no visible links)
+            const connectedNodeIds = new Set();
+            filteredLinks.forEach(l => {
+                connectedNodeIds.add(typeof l.source === 'object' ? l.source.id : l.source);
+                connectedNodeIds.add(typeof l.target === 'object' ? l.target.id : l.target);
+            });
+            filteredNodes = filteredNodes.filter(n => connectedNodeIds.has(n.id));
 
             if (selectedGraphActor) {
                 const relevantLinks = filteredLinks.filter(l =>
@@ -312,12 +338,44 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                     Analizador de Red {isSimulationMode ? '(Simulación)' : (viewMode !== 'default' ? `(${viewMode})` : '')}
                 </div>
 
+                {/* Visual Filters */}
+                <div style={{
+                    display: 'flex', gap: '2rem', flex: 1, margin: '0 2rem',
+                    background: 'rgba(255,255,255,0.03)', padding: '0.5rem 1rem', borderRadius: '6px',
+                    border: '1px solid #30363d', alignItems: 'center'
+                }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <label style={{ fontSize: '0.7rem', color: '#8b949e', textTransform: 'uppercase' }}>Limitar Nodos (Max)</label>
+                            <span style={{ fontSize: '0.7rem', color: '#e6edf3', fontWeight: 'bold' }}>{maxNodes}</span>
+                        </div>
+                        <input
+                            type="range" min="10" max="200" step="10"
+                            value={maxNodes}
+                            onChange={(e) => setMaxNodes(parseInt(e.target.value))}
+                            style={{ width: '100%', accentColor: 'var(--accent-primary)', height: '4px' }}
+                        />
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <label style={{ fontSize: '0.7rem', color: '#8b949e', textTransform: 'uppercase' }}>Interacciones Mínimas</label>
+                            <span style={{ fontSize: '0.7rem', color: '#e6edf3', fontWeight: 'bold' }}>{minWeight}</span>
+                        </div>
+                        <input
+                            type="range" min="1" max="50" step="1"
+                            value={minWeight}
+                            onChange={(e) => setMinWeight(parseInt(e.target.value))}
+                            style={{ width: '100%', accentColor: 'var(--accent-secondary)', height: '4px' }}
+                        />
+                    </div>
+                </div>
+
                 <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
                     <select
                         value={viewMode}
                         onChange={(e) => setViewMode(e.target.value)}
                         className="btn-toggle"
-                        style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'white', borderRadius: '4px', padding: '4px 8px' }}
+                        style={{ background: '#0d1117', border: '1px solid var(--border-subtle)', color: 'white', borderRadius: '4px', padding: '4px 8px' }}
                     >
                         <option value="default">Ver Roles</option>
                         <option value="department">Ver Silos (Depts)</option>

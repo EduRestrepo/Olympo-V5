@@ -47,6 +47,10 @@ export default function RadarProfile({ actor, onClose, isAnonymous }) {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         <div className="stat-item">
+                            <span className="stat-label">Email</span>
+                            <span className="stat-value" style={{ color: '#e6edf3', fontSize: '0.9rem' }}>{actor.email || 'N/A'}</span>
+                        </div>
+                        <div className="stat-item">
                             <span className="stat-label">Rol Global</span>
                             <span className="stat-value" style={{ color: 'var(--accent-secondary)' }}>{actor.role}</span>
                         </div>

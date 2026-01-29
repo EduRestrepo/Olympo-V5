@@ -15,9 +15,21 @@ if (file_exists(__DIR__ . '/../.env')) {
     $dotenv->load(__DIR__ . '/../.env');
 }
 
+// Initialize Request
 $request = Request::createFromGlobals();
 
-// Auto-Seed Logic for DEV environment
+// CORS Handling - MUST BE FIRST
+if ($request->getMethod() === 'OPTIONS') {
+    $response = new JsonResponse(null, 204);
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    $response->send();
+    exit;
+}
+
+// Auto-Seed Logic for DEV environment (DISABLED FOR STABILITY)
+/*
 $env = $_ENV['APP_ENV'] ?? 'dev';
 if ($env !== 'prod') {
     try {
@@ -32,22 +44,10 @@ if ($env !== 'prod') {
             $repo->resetData(true); 
         }
     } catch (\Exception $e) {
-        // Silently fail or log, don't break the app boot?
-        // Actually, if seeding fails, we might want to know.
-        // But for OPTIONS requests or other noise, maybe keep silent or log to file.
-        // process continues...
+        // Silently fail or log
     }
 }
-
-// CORS Handling
-if ($request->getMethod() === 'OPTIONS') {
-    $response = new JsonResponse(null, 204);
-    $response->headers->set('Access-Control-Allow-Origin', '*');
-    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    $response->send();
-    exit;
-}
+*/
 
 // Routing
 $routes = require __DIR__ . '/../src/routes/routes.php';

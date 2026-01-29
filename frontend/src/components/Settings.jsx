@@ -14,7 +14,9 @@ const Settings = () => {
         app_env: 'dev',
         app_debug: 'true',
         influence_weight_email: '0.6',
-        influence_weight_teams: '0.4'
+        influence_weight_teams: '0.4',
+        threshold_email_vol: '500',
+        threshold_teams_freq: '50'
     });
 
     const [loading, setLoading] = useState(true);
@@ -281,6 +283,88 @@ const Settings = () => {
                 </div>
 
                 {/* --- SECCION 3: EXTRACCIÓN Y FILTROS --- */}
+
+                {/* --- SECCION 2.5: PONDERACION (PESOS) --- */}
+                <div className="settings-group" style={{ marginTop: '2rem' }}>
+                    <h4 style={{ color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>Estrategia de Influencia (Pesos)</h4>
+                    <p style={{ fontSize: '0.8rem', color: '#8b949e', marginBottom: '1rem' }}>
+                        Define el peso relativo de cada canal en la fórmula final. La suma debe ser 100%.
+                    </p>
+                    <div className="grid-dashboard" style={{ gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                        <div className="stat-item" style={{ background: 'rgba(163, 113, 247, 0.05)', borderColor: 'rgba(163, 113, 247, 0.2)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <label className="stat-label" style={{ color: '#a371f7' }}>Peso Email</label>
+                                <span style={{ fontWeight: 'bold', color: '#e6edf3' }}>{Math.round(settings.influence_weight_email * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0" max="1" step="0.05"
+                                value={settings.influence_weight_email}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    setSettings(prev => ({
+                                        ...prev,
+                                        influence_weight_email: val,
+                                        influence_weight_teams: parseFloat((1 - val).toFixed(2)) // Auto-balance
+                                    }));
+                                }}
+                                style={{ width: '100%', accentColor: '#a371f7' }}
+                            />
+                        </div>
+                        <div className="stat-item" style={{ background: 'rgba(45, 164, 78, 0.05)', borderColor: 'rgba(45, 164, 78, 0.2)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <label className="stat-label" style={{ color: '#2da44e' }}>Peso Teams</label>
+                                <span style={{ fontWeight: 'bold', color: '#e6edf3' }}>{Math.round(settings.influence_weight_teams * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0" max="1" step="0.05"
+                                value={settings.influence_weight_teams}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    setSettings(prev => ({
+                                        ...prev,
+                                        influence_weight_teams: val,
+                                        influence_weight_email: parseFloat((1 - val).toFixed(2)) // Auto-balance
+                                    }));
+                                }}
+                                style={{ width: '100%', accentColor: '#2da44e' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="settings-group" style={{ marginTop: '2rem' }}>
+                    <h4 style={{ color: 'var(--text-main)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>Umbrales de Referencia (Benchmarks)</h4>
+                    <p style={{ fontSize: '0.8rem', color: '#8b949e', marginBottom: '1rem' }}>
+                        Define el volumen de actividad requerido para obtener 100 puntos en cada categoría.
+                    </p>
+                    <div className="grid-dashboard" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div className="stat-item">
+                            <label className="stat-label">Meta Emails Mensuales (100 Pts)</label>
+                            <input
+                                type="number"
+                                className="graph-search-input"
+                                name="threshold_email_vol"
+                                value={settings.threshold_email_vol}
+                                onChange={handleChange}
+                                style={{ width: '100%', marginTop: '0.5rem' }}
+                            />
+                        </div>
+                        <div className="stat-item">
+                            <label className="stat-label">Meta Reuniones Mensuales (100 Pts)</label>
+                            <input
+                                type="number"
+                                className="graph-search-input"
+                                name="threshold_teams_freq"
+                                value={settings.threshold_teams_freq}
+                                onChange={handleChange}
+                                style={{ width: '100%', marginTop: '0.5rem' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 {/* --- SECCION 3: EXTRACCIÓN Y FILTROS --- */}
                 <SectionHeader icon={Database} title="Extracción de Datos" />
                 <div className="grid-dashboard" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

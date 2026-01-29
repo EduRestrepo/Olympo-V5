@@ -38,7 +38,7 @@ class SettingRepository
 
     public function updateMultiple(array $settings): bool
     {
-        $this->db->beginTransaction();
+        // $this->db->beginTransaction();
         try {
             // Postgres UPSERT syntax
             $sql = "INSERT INTO settings (key, value, updated_at) 
@@ -56,11 +56,11 @@ class SettingRepository
                     'value' => $valStr
                 ]);
             }
-            $this->db->commit();
+            // $this->db->commit();
             return true;
         } catch (\Exception $e) {
-            $this->db->rollBack();
-            // error_log($e->getMessage()); // Debug if needed
+            // $this->db->rollBack();
+            error_log("Settings Repository Error: " . $e->getMessage());
             return false;
         }
     }

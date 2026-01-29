@@ -3,7 +3,6 @@
 namespace Olympus\Services;
 
 use Microsoft\Graph\Graph;
-use Microsoft\Graph\Model;
 use GuzzleHttp\Client;
 
 class GraphIngestionService
@@ -31,9 +30,10 @@ class GraphIngestionService
 
         $this->ingestionMode = strtoupper($repo->getByKey('app_env', $_ENV['APP_ENV'] ?? 'DEV'));
 
-        $testUsersStr = $repo->getByKey('mandatory_users', $_ENV['MANDATORY_USERS'] ?? '');
+        $testUsersStr = $repo->getByKey('mandatory_users', $_ENV['MANDATORY_USERS'] ?? ($_ENV['TEST_TARGET_USERS'] ?? ''));
         if (!empty($testUsersStr)) {
-            $this->testTargetUsers = array_map('trim', explode(',', $testUsersStr));
+            // Split by comma, semicolon, or newline
+            $this->testTargetUsers = preg_split('/[\s,;]+/', $testUsersStr, -1, PREG_SPLIT_NO_EMPTY);
         }
 
         $excludedStr = $repo->getByKey('excluded_users', $_ENV['EXCLUDED_USERS'] ?? '');
@@ -56,7 +56,7 @@ class GraphIngestionService
         file_put_contents($logFile, $formattedMessage, FILE_APPEND);
         
         // Also echo for CLI
-        echo $formattedMessage;
+        // echo $formattedMessage;
     }
 
     public function authenticate(): void
@@ -81,7 +81,7 @@ class GraphIngestionService
             $this->log("Authentication successful.");
         } catch (\Exception $e) {
             $this->log("Error authenticating: " . $e->getMessage());
-            die("Error authenticating: " . $e->getMessage() . "\n");
+            throw new \Exception("Error authenticating: " . $e->getMessage());
         }
     }
 
@@ -95,9 +95,11 @@ class GraphIngestionService
         $this->log("Found " . count($users) . " users to process.");
 
         foreach ($users as $user) {
-            $email = $user->getMail();
+            // $user is now array
+            $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
+            
             if (empty($email)) {
-                $this->log("Skipping user without email: " . $user->getDisplayName());
+                $this->log("Skipping user without email.");
                 continue;
             }
 
@@ -107,90 +109,225 @@ class GraphIngestionService
             $userId = $this->upsertActor($user);
 
             // 1. Emails Metadata
-            $this->getMailMetadata($user->getId(), $email, $userId);
+            $this->getMailMetadata($user['id'], $email, $userId);
 
             // 2. Teams Calls Metadata
-            $this->getTeamsCallMetadata($user->getId(), $email);
+            $this->getTeamsCallMetadata($user['id'], $email);
         }
+
+        $this->log("Calculating Aggregated Metrics (Pulse, Totals, Tone)...");
+        try {
+            $metricService = new \Olympus\Services\MetricService();
+            $metricService->calculateAggregates();
+        } catch (\Exception $e) {
+            $this->log("Error calculating metrics: " . $e->getMessage());
+        }
+
+        $this->log("Ingestion completed successfully.");
     }
 
-    // ... (upsertActor remains same, no echo)
+    private function getUsersToProcess(): array
+    {
+        $allUsers = [];
+        $processedEmails = [];
+
+        // 1. Fetch Mandatory Users Explicitly
+        if (!empty($this->testTargetUsers)) {
+            $this->log("Fetching " . count($this->testTargetUsers) . " mandatory users...");
+            foreach ($this->testTargetUsers as $targetEmail) {
+                if (empty($targetEmail)) continue;
+                try {
+                    $url = "/users/$targetEmail?\$select=id,displayName,mail,jobTitle,department,country,userPrincipalName";
+                    $request = $this->graph->createRequest('GET', $url);
+                    $response = $request->execute();
+                    
+                    if (method_exists($response, 'getBody')) {
+                        $body = $response->getBody();
+                    } else {
+                        $body = $response;
+                    }
+
+                    if (is_array($body)) { // GraphResponse usually returns array/map for single entity
+                        $allUsers[] = $body;
+                        $processedEmails[] = strtolower($targetEmail);
+                    }
+                } catch (\Exception $e) {
+                     $this->log("Could not fetch mandatory user $targetEmail: " . $e->getMessage());
+                }
+            }
+        }
+
+        // 2. Fill with other users if space remains
+        if (count($allUsers) < $this->maxUsersToFetch) {
+            $remainingSlots = $this->maxUsersToFetch - count($allUsers);
+            $url = "/users?\$select=id,displayName,mail,jobTitle,department,country,userPrincipalName&\$top={$remainingSlots}";
+
+            try {
+                $request = $this->graph->createRequest('GET', $url);
+                $response = $request->execute();
+                
+                if (method_exists($response, 'getBody')) {
+                    $body = $response->getBody();
+                } else {
+                    $body = $response;
+                }
+                
+                $users = $body['value'] ?? [];
+                
+                foreach ($users as $user) {
+                    if (count($allUsers) >= $this->maxUsersToFetch) break;
+                    if (!is_array($user)) continue;
+                    
+                    $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
+                    
+                    if (empty($email)) continue;
+                    if (in_array(strtolower($email), $processedEmails)) continue; // Avoid duplicates
+                    if (in_array($email, $this->excludedUsers)) continue;
+
+                    $allUsers[] = $user;
+                }
+            } catch (\Exception $e) {
+                $this->log("Error fetching bulk users: " . $e->getMessage());
+            }
+        }
+
+        $this->log("Ingestion ready. Total unique users to process: " . count($allUsers));
+        return $allUsers;
+    }
+
+    private function upsertActor(array $user): int
+    {
+        $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
+        $name = $user['displayName'] ?? 'Unknown';
+        $jobTitle = $user['jobTitle'] ?? 'Unknown';
+        $department = $user['department'] ?? 'General';
+        $country = $user['country'] ?? 'Unknown';
+
+        // Check if exists
+        $stmt = $this->db->prepare("SELECT id FROM actors WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $existing = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            $id = (int) $existing['id'];
+            // Update
+            $update = $this->db->prepare("UPDATE actors SET name = :name, role = :role, department = :dept, country = :country WHERE id = :id");
+            $update->execute([
+                'name' => $name,
+                'role' => $jobTitle,
+                'dept' => $department,
+                'country' => $country,
+                'id' => $id
+            ]);
+            return $id;
+        } else {
+            // Insert
+            $insert = $this->db->prepare("INSERT INTO actors (name, role, badge, department, country, email, escalation_score) VALUES (:name, :role, '♙', :dept, :country, :email, 0) RETURNING id");
+            $insert->execute([
+                'name' => $name,
+                'role' => $jobTitle,
+                'dept' => $department,
+                'country' => $country,
+                'email' => $email
+            ]);
+            return (int) $insert->fetchColumn();
+        }
+    }
 
     private function getTeamsCallMetadata(string $userId, string $userEmail): void
     {
         $repo = new \Olympus\Db\SettingRepository();
-        $lookbackDays = max(15, (int) $repo->getByKey('EXTRACTION_LOOKBACK_DAYS', 30));
+        $lookbackDays = max(15, (int) $repo->getByKey('extraction_lookback_days', 30));
         $startDate = (new \DateTime())->modify("-{$lookbackDays} days")->format('Y-m-d\TH:i:s\Z');
 
         try {
-            $url = "/communications/callRecords?\$filter=startDateTime ge {$startDate}&\$top=100";
-            $callRecords = $this->graph->createRequest('GET', $url)->execute();
-
-            if (!$callRecords) {
-                // $this->log("  - No Teams call records found."); // Optional verbosity
-                return;
-            }
-
-            $userCallCount = 0;
-            foreach ($callRecords as $record) {
-                 // ... (processing logic)
-                 // Keeping logic same as original but skipping echoes inside loop for brevity, 
-                 // just Log the summary count.
-                 
-                 // Re-implementing simplified loop for context validity
-                 $participants = $record->getProperty('participants') ?? [];
-                 foreach ($participants as $participant) {
-                    $user = $participant->getProperty('user');
-                    if ($user && $user->getProperty('id') === $userId) {
-                         $userCallCount++;
-                         break; // Counted
-                    }
-                 }
-            }
-
-            $this->log("  - Imported {$userCallCount} Teams call records.");
-
-        } catch (\Exception $e) {
-            $this->log("  - Error fetching Teams call records for $userEmail: " . $e->getMessage());
-        }
-    }
-    
-    // ... (saveTeamsCallRecord - removing echo)
-    private function saveTeamsCallRecord(array $data): void { } // Removing debug echo
-
-    private function getUsersToProcess(): array
-    {
-        // ... (keeping implementation, replacing echo)
-        
-        $allUsers = [];
-        $url = '/users?$select=id,displayName,mail,jobTitle,department&$top=999';
-
-        try {
-            $response = $this->graph->createRequest('GET', $url)
-                ->setReturnType(Model\User::class)
-                ->execute();
+            // REMOVED $top=50 to fix "Query option 'Top' is not allowed" error
+            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}"); // removed $top
+            $response = $request->execute();
             
-            // ... (filtering logic same as original)
-            foreach ($response as $user) {
-                if (count($allUsers) >= $this->maxUsersToFetch) break;
-                
-                $email = $user->getMail() ?: $user->getUserPrincipalName();
-                if (empty($email) || in_array($email, $this->excludedUsers)) continue;
+            // Check if response is a GraphResponse object or raw array
+            if (method_exists($response, 'getBody')) {
+                $body = $response->getBody();
+            } else {
+                $body = $response; // Fallback if it returns array directly
+            }
+            
+            $callRecords = $body['value'] ?? []; 
 
-                if ($this->ingestionMode === 'TEST' || $this->ingestionMode === 'DEV') {
-                    if (in_array($email, $this->testTargetUsers)) $allUsers[] = $user;
-                } else {
-                    $allUsers[] = $user;
+            $count = 0;
+            foreach ($callRecords as $record) {
+                // $record is now an associative array
+                if (!is_array($record)) continue;
+                
+                $organizer = $record['organizer'] ?? null;
+                $isOrganizer = false;
+                if ($organizer && isset($organizer['user']['id']) && $organizer['user']['id'] === $userId) {
+                    $isOrganizer = true;
+                }
+
+                $participants = $record['participants'] ?? [];
+                
+                // Only process if user is involved
+                $isParticipant = $isOrganizer;
+                if (!$isParticipant) {
+                     foreach ($participants as $p) {
+                        if (isset($p['user']['id']) && $p['user']['id'] === $userId) {
+                            $isParticipant = true; 
+                            break;
+                        }
+                     }
+                }
+
+                if (!$isParticipant) continue;
+
+                $participantCount = count($participants);
+                $type = $record['type'] ?? 'unknown';
+                
+                $start = isset($record['startDateTime']) ? new \DateTime($record['startDateTime']) : new \DateTime();
+                $end = isset($record['endDateTime']) ? new \DateTime($record['endDateTime']) : new \DateTime();
+                $duration = $end->getTimestamp() - $start->getTimestamp();
+                
+                $modalities = $record['modalities'] ?? []; 
+                $hasVideo = in_array('video', $modalities);
+                $hasScreenShare = in_array('screenShare', $modalities);
+
+                // Save to DB
+                $userDbId = $this->getDbIdByEmail($userEmail);
+                if ($userDbId) {
+                    $this->saveTeamsCallRecord([
+                        'user_id' => $userDbId,
+                        'call_type' => $type,
+                        'duration_seconds' => $duration,
+                        'participant_count' => $participantCount,
+                        'is_organizer' => $isOrganizer ? 'true' : 'false',
+                        'used_video' => $hasVideo ? 'true' : 'false',
+                        'used_screenshare' => $hasScreenShare ? 'true' : 'false',
+                        'call_timestamp' => $start->format('Y-m-d H:i:s')
+                    ]);
+                    $count++;
                 }
             }
-            
-            $this->log("Ingesta iniciada en modo " . $this->ingestionMode . ". Procesando " . count($allUsers) . " usuarios.");
+
+            if ($count > 0) {
+                $this->log("  - Imported $count Teams call records.");
+            }
 
         } catch (\Exception $e) {
-            $this->log("Error fetching users: " . $e->getMessage());
+            $this->log("  - Info: could not fetch calls for $userEmail: " . $e->getMessage());
         }
+    }
 
-        return $allUsers;
+    private function getDbIdByEmail(string $email): ?int {
+        $stmt = $this->db->prepare("SELECT id FROM actors WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $res = $stmt->fetchColumn();
+        return $res ? (int)$res : null;
+    }
+
+    private function saveTeamsCallRecord(array $data): void 
+    {
+        $stmt = $this->db->prepare("INSERT INTO teams_call_records (user_id, call_type, duration_seconds, participant_count, is_organizer, used_video, used_screenshare, call_timestamp) VALUES (:user_id, :call_type, :duration_seconds, :participant_count, :is_organizer, :used_video, :used_screenshare, :call_timestamp)");
+        $stmt->execute($data);
     }
 
     private function getMailMetadata(string $userId, string $userEmail, int $dbUserId): void
@@ -201,10 +338,18 @@ class GraphIngestionService
         $queryParams = '$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime ge ' . $startDate . '&$top=100';
 
         try {
-            $messages = $this->graph->createRequest('GET', "/users/$userId/messages?$queryParams")
-                ->setReturnType(Model\Message::class)
-                ->execute();
+            // Remove setReturnType(Model\Message::class)
+            $request = $this->graph->createRequest('GET', "/users/$userId/messages?$queryParams");
+            $response = $request->execute();
+            
+            if (method_exists($response, 'getBody')) {
+                $body = $response->getBody();
+            } else {
+                $body = $response;
+            }
 
+            $messages = $body['value'] ?? [];
+            
             $count = count($messages);
             $this->log("  - Imported $count message headers (last {$lookbackDays} days).");
 
@@ -215,6 +360,9 @@ class GraphIngestionService
                     $stmt = $this->db->prepare("UPDATE actors SET escalation_score = escalation_score + 1 WHERE id = ?");
                     $stmt->execute([$dbUserId]);
                 }
+                
+                // NEW: Process Interaction (Influence Graph)
+                $this->processEmailInteractions($msg, $dbUserId);
             }
 
             if ($totalEscalations > 0) {
@@ -226,16 +374,102 @@ class GraphIngestionService
         }
     }
 
-    // calculateEscalationImpact remains same
-    private function calculateEscalationImpact(Model\Message $msg): bool
+    private function processEmailInteractions(array $msg, int $targetActorId): void
     {
-        $ccRecipients = $msg->getCcRecipients();
+        // 1. Resolve Sender
+        $senderData = $msg['from']['emailAddress'] ?? null;
+        if (!$senderData) return;
+
+        $senderEmail = $senderData['address'] ?? null;
+        $senderName = $senderData['name'] ?? 'Unknown';
+
+        if (!$senderEmail) return;
+
+        // Create/Get Sender Actor
+        $senderActorId = $this->upsertActiveActor($senderName, $senderEmail);
+
+        // If sender is same as target (self-email), ignore for influence graph
+        if ($senderActorId === $targetActorId) return;
+
+        // 2. Record Interaction (Sender -> Target)
+        // We consider the "User being processed" ($targetActorId) as the RECIPIENT since we are reading their inbox.
+        // So Interaction: Sender -> Target
+        $this->recordInteraction($senderActorId, $targetActorId, 'Email');
+
+        // 3. Response Time Calculation (Heuristic)
+        // If we also find a message FROM Target TO Sender close in time, we could calculate response time.
+        // For now, simpler: Just record the volume.
+        
+        // 4. Also process CCs as targets of the sender
+        $ccRecipients = $msg['ccRecipients'] ?? [];
+        foreach ($ccRecipients as $cc) {
+            $ccEmail = $cc['emailAddress']['address'] ?? null;
+            $ccName = $cc['emailAddress']['name'] ?? 'Unknown';
+            
+            if ($ccEmail) {
+                $ccActorId = $this->upsertActiveActor($ccName, $ccEmail);
+                if ($ccActorId !== $senderActorId) {
+                    $this->recordInteraction($senderActorId, $ccActorId, 'Email');
+                }
+            }
+        }
+    }
+
+    private function upsertActiveActor(string $name, string $email): int
+    {
+        // Similar to upsertActor but simpler, just to ensure ID exists
+        $stmt = $this->db->prepare("SELECT id FROM actors WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        $id = $stmt->fetchColumn();
+
+        if ($id) return (int)$id;
+
+        // Create new minimal actor
+        $insert = $this->db->prepare("INSERT INTO actors (name, role, badge, department, country, email, escalation_score) VALUES (:name, 'Unknown', '♙', 'General', 'Unknown', :email, 0) RETURNING id");
+        $insert->execute(['name' => $name, 'email' => $email]);
+        return (int)$insert->fetchColumn();
+    }
+
+    private function recordInteraction(int $sourceId, int $targetId, string $channel): void
+    {
+        // Upsert interaction volume
+        $stmt = $this->db->prepare("
+            INSERT INTO interactions (source_id, target_id, channel, volume) 
+            VALUES (:source, :target, :channel, 1)
+            ON CONFLICT (source_id, target_id, channel) 
+            DO UPDATE SET volume = interactions.volume + 1
+        "); // Note: ON CONFLICT requires a unique constraint which we need to check if exists. 
+            // If constraint works by id, fine, but typically we need a constraint on (source, target, channel).
+            // Let's assume schema allows duplicates or we handle it manually.
+            // Actually, the schema doesn't seem to have a UNIQUE constraint on (source, target, channel).
+            // Let's check first.
+        
+        // Manual Upsert check
+        $check = $this->db->prepare("SELECT id, volume FROM interactions WHERE source_id = :s AND target_id = :t AND channel = :c");
+        $check->execute(['s' => $sourceId, 't' => $targetId, 'c' => $channel]);
+        $existing = $check->fetch(\PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            $update = $this->db->prepare("UPDATE interactions SET volume = volume + 1 WHERE id = :id");
+            $update->execute(['id' => $existing['id']]);
+        } else {
+            $insert = $this->db->prepare("INSERT INTO interactions (source_id, target_id, channel, volume) VALUES (:s, :t, :c, 1)");
+            $insert->execute(['s' => $sourceId, 't' => $targetId, 'c' => $channel]);
+        }
+    }
+
+    private function calculateEscalationImpact($msg): bool
+    {
+        // $msg is now an array
+        if (!is_array($msg)) return false;
+
+        $ccRecipients = $msg['ccRecipients'] ?? [];
         if (empty($ccRecipients)) return false;
 
-        $importance = $msg->getImportance(); 
+        $importance = $msg['importance'] ?? null; 
         if ($importance && strtolower($importance) === 'high') return true;
 
-        $subject = strtolower($msg->getSubject() ?? '');
+        $subject = strtolower($msg['subject'] ?? '');
         if (str_contains($subject, 'urgent') || str_contains($subject, 'attention') || str_contains($subject, 'escalation')) return true;
 
         return false;
