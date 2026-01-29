@@ -569,3 +569,56 @@ DETAIL:  Key (target_id)=(9221) is not present in table "actors".
 [2026-01-29 16:19:25] Processing User: bogotasala12-5@perezllorca.com
 [2026-01-29 16:19:26]   - Imported 100 message headers (last 15 days).
 [2026-01-29 16:19:26] Processing User: bogotasala12-7@perezllorca.com
+[2026-01-29 16:19:27]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:19:28] Processing User: bogotasala12-8@perezllorca.com
+[2026-01-29 16:19:30]   - Imported 94 message headers (last 15 days).
+[2026-01-29 16:19:30] Processing User: bogotasala13-1@perezllorca.com
+[2026-01-29 16:19:31]   - Imported 43 message headers (last 15 days).
+[2026-01-29 16:19:31]   - Detected 1 escalation events.
+[2026-01-29 16:19:31] Processing User: bogotasala13-3@perezllorca.com
+[2026-01-29 16:19:32]   - Imported 8 message headers (last 15 days).
+[2026-01-29 16:19:32] Processing User: bogotasala13-4@perezllorca.com
+[2026-01-29 16:19:32]   - Imported 5 message headers (last 15 days).
+[2026-01-29 16:19:32] Processing User: bojan.radovanovic@perezllorca.com
+[2026-01-29 16:19:38]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:19:40] Processing User: bolivares@perezllorca.com
+[2026-01-29 16:19:48]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:19:49] Processing User: booking@perezllorca.com
+[2026-01-29 16:19:50]   - Imported 20 message headers (last 15 days).
+[2026-01-29 16:19:50] Processing User: brenda.carreto@perezllorca.com
+[2026-01-29 16:19:52]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:19:53] Processing User: brenda.hernandez@perezllorca.com
+[2026-01-29 16:19:57]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:19:58]   - Detected 1 escalation events.
+[2026-01-29 16:19:58] Processing User: bribeiro@perezllorca.com
+[2026-01-29 16:20:00]   - Imported 22 message headers (last 15 days).
+[2026-01-29 16:20:00] Processing User: brivera@perezllorca.com
+[2026-01-29 16:20:05]   - Imported 34 message headers (last 15 days).
+[2026-01-29 16:20:06] Processing User: brussels@perezllorca.com
+[2026-01-29 16:20:06]   - Imported 21 message headers (last 15 days).
+[2026-01-29 16:20:06] Processing User: bsancostas@perezllorca.com
+[2026-01-29 16:20:07]   - Imported 0 message headers (last 15 days).
+[2026-01-29 16:20:07] Processing User: bseco@perezllorca.com
+[2026-01-29 16:20:07]   - Error fetching messages for bseco@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/e2be83d5-e4f7-4a47-b942-ed65bf005b31/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-14T16:20:07Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-01-29 16:20:07] Processing User: bsomoza@perezllorca.com
+[2026-01-29 16:20:08]   - Error fetching messages for bsomoza@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/845855a4-5237-4b58-a066-499e20326471/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-14T16:20:07Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-01-29 16:20:08] Processing User: burquizu@perezllorca.com
+[2026-01-29 16:20:11]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:20:12]   - Detected 1 escalation events.
+[2026-01-29 16:20:12] Processing User: buzonbkcf@perezllorca.com
+[2026-01-29 16:20:12]   - Imported 3 message headers (last 15 days).
+[2026-01-29 16:20:13]   - Detected 1 escalation events.
+[2026-01-29 16:20:13] Processing User: buzonbkmulti@perezllorca.com
+[2026-01-29 16:20:14]   - Imported 38 message headers (last 15 days).
+[2026-01-29 16:20:14] Processing User: buzonbs@perezllorca.com
+[2026-01-29 16:20:17]   - Imported 15 message headers (last 15 days).
+[2026-01-29 16:20:17] Processing User: buzonman@perezllorca.com
+[2026-01-29 16:20:18]   - Imported 11 message headers (last 15 days).
+[2026-01-29 16:20:18] Processing User: bvela@perezllorca.com
+[2026-01-29 16:20:22]   - Imported 100 message headers (last 15 days).
+[2026-01-29 16:20:23]   - Detected 2 escalation events.
+[2026-01-29 16:20:23] Processing User: bwert@perezllorca.com
