@@ -44,7 +44,7 @@ class InfluencerController
             $clauses = [];
             foreach ($allowedDomains as $domain) {
                 $d = ltrim($domain, '@');
-                $clauses[] = "LOWER(a.email) LIKE '%@$d'";
+                $clauses[] = "TRIM(LOWER(a.email)) LIKE '%@$d'";
             }
             if (!empty($clauses)) {
                 $filters[] = "(" . implode(' OR ', $clauses) . ")";
@@ -56,7 +56,7 @@ class InfluencerController
              $excludes = [];
              foreach ($excludedUsers as $email) {
                  // Sanitize simple email check
-                 $excludes[] = "LOWER(a.email) != '" . str_replace("'", "''", $email) . "'";
+                 $excludes[] = "TRIM(LOWER(a.email)) != '" . str_replace("'", "''", $email) . "'";
              }
              if (!empty($excludes)) {
                  $filters[] = "(" . implode(' AND ', $excludes) . ")";
@@ -236,7 +236,7 @@ class InfluencerController
                 $clauses = [];
                 foreach ($allowedDomains as $domain) {
                     $d = ltrim($domain, '@');
-                    $clauses[] = "LOWER(a.email) LIKE '%@$d'";
+                    $clauses[] = "TRIM(LOWER(a.email)) LIKE '%@$d'";
                 }
                 if (!empty($clauses)) {
                     $filters[] = "(" . implode(' OR ', $clauses) . ")";
@@ -247,7 +247,7 @@ class InfluencerController
             if (!empty($excludedUsers)) {
                  $excludes = [];
                  foreach ($excludedUsers as $email) {
-                     $excludes[] = "LOWER(a.email) != '" . str_replace("'", "''", $email) . "'";
+                     $excludes[] = "TRIM(LOWER(a.email)) != '" . str_replace("'", "''", $email) . "'";
                  }
                  if (!empty($excludes)) {
                      $filters[] = "(" . implode(' AND ', $excludes) . ")";

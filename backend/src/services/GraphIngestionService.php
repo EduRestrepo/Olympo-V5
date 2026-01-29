@@ -38,7 +38,7 @@ class GraphIngestionService
 
         $excludedStr = $repo->getByKey('excluded_users', $_ENV['EXCLUDED_USERS'] ?? '');
         if (!empty($excludedStr)) {
-            $this->excludedUsers = array_map('trim', explode(',', $excludedStr));
+            $this->excludedUsers = preg_split('/[\s,]+/', strtolower($excludedStr), -1, PREG_SPLIT_NO_EMPTY);
         }
 
         $this->maxUsersToFetch = (int) $repo->getByKey('extraction_max_users', 100);
@@ -110,10 +110,10 @@ class GraphIngestionService
 
             // 1. Emails Metadata
             $this->getMailMetadata($user['id'], $email, $userId);
-
-            // 2. Teams Calls Metadata
-            $this->getTeamsCallMetadata($user['id'], $email);
         }
+
+        // 2. Teams Calls Metadata - Fetch ONCE for all users to optimize
+        $this->getTeamsCallMetadataGlobal($users);
 
         $this->log("Calculating Aggregated Metrics (Pulse, Totals, Tone)...");
         try {
@@ -181,8 +181,9 @@ class GraphIngestionService
                     $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
                     
                     if (empty($email)) continue;
-                    if (in_array(strtolower($email), $processedEmails)) continue; // Avoid duplicates
-                    if (in_array($email, $this->excludedUsers)) continue;
+                    $trimmedEmail = strtolower(trim($email));
+                    if (in_array($trimmedEmail, $processedEmails)) continue; // Avoid duplicates
+                    if (in_array($trimmedEmail, $this->excludedUsers)) continue;
 
                     $allUsers[] = $user;
                 }
@@ -197,7 +198,7 @@ class GraphIngestionService
 
     private function upsertActor(array $user): int
     {
-        $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
+        $email = strtolower(trim($user['mail'] ?? ($user['userPrincipalName'] ?? null)));
         $name = $user['displayName'] ?? 'Unknown';
         $jobTitle = $user['jobTitle'] ?? 'Unknown';
         $department = $user['department'] ?? 'General';
@@ -234,55 +235,66 @@ class GraphIngestionService
         }
     }
 
-    private function getTeamsCallMetadata(string $userId, string $userEmail): void
+    private function getTeamsCallMetadataGlobal(array $processedUsers): void
     {
         $repo = new \Olympus\Db\SettingRepository();
         $lookbackDays = max(15, (int) $repo->getByKey('extraction_lookback_days', 30));
         $startDate = (new \DateTime())->modify("-{$lookbackDays} days")->format('Y-m-d\TH:i:s\Z');
 
+        $this->log("Fetching global Teams call records (last $lookbackDays days)...");
+
         try {
-            // REMOVED $top=50 to fix "Query option 'Top' is not allowed" error
-            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}"); // removed $top
+            // Fetch all call records in one go
+            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}");
             $response = $request->execute();
             
-            // Check if response is a GraphResponse object or raw array
-            if (method_exists($response, 'getBody')) {
-                $body = $response->getBody();
-            } else {
-                $body = $response; // Fallback if it returns array directly
-            }
-            
+            $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
             $callRecords = $body['value'] ?? []; 
+            
+            if (empty($callRecords)) {
+                $this->log("No Teams call records found for this period.");
+                return;
+            }
+
+            // Create a map of Graph User ID -> DB Actor ID for fast lookup
+            $userMap = [];
+            foreach ($processedUsers as $u) {
+                if (isset($u['id'])) {
+                    $email = strtolower(trim($u['mail'] ?? ($u['userPrincipalName'] ?? '')));
+                    $dbId = $this->getDbIdByEmail($email);
+                    if ($dbId) {
+                        $userMap[$u['id']] = $dbId;
+                    }
+                }
+            }
 
             $count = 0;
             foreach ($callRecords as $record) {
-                // $record is now an associative array
                 if (!is_array($record)) continue;
                 
                 $organizer = $record['organizer'] ?? null;
-                $isOrganizer = false;
-                if ($organizer && isset($organizer['user']['id']) && $organizer['user']['id'] === $userId) {
-                    $isOrganizer = true;
-                }
-
                 $participants = $record['participants'] ?? [];
                 
-                // Only process if user is involved
-                $isParticipant = $isOrganizer;
-                if (!$isParticipant) {
-                     foreach ($participants as $p) {
-                        if (isset($p['user']['id']) && $p['user']['id'] === $userId) {
-                            $isParticipant = true; 
-                            break;
-                        }
-                     }
+                // Identify which of our target users are in this call
+                $involvedUsers = []; // Graphite User ID -> isOrganizer
+                
+                if ($organizer && isset($organizer['user']['id']) && isset($userMap[$organizer['user']['id']])) {
+                    $involvedUsers[$organizer['user']['id']] = true;
                 }
 
-                if (!$isParticipant) continue;
+                foreach ($participants as $p) {
+                    if (isset($p['user']['id']) && isset($userMap[$p['user']['id']])) {
+                        // If not already in (as organizer), add as participant
+                        if (!isset($involvedUsers[$p['user']['id']])) {
+                            $involvedUsers[$p['user']['id']] = false;
+                        }
+                    }
+                }
+
+                if (empty($involvedUsers)) continue;
 
                 $participantCount = count($participants);
                 $type = $record['type'] ?? 'unknown';
-                
                 $start = isset($record['startDateTime']) ? new \DateTime($record['startDateTime']) : new \DateTime();
                 $end = isset($record['endDateTime']) ? new \DateTime($record['endDateTime']) : new \DateTime();
                 $duration = $end->getTimestamp() - $start->getTimestamp();
@@ -290,30 +302,28 @@ class GraphIngestionService
                 $modalities = $record['modalities'] ?? []; 
                 $hasVideo = in_array('video', $modalities);
                 $hasScreenShare = in_array('screenShare', $modalities);
+                $timestamp = $start->format('Y-m-d H:i:s');
 
-                // Save to DB
-                $userDbId = $this->getDbIdByEmail($userEmail);
-                if ($userDbId) {
+                foreach ($involvedUsers as $graphId => $isOrg) {
+                    $dbId = $userMap[$graphId];
                     $this->saveTeamsCallRecord([
-                        'user_id' => $userDbId,
+                        'user_id' => $dbId,
                         'call_type' => $type,
                         'duration_seconds' => $duration,
                         'participant_count' => $participantCount,
-                        'is_organizer' => $isOrganizer ? 'true' : 'false',
+                        'is_organizer' => $isOrg ? 'true' : 'false',
                         'used_video' => $hasVideo ? 'true' : 'false',
                         'used_screenshare' => $hasScreenShare ? 'true' : 'false',
-                        'call_timestamp' => $start->format('Y-m-d H:i:s')
+                        'call_timestamp' => $timestamp
                     ]);
                     $count++;
                 }
             }
 
-            if ($count > 0) {
-                $this->log("  - Imported $count Teams call records.");
-            }
+            $this->log("Global Teams sync: Processed $count record-user involvements.");
 
         } catch (\Exception $e) {
-            $this->log("  - Info: could not fetch calls for $userEmail: " . $e->getMessage());
+            $this->log("Error during global Teams ingestion: " . $e->getMessage());
         }
     }
 
@@ -417,6 +427,7 @@ class GraphIngestionService
 
     private function upsertActiveActor(string $name, string $email): int
     {
+        $email = strtolower(trim($email));
         // Similar to upsertActor but simpler, just to ensure ID exists
         $stmt = $this->db->prepare("SELECT id FROM actors WHERE email = :email");
         $stmt->execute(['email' => $email]);
