@@ -25,14 +25,16 @@ class InfluencerController
         $allowedDomainsStr = $repo->getByKey('allowed_domains', '');
         $allowedDomains = [];
         if (!empty($allowedDomainsStr)) {
-            $allowedDomains = array_map('trim', explode(',', strtolower($allowedDomainsStr)));
+            // Split by comma, newline, or space
+            $allowedDomains = preg_split('/[\s,]+/', strtolower($allowedDomainsStr), -1, PREG_SPLIT_NO_EMPTY);
         }
 
         // 2. Excluded Users Filter
         $excludedUsersStr = $repo->getByKey('excluded_users', '');
         $excludedUsers = [];
         if (!empty($excludedUsersStr)) {
-            $excludedUsers = array_map('trim', explode(',', strtolower($excludedUsersStr)));
+            // Split by comma, newline, or space
+            $excludedUsers = preg_split('/[\s,]+/', strtolower($excludedUsersStr), -1, PREG_SPLIT_NO_EMPTY);
         }
 
         $filters = [];

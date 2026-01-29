@@ -1,23 +1,23 @@
-[2026-01-29 14:06:14] Authenticating with Azure AD...
-[2026-01-29 14:06:14] Authentication successful.
-[2026-01-29 14:06:14] Starting ingestion in mode: PROD
-[2026-01-29 14:06:14] Fetching 3 mandatory users...
-[2026-01-29 14:06:15] Ingestion ready. Total unique users to process: 5
-[2026-01-29 14:06:15] Found 5 users to process.
-[2026-01-29 14:06:15] Processing User: eduardo.restrepo@perezllorca.com
-[2026-01-29 14:06:17]   - Imported 100 message headers (last 15 days).
-[2026-01-29 14:06:17]   - Detected 4 escalation events.
-[2026-01-29 14:06:18] Processing User: ricardo.amo@perezllorca.com
-[2026-01-29 14:06:19]   - Imported 100 message headers (last 15 days).
-[2026-01-29 14:06:20]   - Detected 1 escalation events.
-[2026-01-29 14:06:20]   - Imported 1 Teams call records.
-[2026-01-29 14:06:20] Processing User: dpardo@perezllorca.com
-[2026-01-29 14:06:22]   - Imported 100 message headers (last 15 days).
-[2026-01-29 14:06:24] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
-[2026-01-29 14:06:24]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-14T14:06:24Z&$top=100` resulted in a `404 Not Found` response:
+[2026-01-29 14:11:01] Authenticating with Azure AD...
+[2026-01-29 14:11:01] Authentication successful.
+[2026-01-29 14:11:01] Starting ingestion in mode: PROD
+[2026-01-29 14:11:01] Fetching 3 mandatory users...
+[2026-01-29 14:11:02] Ingestion ready. Total unique users to process: 5
+[2026-01-29 14:11:02] Found 5 users to process.
+[2026-01-29 14:11:02] Processing User: eduardo.restrepo@perezllorca.com
+[2026-01-29 14:11:02]   - Imported 100 message headers (last 15 days).
+[2026-01-29 14:11:03]   - Detected 4 escalation events.
+[2026-01-29 14:11:03] Processing User: ricardo.amo@perezllorca.com
+[2026-01-29 14:11:04]   - Imported 100 message headers (last 15 days).
+[2026-01-29 14:11:05]   - Detected 1 escalation events.
+[2026-01-29 14:11:06]   - Imported 1 Teams call records.
+[2026-01-29 14:11:06] Processing User: dpardo@perezllorca.com
+[2026-01-29 14:11:07]   - Imported 100 message headers (last 15 days).
+[2026-01-29 14:11:08] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
+[2026-01-29 14:11:08]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-14T14:11:08Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-01-29 14:06:24] Processing User: _oposicionesCOL@perezllorca.com
-[2026-01-29 14:06:26]   - Imported 31 message headers (last 15 days).
-[2026-01-29 14:06:26] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
-[2026-01-29 14:06:26] Ingestion completed successfully.
+[2026-01-29 14:11:09] Processing User: _oposicionesCOL@perezllorca.com
+[2026-01-29 14:11:09]   - Imported 31 message headers (last 15 days).
+[2026-01-29 14:11:10] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
+[2026-01-29 14:11:10] Ingestion completed successfully.
