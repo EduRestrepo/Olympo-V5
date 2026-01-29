@@ -1,12 +1,12 @@
 -- Clear existing data
-TRUNCATE TABLE teams_call_records CASCADE;
-TRUNCATE TABLE influence_links CASCADE;
-TRUNCATE TABLE interactions CASCADE;
-TRUNCATE TABLE response_times CASCADE;
-TRUNCATE TABLE actors CASCADE;
-TRUNCATE TABLE channel_totals CASCADE;
-TRUNCATE TABLE tone_index_daily CASCADE;
-TRUNCATE TABLE network_pulse_daily CASCADE;
+TRUNCATE TABLE teams_call_records RESTART IDENTITY CASCADE;
+TRUNCATE TABLE influence_links RESTART IDENTITY CASCADE;
+TRUNCATE TABLE interactions RESTART IDENTITY CASCADE;
+TRUNCATE TABLE response_times RESTART IDENTITY CASCADE;
+TRUNCATE TABLE actors RESTART IDENTITY CASCADE;
+TRUNCATE TABLE channel_totals RESTART IDENTITY CASCADE;
+TRUNCATE TABLE tone_index_daily RESTART IDENTITY CASCADE;
+TRUNCATE TABLE network_pulse_daily RESTART IDENTITY CASCADE;
 
 -- 1. Seed Actors (120 Users to meet requirement)
 INSERT INTO actors (name, role, badge, department, country, escalation_score, email) VALUES

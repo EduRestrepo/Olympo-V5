@@ -281,7 +281,8 @@ const Settings = () => {
                 </div>
 
                 {/* --- SECCION 3: EXTRACCIÓN Y FILTROS --- */}
-                < SectionHeader icon={Database} title="Extracción de Datos" />
+                {/* --- SECCION 3: EXTRACCIÓN Y FILTROS --- */}
+                <SectionHeader icon={Database} title="Extracción de Datos" />
                 <div className="grid-dashboard" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="stat-item">
                         <label className="stat-label">Periodo (Días)</label>
@@ -327,8 +328,8 @@ const Settings = () => {
                     </button>
                 </div>
 
-            </form >
-        </div >
+            </form>
+        </div>
     );
 };
 

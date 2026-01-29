@@ -26,6 +26,7 @@ export const api = {
         body: JSON.stringify(data)
     }),
     getTopInfluencers: () => fetchJson('/api/top-influencers'),
+    getInfluenceGraph: () => fetchJson('/api/influence-graph'),
     getBalancePower: () => fetchJson('/api/balance-power'),
     getChannelTotals: () => fetchJson('/api/channel-totals'),
     getNetworkPulse: () => fetchJson('/api/network-pulse'),
