@@ -100,21 +100,6 @@ export default function ScoreExplanation() {
                             ({settings.influence_weight_email} × {emailScore}) + ({settings.influence_weight_teams} × {meetingScore}) = <strong style={{ color: 'var(--accent-primary)' }}>{finalScore}</strong>
                         </p>
                     </div>
-
-                    <div className="privacy-badge" style={{
-                        marginTop: '1.5rem',
-                        padding: '1rem',
-                        background: 'rgba(45, 164, 78, 0.1)',
-                        border: '1px solid rgba(45, 164, 78, 0.3)',
-                        borderRadius: '6px'
-                    }}>
-                        <h4 style={{ color: '#3fb950', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            🛡️ Privacy-First
-                        </h4>
-                        <p style={{ fontSize: '0.8rem', color: '#8b949e', margin: 0 }}>
-                            Solo analizamos <strong>metadatos</strong> (quién, cuándo, cuánto). El contenido (el "qué") es privado y nunca es accesible.
-                        </p>
-                    </div>
                 </div>
                 <div>
                     <h3 style={{ marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Asignación de Badges</h3>
@@ -125,7 +110,7 @@ export default function ScoreExplanation() {
                         <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '4px' }}>
                             <span className="badge-icon" style={{ fontSize: '1.5rem' }}>♚</span>
                             <div>
-                                <strong style={{ color: '#e6edf3' }}>King / Reina</strong>
+                                <strong style={{ color: '#e6edf3' }}>King / Reina (Formales)</strong>
                                 <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>El #1 absoluto de la organización. El nodo más central.</div>
                             </div>
                         </li>

@@ -139,8 +139,11 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
                                         </span>
                                     </td>
                                     <td style={{ fontSize: '1.2em' }}>
-                                        <span className={`badge-animated ${actor.rank <= 3 ? 'badge-fast' : 'badge-slow'}`} style={{ display: 'inline-block' }}>
-                                            {actor.badge}
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <span className={`badge-animated ${actor.rank <= 3 ? 'badge-fast' : 'badge-slow'}`}>{actor.badge}</span>
+                                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 'normal' }}>
+                                                {getBadgeTitle(actor.badge)}
+                                            </span>
                                         </span>
                                     </td>
                                     <td>{Math.round(actor.total_volume)}</td>
@@ -193,4 +196,9 @@ export default function TopInfluencers({ onSelectActor, isAnonymous }) {
             )}
         </div>
     );
+}
+
+function getBadgeTitle(badge) {
+    const titles = { '♚': 'Formales', '♛': 'Estratega', '♜': 'Conector', '♞': 'Exploradores', '♗': 'Guía', '♙': 'Colaborador' };
+    return titles[badge] || 'Actor';
 }

@@ -98,6 +98,24 @@ function App() {
                 </div>
             </div>
 
+            <div className="privacy-badge" style={{
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(45, 164, 78, 0.1)',
+                border: '1px solid rgba(45, 164, 78, 0.3)',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+            }}>
+                <h4 style={{ color: '#3fb950', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+                    🛡️ Privacy-First
+                </h4>
+                <p style={{ fontSize: '0.85rem', color: '#8b949e', margin: 0 }}>
+                    Solo analizamos <strong>metadatos</strong> (quién, cuándo, cuánto). El contenido (el "qué") es privado y nunca es accesible.
+                </p>
+            </div>
+
             {showAbout && (
                 <div className="card animate-in" style={{ marginBottom: '2rem', borderColor: 'var(--accent-primary)' }}>
                     {about ? (

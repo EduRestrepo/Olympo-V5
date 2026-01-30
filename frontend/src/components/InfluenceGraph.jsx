@@ -141,6 +141,20 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                 .attr("fill", "#30363d")
                 .style("opacity", 0.6);
 
+            // Enhanced Electric Energy Sphere Gradient
+            const energyGradient = defs.append("radialGradient").attr("id", "energySphere");
+            energyGradient.append("stop").attr("offset", "0%").attr("stop-color", "#ffffff").attr("stop-opacity", 1);
+            energyGradient.append("stop").attr("offset", "30%").attr("stop-color", "#00d9ff").attr("stop-opacity", 1);
+            energyGradient.append("stop").attr("offset", "70%").attr("stop-color", "#0080ff").attr("stop-opacity", 0.9);
+            energyGradient.append("stop").attr("offset", "100%").attr("stop-color", "#0040ff").attr("stop-opacity", 0.6);
+
+            // Intense glow filter
+            const energyGlow = defs.append("filter").attr("id", "energyGlow");
+            energyGlow.append("feGaussianBlur").attr("stdDeviation", "5").attr("result", "coloredBlur");
+            const feMerge2 = energyGlow.append("feMerge");
+            feMerge2.append("feMergeNode").attr("in", "coloredBlur");
+            feMerge2.append("feMergeNode").attr("in", "coloredBlur");
+            feMerge2.append("feMergeNode").attr("in", "SourceGraphic");
 
             const simulation = d3.forceSimulation(filteredNodes)
                 .force("link", d3.forceLink(filteredLinks).id(d => d.id).distance(150))
@@ -263,7 +277,7 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                 }
             });
 
-            // Animation Loop for Particles
+            // Animation Loop for Clean Electric Spheres
             const particleTimer = d3.timer(() => {
                 const particleSelection = particlesLayer.selectAll("circle.particle")
                     .data(particles);
@@ -271,9 +285,9 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                 particleSelection.enter()
                     .append("circle")
                     .attr("class", "particle")
-                    .attr("r", 3)
-                    .attr("fill", "var(--accent-tertiary)")
-                    .attr("filter", "url(#glow)") // reused glow filter
+                    .attr("r", 4)
+                    .attr("fill", "url(#energySphere)")
+                    .attr("filter", "url(#energyGlow)")
                     .merge(particleSelection)
                     .each(function (d) {
                         d.t += d.speed;
@@ -281,17 +295,26 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
 
                         const source = d.link.source;
                         const target = d.link.target;
-                        // Interpolate position
-                        // Note: source/target in d3 link become objects after simulation starts
                         const sx = source.x;
                         const sy = source.y;
                         const tx = target.x;
                         const ty = target.y;
 
                         if (sx !== undefined && tx !== undefined) {
-                            const x = sx + (tx - sx) * d.t;
-                            const y = sy + (ty - sy) * d.t;
-                            d3.select(this).attr("cx", x).attr("cy", y);
+                            // Adjust t to stop particles before reaching node centers
+                            // Map t from [0,1] to [0.15, 0.85] to create buffer zones
+                            const adjustedT = 0.15 + (d.t * 0.7);
+
+                            const x = sx + (tx - sx) * adjustedT;
+                            const y = sy + (ty - sy) * adjustedT;
+
+                            // Fixed size with electric brightness flicker
+                            const brightness = 0.85 + Math.sin(d.t * Math.PI * 6) * 0.15;
+
+                            d3.select(this)
+                                .attr("cx", x)
+                                .attr("cy", y)
+                                .attr("opacity", brightness);
                         }
                     });
 
@@ -508,6 +531,52 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                             Restablecer ({removedNodes.size})
                         </button>
                     )}
+                </div>
+            </div>
+
+            {/* Graph Legend */}
+            <div style={{
+                marginTop: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(255,255,255,0.02)',
+                borderRadius: '6px',
+                border: '1px solid var(--border-subtle)'
+            }}>
+                <h4 style={{ fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Layers size={16} />
+                    Guía del Grafo de Red
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', fontSize: '0.8rem' }}>
+                    <div>
+                        <strong style={{ color: 'var(--accent-primary)' }}>🔵 Nodos (Círculos)</strong>
+                        <p style={{ margin: '0.3rem 0 0 0', color: 'var(--text-muted)' }}>
+                            Cada círculo representa una persona. El color indica su badge de influencia (♚ Rey, ♛ Estratega, ♜ Conector, etc.)
+                        </p>
+                    </div>
+                    <div>
+                        <strong style={{ color: 'var(--accent-secondary)' }}>━━ Líneas (Conexiones)</strong>
+                        <p style={{ margin: '0.3rem 0 0 0', color: 'var(--text-muted)' }}>
+                            Las líneas muestran interacciones entre personas. El grosor indica la intensidad de la relación (más emails/reuniones).
+                        </p>
+                    </div>
+                    <div>
+                        <strong style={{ color: '#00d9ff' }}>⚡ Esferas Eléctricas</strong>
+                        <p style={{ margin: '0.3rem 0 0 0', color: 'var(--text-muted)' }}>
+                            Partículas de energía que fluyen por las conexiones, representando el flujo activo de información en la red.
+                        </p>
+                    </div>
+                    <div>
+                        <strong style={{ color: 'var(--accent-tertiary)' }}>👁️ Modos de Vista</strong>
+                        <p style={{ margin: '0.3rem 0 0 0', color: 'var(--text-muted)' }}>
+                            <strong>Roles:</strong> Color por badge • <strong>Silos:</strong> Color por departamento • <strong>Países:</strong> Color por ubicación • <strong>Oposición:</strong> Color por nivel de conflicto
+                        </p>
+                    </div>
+                    <div>
+                        <strong style={{ color: '#58a6ff' }}>📊 Gráfico Radar (Perfil)</strong>
+                        <p style={{ margin: '0.3rem 0 0 0', color: 'var(--text-muted)' }}>
+                            Al hacer clic en un nodo, se muestra un pentágono que mide 5 dimensiones: <strong>Conectividad</strong> (score), <strong>Velocidad</strong> (respuesta), <strong>Volumen</strong> (emails), <strong>Impacto Teams</strong> (reuniones) y <strong>Liderazgo</strong> (organización).
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
