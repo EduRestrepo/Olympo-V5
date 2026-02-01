@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import analyticsApi from '../../services/analyticsApi';
 import { EmptyState, ErrorState } from '../shared/EmptyStates';
 import { LoadingSpinner } from '../shared/LoadingStates';
+import CommunityMap from '../analytics/CommunityMap';
+import SiloChart from '../analytics/SiloChart';
+import ConnectorCards from '../analytics/ConnectorCards';
+import DiversityStats from '../analytics/DiversityStats';
+import { Users, LayoutGrid, Network, Layers, Target, Info, RefreshCw } from 'lucide-react';
 import './CommunitiesTab.css';
 
 const CommunitiesTab = () => {
@@ -18,10 +23,10 @@ const CommunitiesTab = () => {
     });
 
     const views = [
-        { id: 'communities', label: 'Mapa de Comunidades', icon: '🗺️' },
-        { id: 'silos', label: 'Detector de Silos', icon: '🚧' },
-        { id: 'bridges', label: 'Conectores', icon: '🌉' },
-        { id: 'diversity', label: 'Diversidad', icon: '🌈' }
+        { id: 'communities', label: 'Mapa de Comunidades', icon: <Network size={18} />, description: 'Agrupaciones naturales de usuarios segun su interaccion' },
+        { id: 'silos', label: 'Detector de Silos', icon: <Layers size={18} />, description: 'Departamentos con alta concentracion de interaccion interna' },
+        { id: 'bridges', label: 'Conectores', icon: <Users size={18} />, description: 'Personas clave que unen diferentes areas' },
+        { id: 'diversity', label: 'Diversidad', icon: <Target size={18} />, description: 'Salud de la red y apertura de colaboracion' }
     ];
 
     // Load ALL data once on mount
@@ -118,13 +123,24 @@ const CommunitiesTab = () => {
         }
 
         return (
-            <div className="data-display">
-                <div className="data-grid">
-                    {currentData.map((item, index) => (
-                        <div key={index} className="data-card">
-                            <pre>{JSON.stringify(item, null, 2)}</pre>
+            <div className="data-display animate-in">
+                <div className="view-header">
+                    <div className="view-title-group">
+                        <div className="view-icon-bg">
+                            {views.find(v => v.id === activeView)?.icon}
                         </div>
-                    ))}
+                        <div>
+                            <h3>{views.find(v => v.id === activeView)?.label}</h3>
+                            <p>{views.find(v => v.id === activeView)?.description}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="view-render-container">
+                    {activeView === 'communities' && <CommunityMap communities={data.communities} />}
+                    {activeView === 'silos' && <SiloChart silos={data.silos} />}
+                    {activeView === 'bridges' && <ConnectorCards bridges={data.bridges} />}
+                    {activeView === 'diversity' && <DiversityStats diversity={data.diversity} />}
                 </div>
             </div>
         );

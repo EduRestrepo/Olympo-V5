@@ -37,7 +37,7 @@ class TemporalAnalysisService
                     ah.meeting_count,
                     ah.total_activity
                 FROM activity_heatmap ah
-                JOIN actors a ON ah.actor_id = a.id
+                LEFT JOIN actors a ON ah.actor_id = a.id
                 WHERE ah.activity_date BETWEEN :start_date AND :end_date";
 
         if ($actorId) {
@@ -55,91 +55,6 @@ class TemporalAnalysisService
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Calculate and store activity heatmap from interactions
-     * @return int Number of records created
-     */
-    public function calculateHeatmapMetrics(): int
-    {
-        // 1. Ensure Schema Exists
-        $this->db->exec("CREATE TABLE IF NOT EXISTS temporal_heatmap (
-            id SERIAL PRIMARY KEY,
-            day_of_week INTEGER,
-            hour_of_day INTEGER,
-            activity_volume INTEGER DEFAULT 0,
-            intensity_score FLOAT DEFAULT 0,
-            period_start DATE,
-            UNIQUE(day_of_week, hour_of_day, period_start)
-        )");
-
-        // 2. Hybrid Calculation: Real Timestamps for Meetings + Distributed Model for Daily Aggregated Emails
-        $sql = "INSERT INTO temporal_heatmap (day_of_week, hour_of_day, activity_volume, intensity_score, period_start)
-                WITH 
-                -- A. Real Meeting Data (We have exact timestamps in teams_call_records)
-                RealMeetings AS (
-                    SELECT 
-                        EXTRACT(DOW FROM call_timestamp) as day_of_week,
-                        EXTRACT(HOUR FROM call_timestamp) as hour_of_day,
-                        date_trunc('week', call_timestamp)::date as period_start,
-                        COUNT(*) as volume
-                    FROM teams_call_records
-                    WHERE call_timestamp >= CURRENT_DATE - INTERVAL '30 days'
-                    GROUP BY 1, 2, 3
-                ),
-                -- B. Email/Chat Data (Source is aggregated daily in 'interactions', so we distribute naturally)
-                DailyInteractions AS (
-                    SELECT 
-                        EXTRACT(DOW FROM interaction_date) as day_of_week,
-                        date_trunc('week', interaction_date)::date as period_start,
-                        SUM(volume) as total_vol
-                    FROM interactions
-                    WHERE interaction_date >= CURRENT_DATE - INTERVAL '30 days'
-                    -- Exclude if possible, but currently interactions is mostly email/chat
-                    GROUP BY 1, 2
-                ),
-                WorkHours AS (
-                    SELECT * FROM (VALUES 
-                        (8, 0.05), (9, 0.10), (10, 0.12), (11, 0.12), -- Morning Peak
-                        (12, 0.08), (13, 0.05), -- Lunch Dip
-                        (14, 0.10), (15, 0.12), (16, 0.12), (17, 0.10), (18, 0.04) -- Afternoon Peak
-                    ) AS t(h, weight)
-                ),
-                DistributedEmails AS (
-                     SELECT 
-                        di.day_of_week,
-                        wh.h as hour_of_day,
-                        di.period_start,
-                        CEIL(di.total_vol * wh.weight) as volume
-                     FROM DailyInteractions di
-                     CROSS JOIN WorkHours wh
-                ),
-                -- C. Combine Both Sources
-                Combined AS (
-                    SELECT day_of_week, hour_of_day, period_start, volume FROM RealMeetings
-                    UNION ALL
-                    SELECT day_of_week, hour_of_day, period_start, volume FROM DistributedEmails
-                )
-                SELECT 
-                    day_of_week, 
-                    hour_of_day, 
-                    SUM(volume) as activity_volume,
-                    0 as intensity_score,
-                    period_start
-                FROM Combined
-                GROUP BY 1, 2, 5
-                ON CONFLICT (day_of_week, hour_of_day, period_start) 
-                DO UPDATE SET 
-                    activity_volume = EXCLUDED.activity_volume";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        
-        // Update intensity score relative to max
-        $this->db->query("UPDATE temporal_heatmap SET intensity_score = CASE WHEN (SELECT MAX(activity_volume) FROM temporal_heatmap) > 0 THEN (activity_volume::float / (SELECT MAX(activity_volume) FROM temporal_heatmap)) * 100 ELSE 0 END");
-
-        return 1;
     }
 
     /**

@@ -21,6 +21,7 @@ class MetricService
         $this->calculateToneIndex();
         $this->calculateResponseTimes();
         $this->calculateActivityHeatmap();
+        $this->refreshInfluenceLinks();
         error_log("[MetricService] Recalculation complete.");
     }
 
@@ -161,9 +162,10 @@ class MetricService
     {
         error_log("[MetricService] Calculating activity heatmap...");
 
-        // Ensure table exists
+        // Ensure table exists with correct schema
+        $this->db->query("DROP TABLE IF EXISTS activity_heatmap");
         $this->db->query("
-            CREATE TABLE IF NOT EXISTS activity_heatmap (
+            CREATE TABLE activity_heatmap (
                 id SERIAL PRIMARY KEY,
                 actor_id INT NULL,
                 activity_date DATE NOT NULL,
@@ -175,8 +177,6 @@ class MetricService
                 UNIQUE(actor_id, activity_date, hour_of_day)
             )
         ");
-
-        $this->db->query("TRUNCATE TABLE activity_heatmap");
 
         // 1. Insert from Teams Calls (Real Timestamps)
         $sqlTeams = "
@@ -253,6 +253,50 @@ class MetricService
         }
         $this->db->commit();
         
-        error_log("[MetricService] Heatmap generation complete.");
+    }
+
+    public function refreshInfluenceLinks(): void
+    {
+        error_log("[MetricService] Refreshing influence links...");
+        
+        // 1. Clear existing links
+        $this->db->query("TRUNCATE TABLE influence_links");
+
+        // 2. Generate new links from interactions
+        // We aggregate interactions between pairs and normalize weight.
+        // Formula: weight = ln(volume + 1) / ln(max_volume + 1)
+        
+        $sql = "
+            INSERT INTO influence_links (source_id, target_id, weight)
+            WITH PairActivity AS (
+                SELECT 
+                    source_id, 
+                    target_id, 
+                    SUM(volume) as total_vol
+                FROM interactions
+                GROUP BY source_id, target_id
+            ),
+            MaxActivity AS (
+                SELECT MAX(total_vol) as max_vol FROM PairActivity
+            )
+            SELECT 
+                p.source_id, 
+                p.target_id,
+                CASE 
+                    WHEN m.max_vol > 0 THEN LEAST(1.0, LN(p.total_vol + 1) / LN(m.max_vol + 1))
+                    ELSE 0 
+                END as weight
+            FROM PairActivity p
+            CROSS JOIN MaxActivity m
+            WHERE p.total_vol > 0
+        ";
+        
+        try {
+            $this->db->query($sql);
+            $count = $this->db->query("SELECT COUNT(*) FROM influence_links")->fetchColumn();
+            error_log("[MetricService] Generated $count influence links.");
+        } catch (\Exception $e) {
+            error_log("[MetricService] Error generating influence links: " . $e->getMessage());
+        }
     }
 }

@@ -151,7 +151,7 @@ class BenchmarkingService
                     active_communities,
                     network_density
                 FROM temporal_snapshots
-                WHERE snapshot_date >= CURRENT_DATE - INTERVAL ':months months'
+                WHERE snapshot_date >= CURRENT_DATE - ( CAST(:months AS text) || ' months')::interval
                 ORDER BY snapshot_date DESC";
 
         $stmt = $this->db->prepare($sql);

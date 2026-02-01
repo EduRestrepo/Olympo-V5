@@ -13,6 +13,7 @@ use Olympus\Services\BatchProcessingService;
 use Olympus\Services\ADGroupService;
 use Olympus\Services\ExportService;
 use Olympus\Services\GamificationService;
+use Olympus\Services\MetricService;
 
 class AnalyticsController
 {
@@ -171,6 +172,10 @@ class AnalyticsController
     public function calculateCommunityMetrics(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
+        $metricService = new MetricService();
+        
+        // Refresh influence links from interactions before detection
+        $metricService->refreshInfluenceLinks();
         
         $communitiesCount = count($service->detectCommunities());
         $silosCount = count($service->detectSilos());
@@ -227,16 +232,25 @@ class AnalyticsController
     {
         $service = new MeetingAnalysisService($this->db);
         
-        $efficiencyCount = $service->calculateMeetingEfficiency();
-        $attendanceCount = $service->calculateAttendancePatterns();
-        $recommendationsCount = $service->generateRecommendations();
+        try {
+            $efficiencyCount = $service->calculateMeetingEfficiency();
+            $attendanceCount = $service->calculateAttendancePatterns();
+            $recommendationsCount = $service->generateRecommendations();
 
-        $result = [
-            'success' => true,
-            'efficiency_records' => $efficiencyCount,
-            'attendance_records' => $attendanceCount,
-            'recommendations' => $recommendationsCount
-        ];
+            $result = [
+                'success' => true,
+                'efficiency_records' => $efficiencyCount,
+                'attendance_records' => $attendanceCount,
+                'recommendations' => $recommendationsCount
+            ];
+        } catch (\Exception $e) {
+            error_log("Error in calculateMeetingMetrics: " . $e->getMessage());
+            $result = [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+            return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
+        }
 
         return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
@@ -279,16 +293,25 @@ class AnalyticsController
     {
         $service = new PredictiveAnalyticsService($this->db);
         
-        $churnCount = $service->calculateChurnRisk();
-        $burnoutCount = $service->calculateBurnoutIndicators();
-        $isolationCount = $service->calculateIsolationAlerts();
+        try {
+            $churnCount = $service->calculateChurnRisk();
+            $burnoutCount = $service->calculateBurnoutIndicators();
+            $isolationCount = $service->calculateIsolationAlerts();
 
-        $result = [
-            'success' => true,
-            'churn_records' => $churnCount,
-            'burnout_records' => $burnoutCount,
-            'isolation_records' => $isolationCount
-        ];
+            $result = [
+                'success' => true,
+                'churn_records' => $churnCount,
+                'burnout_records' => $burnoutCount,
+                'isolation_records' => $isolationCount
+            ];
+        } catch (\Exception $e) {
+            error_log("Error in calculatePredictiveMetrics: " . $e->getMessage());
+            $result = [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+            return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
+        }
 
         return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
@@ -327,15 +350,24 @@ class AnalyticsController
     {
         $service = new BenchmarkingService($this->db);
         
-        $benchmarkCount = $service->calculateDepartmentBenchmarks();
-        $service->createTemporalSnapshot();
-        $rankingCount = $service->calculateRankings();
+        try {
+            $benchmarkCount = $service->calculateDepartmentBenchmarks();
+            $service->createTemporalSnapshot();
+            $rankingCount = $service->calculateRankings();
 
-        $result = [
-            'success' => true,
-            'benchmark_records' => $benchmarkCount,
-            'ranking_records' => $rankingCount
-        ];
+            $result = [
+                'success' => true,
+                'benchmark_records' => $benchmarkCount,
+                'ranking_records' => $rankingCount
+            ];
+        } catch (\Exception $e) {
+            error_log("Error in calculateBenchmarks: " . $e->getMessage());
+            $result = [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+            return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
+        }
 
         return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
@@ -354,10 +386,11 @@ class AnalyticsController
 
         $result = $service->exportToCSV($exportType, $filters);
 
-        $response->getBody()->write($result['data']);
-        return $response
-            ->withHeader('Content-Type', 'text/csv')
-            ->withHeader('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+        $response = new Response($result['data']);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+        
+        return $response;
     }
 
     // ========================================================================
