@@ -15,22 +15,34 @@ export const analyticsApi = {
             if (endDate) params.append('end_date', endDate);
 
             const response = await fetch(`${API_BASE}/analytics/temporal/heatmap?${params}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         },
 
         getOverload: async (threshold = 40) => {
             const response = await fetch(`${API_BASE}/analytics/temporal/overload?threshold=${threshold}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         },
 
         getResponseTime: async (department = null) => {
             const params = department ? `?department=${department}` : '';
             const response = await fetch(`${API_BASE}/analytics/temporal/response-time${params}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         },
 
         getTimezone: async () => {
             const response = await fetch(`${API_BASE}/analytics/temporal/timezone`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         },
 
@@ -39,6 +51,9 @@ export const analyticsApi = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return response.json();
         }
     },
@@ -52,16 +67,19 @@ export const analyticsApi = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getAll: async () => {
             const response = await fetch(`${API_BASE}/analytics/communities`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getSilos: async () => {
             const response = await fetch(`${API_BASE}/analytics/communities/silos`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -71,11 +89,13 @@ export const analyticsApi = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ threshold })
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getBridges: async () => {
             const response = await fetch(`${API_BASE}/analytics/communities/bridges`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -85,12 +105,14 @@ export const analyticsApi = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ threshold })
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getDiversity: async (actorId = null) => {
             const params = actorId ? `?actor_id=${actorId}` : '';
             const response = await fetch(`${API_BASE}/analytics/communities/diversity${params}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         }
     },
@@ -102,6 +124,7 @@ export const analyticsApi = {
         getEfficiency: async (actorId = null) => {
             const params = actorId ? `?actor_id=${actorId}` : '';
             const response = await fetch(`${API_BASE}/analytics/meetings/efficiency${params}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -111,11 +134,13 @@ export const analyticsApi = {
             if (endDate) params.append('end_date', endDate);
 
             const response = await fetch(`${API_BASE}/analytics/meetings/costs?${params}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getRecommendations: async () => {
             const response = await fetch(`${API_BASE}/analytics/meetings/recommendations`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -124,6 +149,7 @@ export const analyticsApi = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         }
     },
@@ -134,16 +160,19 @@ export const analyticsApi = {
     predictions: {
         getChurnRisk: async (threshold = 0.7) => {
             const response = await fetch(`${API_BASE}/analytics/predictions/churn?threshold=${threshold}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getBurnout: async (threshold = 0.7) => {
             const response = await fetch(`${API_BASE}/analytics/predictions/burnout?threshold=${threshold}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getIsolation: async (threshold = 0.5) => {
             const response = await fetch(`${API_BASE}/analytics/predictions/isolation?threshold=${threshold}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -152,6 +181,7 @@ export const analyticsApi = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         }
     },
@@ -162,11 +192,13 @@ export const analyticsApi = {
     benchmarks: {
         getDepartments: async () => {
             const response = await fetch(`${API_BASE}/analytics/benchmarks/departments`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
         getRankings: async (type = 'top_collaborators', limit = 20) => {
             const response = await fetch(`${API_BASE}/analytics/benchmarks/rankings?type=${type}&limit=${limit}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         },
 
@@ -175,6 +207,7 @@ export const analyticsApi = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return response.json();
         }
     },

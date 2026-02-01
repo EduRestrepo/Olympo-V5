@@ -1,22 +1,103 @@
-import React, { useState } from 'react';
-import { EmptyState } from '../shared/EmptyStates';
+import React, { useState, useEffect } from 'react';
+import analyticsApi from '../../services/analyticsApi';
+import { EmptyState, ErrorState } from '../shared/EmptyStates';
+import { LoadingSpinner } from '../shared/LoadingStates';
 import './IntelligenceTab.css';
 
 const IntelligenceTab = () => {
     const [activeView, setActiveView] = useState('churn');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [data, setData] = useState({
+        churn: [],
+        burnout: [],
+        isolation: []
+    });
 
     const views = [
-        { id: 'churn', label: 'Riesgo de Rotación', icon: '🚪' },
+        { id: 'churn', label: 'Riesgo de Fuga', icon: '🚪' },
         { id: 'burnout', label: 'Burnout', icon: '🔥' },
-        { id: 'isolation', label: 'Aislamiento', icon: '🏝️' },
-        { id: 'trends', label: 'Tendencias', icon: '📈' }
+        { id: 'isolation', label: 'Aislamiento', icon: '🏝️' }
     ];
+
+    useEffect(() => {
+        fetchData();
+    }, [activeView]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            let result;
+            switch (activeView) {
+                case 'churn':
+                    result = await analyticsApi.predictions.getChurnRisk();
+                    // Auto-calculate if no data
+                    if (!result || result.length === 0) {
+                        await analyticsApi.predictions.calculate();
+                        result = await analyticsApi.predictions.getChurnRisk();
+                    }
+                    setData(prev => ({ ...prev, churn: result }));
+                    break;
+                case 'burnout':
+                    result = await analyticsApi.predictions.getBurnout();
+                    if (!result || result.length === 0) {
+                        await analyticsApi.predictions.calculate();
+                        result = await analyticsApi.predictions.getBurnout();
+                    }
+                    setData(prev => ({ ...prev, burnout: result }));
+                    break;
+                case 'isolation':
+                    result = await analyticsApi.predictions.getIsolation();
+                    if (!result || result.length === 0) {
+                        await analyticsApi.predictions.calculate();
+                        result = await analyticsApi.predictions.getIsolation();
+                    }
+                    setData(prev => ({ ...prev, isolation: result }));
+                    break;
+            }
+        } catch (err) {
+            console.error('Error fetching intelligence data:', err);
+            setError(err.message || 'Error al cargar los datos');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderContent = () => {
+        if (loading) return <LoadingSpinner message="Cargando análisis predictivo..." />;
+        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+
+        const currentData = data[activeView];
+        if (!currentData || currentData.length === 0) {
+            return (
+                <EmptyState
+                    icon={views.find(v => v.id === activeView)?.icon}
+                    title={views.find(v => v.id === activeView)?.label}
+                    message="No hay datos disponibles para esta vista"
+                />
+            );
+        }
+
+        return (
+            <div className="data-display">
+                <div className="data-grid">
+                    {currentData.map((item, index) => (
+                        <div key={index} className="data-card">
+                            <pre>{JSON.stringify(item, null, 2)}</pre>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="intelligence-tab">
             <div className="tab-intro">
-                <h2>🔮 Inteligencia Predictiva</h2>
-                <p>Detecta riesgos tempranos y predice tendencias de colaboración</p>
+                <h2>🧠 Inteligencia Predictiva</h2>
+                <p>Anticipa riesgos y problemas antes de que ocurran</p>
             </div>
 
             <div className="view-selector">
@@ -33,200 +114,7 @@ const IntelligenceTab = () => {
             </div>
 
             <div className="view-content">
-                {activeView === 'churn' && (
-                    <div className="churn-view">
-                        <div className="alert-banner danger">
-                            <span className="alert-icon">🚪</span>
-                            <div className="alert-content">
-                                <strong>Detección Temprana de Rotación</strong>
-                                <p>Identifica usuarios con patrones de comunicación decrecientes</p>
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card danger">
-                                <div className="stat-icon">🔴</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Riesgo Alto</div>
-                                </div>
-                            </div>
-                            <div className="stat-card warning">
-                                <div className="stat-icon">🟡</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Riesgo Medio</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📉</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Cambio Promedio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🚪"
-                            title="Análisis de riesgo de rotación"
-                            message="Calcula métricas predictivas para identificar usuarios en riesgo"
-                            action={
-                                <button className="primary-button">
-                                    🔄 Calcular Riesgos
-                                </button>
-                            }
-                        />
-                    </div>
-                )}
-
-                {activeView === 'burnout' && (
-                    <div className="burnout-view">
-                        <div className="alert-banner warning">
-                            <span className="alert-icon">🔥</span>
-                            <div className="alert-content">
-                                <strong>Indicadores de Burnout</strong>
-                                <p>Sobrecarga de trabajo, horarios extendidos y falta de descanso</p>
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card danger">
-                                <div className="stat-icon">⚠️</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Usuarios en Riesgo</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">⏰</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Horas Promedio/Semana</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📧</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Emails Fuera de Horario</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="risk-factors">
-                            <h3>Factores de Riesgo</h3>
-                            <div className="factors-grid">
-                                <div className="factor-card">
-                                    <span className="factor-icon">📞</span>
-                                    <span className="factor-label">+40h reuniones/semana</span>
-                                </div>
-                                <div className="factor-card">
-                                    <span className="factor-icon">📧</span>
-                                    <span className="factor-label">+200 emails/semana</span>
-                                </div>
-                                <div className="factor-card">
-                                    <span className="factor-icon">🌙</span>
-                                    <span className="factor-label">Actividad nocturna</span>
-                                </div>
-                                <div className="factor-card">
-                                    <span className="factor-icon">📅</span>
-                                    <span className="factor-label">Sin días libres</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🔥"
-                            title="Monitor de burnout"
-                            message="Identifica señales tempranas de agotamiento en tu equipo"
-                        />
-                    </div>
-                )}
-
-                {activeView === 'isolation' && (
-                    <div className="isolation-view">
-                        <div className="info-banner">
-                            <span className="info-icon">🏝️</span>
-                            <div className="info-content">
-                                <strong>Alertas de Aislamiento</strong>
-                                <p>Detecta usuarios con baja conectividad en la red organizacional</p>
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card warning">
-                                <div className="stat-icon">🏝️</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Usuarios Aislados</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">🔗</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Conexiones Promedio</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📊</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Umbral de Aislamiento</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🏝️"
-                            title="Análisis de aislamiento"
-                            message="Identifica usuarios que necesitan mayor integración"
-                        />
-                    </div>
-                )}
-
-                {activeView === 'trends' && (
-                    <div className="trends-view">
-                        <div className="stats-grid">
-                            <div className="stat-card success">
-                                <div className="stat-icon">📈</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Tendencia General</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">🔮</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Predicción 30 días</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📊</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Confianza del Modelo</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="info-banner">
-                            <span className="info-icon">💡</span>
-                            <div className="info-content">
-                                <strong>Pronósticos de Colaboración</strong>
-                                <p>Basados en patrones históricos y tendencias actuales</p>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="📈"
-                            title="Tendencias y pronósticos"
-                            message="Visualiza la evolución esperada de la colaboración"
-                        />
-                    </div>
-                )}
+                {renderContent()}
             </div>
         </div>
     );

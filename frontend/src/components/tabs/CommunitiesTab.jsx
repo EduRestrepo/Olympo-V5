@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import analyticsApi from '../../services/analyticsApi';
 import { EmptyState, ErrorState } from '../shared/EmptyStates';
 import { LoadingSpinner } from '../shared/LoadingStates';
 import './CommunitiesTab.css';
@@ -6,7 +7,13 @@ import './CommunitiesTab.css';
 const CommunitiesTab = () => {
     const [activeView, setActiveView] = useState('communities');
     const [loading, setLoading] = useState(false);
-    const [communities, setCommunities] = useState([]);
+    const [error, setError] = useState(null);
+    const [data, setData] = useState({
+        communities: [],
+        silos: [],
+        bridges: [],
+        diversity: []
+    });
 
     const views = [
         { id: 'communities', label: 'Mapa de Comunidades', icon: '🗺️' },
@@ -14,6 +21,83 @@ const CommunitiesTab = () => {
         { id: 'bridges', label: 'Conectores', icon: '🌉' },
         { id: 'diversity', label: 'Diversidad', icon: '🌈' }
     ];
+
+    useEffect(() => {
+        fetchData();
+    }, [activeView]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            let result;
+            switch (activeView) {
+                case 'communities':
+                    result = await analyticsApi.communities.getAll();
+                    // Auto-calculate if no data
+                    if (!result || result.length === 0) {
+                        await analyticsApi.communities.detect();
+                        result = await analyticsApi.communities.getAll();
+                    }
+                    setData(prev => ({ ...prev, communities: result }));
+                    break;
+                case 'silos':
+                    result = await analyticsApi.communities.getSilos();
+                    if (!result || result.length === 0) {
+                        await analyticsApi.communities.detectSilos();
+                        result = await analyticsApi.communities.getSilos();
+                    }
+                    setData(prev => ({ ...prev, silos: result }));
+                    break;
+                case 'bridges':
+                    result = await analyticsApi.communities.getBridges();
+                    if (!result || result.length === 0) {
+                        await analyticsApi.communities.detectBridges();
+                        result = await analyticsApi.communities.getBridges();
+                    }
+                    setData(prev => ({ ...prev, bridges: result }));
+                    break;
+                case 'diversity':
+                    result = await analyticsApi.communities.getDiversity();
+                    setData(prev => ({ ...prev, diversity: result }));
+                    break;
+            }
+        } catch (err) {
+            console.error('Error fetching communities data:', err);
+            setError(err.message || 'Error al cargar los datos');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderContent = () => {
+        if (loading) return <LoadingSpinner message="Cargando datos de comunidades..." />;
+        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+
+        const currentData = data[activeView];
+        if (!currentData || currentData.length === 0) {
+            return (
+                <EmptyState
+                    icon={views.find(v => v.id === activeView)?.icon}
+                    title={views.find(v => v.id === activeView)?.label}
+                    message="No hay datos disponibles para esta vista"
+                />
+            );
+        }
+
+        return (
+            <div className="data-display">
+                <div className="data-grid">
+                    {currentData.map((item, index) => (
+                        <div key={index} className="data-card">
+                            <pre>{JSON.stringify(item, null, 2)}</pre>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="communities-tab">
@@ -36,153 +120,7 @@ const CommunitiesTab = () => {
             </div>
 
             <div className="view-content">
-                {activeView === 'communities' && (
-                    <div className="communities-view">
-                        <div className="action-bar">
-                            <button className="primary-button">
-                                🔍 Detectar Comunidades
-                            </button>
-                            <div className="info-text">
-                                <span className="info-icon">ℹ️</span>
-                                Usa el algoritmo Louvain para identificar grupos naturales
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <div className="stat-icon">👥</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Comunidades Detectadas</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📊</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Modularidad</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">👤</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Tamaño Promedio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🗺️"
-                            title="Mapa de comunidades"
-                            message="Ejecuta la detección para visualizar las comunidades en tu organización"
-                        />
-                    </div>
-                )}
-
-                {activeView === 'silos' && (
-                    <div className="silos-view">
-                        <div className="alert-banner danger">
-                            <span className="alert-icon">🚧</span>
-                            <div className="alert-content">
-                                <strong>¿Qué son los silos organizacionales?</strong>
-                                <p>Grupos que colaboran internamente pero tienen poca interacción con el resto de la organización</p>
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card danger">
-                                <div className="stat-icon">⚠️</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Silos Detectados</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">📉</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Índice de Aislamiento</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🚧"
-                            title="Análisis de silos pendiente"
-                            message="Detecta primero las comunidades para identificar silos organizacionales"
-                        />
-                    </div>
-                )}
-
-                {activeView === 'bridges' && (
-                    <div className="bridges-view">
-                        <div className="info-banner">
-                            <span className="info-icon">💡</span>
-                            <div className="info-content">
-                                <strong>Conectores de Red</strong>
-                                <p>Personas que conectan diferentes comunidades y facilitan el flujo de información</p>
-                            </div>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card success">
-                                <div className="stat-icon">🌉</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">0</div>
-                                    <div className="stat-label">Conectores Identificados</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">🔗</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Betweenness Promedio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🌉"
-                            title="Análisis de conectores"
-                            message="Los conectores clave aparecerán aquí después de la detección"
-                        />
-                    </div>
-                )}
-
-                {activeView === 'diversity' && (
-                    <div className="diversity-view">
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <div className="stat-icon">🌈</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Índice de Diversidad</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">🏢</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Departamentos Conectados</div>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <div className="stat-icon">🌍</div>
-                                <div className="stat-content">
-                                    <div className="stat-value">-</div>
-                                    <div className="stat-label">Países Representados</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <EmptyState
-                            icon="🌈"
-                            title="Métricas de diversidad"
-                            message="Analiza la diversidad de conexiones en tu red organizacional"
-                        />
-                    </div>
-                )}
+                {renderContent()}
             </div>
         </div>
     );
