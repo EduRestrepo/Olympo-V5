@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, AlertTriangle, Timer, Globe, TrendingUp, User, Users } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { Clock, AlertTriangle, Timer, Globe, TrendingUp, User, Users, Activity } from 'lucide-react';
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import analyticsApi from '../../services/analyticsApi';
 import { LoadingSpinner } from '../shared/LoadingStates';
 import { EmptyState, ErrorState } from '../shared/EmptyStates';
@@ -46,10 +46,14 @@ const TemporalTab = () => {
         responseTime: [],
         timezone: []
     });
+
+    // Filtros
     const [overloadFilter, setOverloadFilter] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedDep, setSelectedDep] = useState('all');
 
     const views = [
-        { id: 'heatmap', label: 'Mapa de Calor', icon: <Clock size={18} /> },
+        { id: 'heatmap', label: 'Análisis de Actividad', icon: <Activity size={18} /> },
         { id: 'overload', label: 'Sobrecarga', icon: <AlertTriangle size={18} /> },
         { id: 'responseTime', label: 'Tiempo de Respuesta', icon: <Timer size={18} /> },
         { id: 'timezone', label: 'Interacción ', icon: <Globe size={18} /> }
@@ -147,59 +151,74 @@ const TemporalTab = () => {
         }
     };
 
-    const renderHeatmap = (heatmapData) => {
-        // Pre-process and aggregate data
-        // Backend returns: { activity_date, hour_of_day, total_activity }
-        const aggregatedData = {}; // Key: "dayIndex-hour", Value: count
-        let totalActivity = 0;
+    const renderCombinedActivity = (heatmapData) => {
+        // --- 1. Top Section: Weekly Rhythm (Area Chart) ---
+        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const dayOrder = [1, 2, 3, 4, 5, 6, 0]; // Mon->Sun
 
-        heatmapData.forEach(item => {
-            // Support both old and new field names for robustness
-            const count = parseInt(item.total_activity || item.activity_count || 0, 10);
-
-            let dayIndex;
-            if (item.day_of_week !== undefined) {
-                dayIndex = parseInt(item.day_of_week, 10);
-            } else if (item.activity_date) {
-                // Parse "YYYY-MM-DD" to get day of week (0=Sunday)
-                // Note: new Date("YYYY-MM-DD") is UTC, which is generally what we want here
-                const date = new Date(item.activity_date);
-                dayIndex = date.getUTCDay();
-            } else {
-                return; // Skip invalid
+        const timelineData = [];
+        dayOrder.forEach(dayIndex => {
+            for (let h = 0; h < 24; h++) {
+                timelineData.push({
+                    dayIndex,
+                    dayName: days[dayIndex],
+                    hour: h,
+                    timeLabel: `${days[dayIndex]} ${h}:00`,
+                    value: 0
+                });
             }
-
-            const hour = parseInt(item.hour_of_day, 10);
-            const key = `${dayIndex}-${hour}`;
-
-            aggregatedData[key] = (aggregatedData[key] || 0) + count;
-            totalActivity += count;
         });
 
-        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        // --- 2. Bottom Section: Heatmap (Grid) Logic ---
+        const aggregatedHeatmap = {}; // Key: "dayIndex-hour"
+        let totalActivity = 0;
+        let maxHeatmapValue = 1;
+
+        heatmapData.forEach(item => {
+            const count = parseInt(item.total_activity || item.activity_count || 0, 10);
+            totalActivity += count;
+
+            let dIndex;
+            if (item.day_of_week !== undefined) {
+                dIndex = parseInt(item.day_of_week, 10);
+            } else if (item.activity_date) {
+                const date = new Date(item.activity_date);
+                dIndex = date.getUTCDay();
+            } else {
+                return;
+            }
+            const hour = parseInt(item.hour_of_day, 10);
+
+            // Populate Timeline (Rhythm)
+            const dayPos = dayOrder.indexOf(dIndex);
+            if (dayPos !== -1) {
+                const flatIndex = (dayPos * 24) + hour;
+                if (timelineData[flatIndex]) {
+                    timelineData[flatIndex].value += count;
+                }
+            }
+
+            // Populate Heatmap
+            const key = `${dIndex}-${hour}`;
+            aggregatedHeatmap[key] = (aggregatedHeatmap[key] || 0) + count;
+        });
+
+        // Calculate Max for Heatmap Color Scale (95th percentile)
+        const heatValues = Object.values(aggregatedHeatmap).sort((a, b) => a - b);
+        if (heatValues.length > 0) {
+            maxHeatmapValue = heatValues[Math.floor(heatValues.length * 0.95)] || 1;
+        }
+        maxHeatmapValue = Math.max(maxHeatmapValue, 1);
+
+        const getHeatIntensity = (day, hour) => aggregatedHeatmap[`${day}-${hour}`] || 0;
         const hours = Array.from({ length: 24 }, (_, i) => i);
 
-        // Calculate 95th percentile to handle outliers
-        const values = Object.values(aggregatedData).sort((a, b) => a - b);
-        let maxActivity = 1;
-
-        if (values.length > 0) {
-            const percentileIndex = Math.floor(values.length * 0.95);
-            maxActivity = values[percentileIndex] || 1;
-        }
-
-        // Ensure we don't divide by zero and have a sensible minimum
-        maxActivity = Math.max(maxActivity, 1);
-
-        const getIntensity = (day, hour) => {
-            return aggregatedData[`${day}-${hour}`] || 0;
-        };
 
         return (
             <div className="temporal-view">
                 <div className="stats-grid">
                     <div className="stat-card">
-                        <Clock className="stat-icon" />
+                        <Activity className="stat-icon" />
                         <div className="stat-content">
                             <div className="stat-label">Total Actividades</div>
                             <div className="stat-value">{totalActivity.toLocaleString()}</div>
@@ -207,8 +226,54 @@ const TemporalTab = () => {
                     </div>
                 </div>
 
-                <div className="heatmap-container">
-                    <h3>Intensidad de Actividad Semanal</h3>
+                {/* --- Chart 1: Weekly Rhythm --- */}
+                <div className="chart-container" style={{ marginTop: '24px', background: '#1c1c1e', padding: '20px', borderRadius: '12px' }}>
+                    <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Activity size={20} color="#0a84ff" />
+                        Ritmo Semanal (Volumen)
+                    </h3>
+                    <div style={{ width: '100%', height: 300 }}>
+                        <ResponsiveContainer>
+                            <AreaChart data={timelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#0a84ff" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="#0a84ff" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                                <XAxis
+                                    dataKey="timeLabel"
+                                    interval={23}
+                                    stroke="#888"
+                                    tickFormatter={(val) => val.split(' ')[0]}
+                                    fontSize={12}
+                                />
+                                <YAxis stroke="#888" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#333', color: '#fff' }}
+                                    labelStyle={{ color: '#0a84ff', fontWeight: 'bold' }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#0a84ff"
+                                    strokeWidth={3}
+                                    fillOpacity={1}
+                                    fill="url(#colorValue)"
+                                    name="Actividad"
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* --- Chart 2: Heatmap --- */}
+                <div className="heatmap-container" style={{ marginTop: '32px' }}>
+                    <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Clock size={20} color="#0a84ff" />
+                        Distribución Horaria (Mapa de Calor)
+                    </h3>
                     <div className="heatmap-grid">
                         <div className="heatmap-header"></div>
                         {hours.map(h => (
@@ -219,18 +284,16 @@ const TemporalTab = () => {
                             <React.Fragment key={dayIndex}>
                                 <div className="heatmap-row-label">{dayName}</div>
                                 {hours.map(hour => {
-                                    const value = getIntensity(dayIndex, hour);
-                                    // Use logarithmic scale to handle outliers (e.g., bulk imports)
-                                    // formula: log(value + 1) / log(max + 1)
+                                    const value = getHeatIntensity(dayIndex, hour);
                                     const logValue = Math.log(value + 1);
-                                    const logMax = Math.log(maxActivity + 1);
-                                    const opacity = logMax > 0 ? (logValue / logMax) * 0.8 + 0.2 : 0; // Min opacity 0.2 if exists
+                                    const logMax = Math.log(maxHeatmapValue + 1);
+                                    const opacity = logMax > 0 ? (logValue / logMax) * 0.8 + 0.2 : 0;
 
                                     return (
                                         <HeatmapCell
                                             key={`${dayIndex}-${hour}`}
                                             value={value > 0 ? value : 0}
-                                            max={maxActivity}
+                                            max={maxHeatmapValue}
                                             opacity={value > 0 ? opacity : 0}
                                         />
                                     );
@@ -238,163 +301,166 @@ const TemporalTab = () => {
                             </React.Fragment>
                         ))}
                     </div>
-                    <div className="heatmap-legend">
-                        <span>Menos Actividad</span>
-                        <div className="legend-gradient"></div>
-                        <span>Más Actividad</span>
-                    </div>
                 </div>
+
                 <div className="view-disclaimer">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <p><strong>💡 Interpretación:</strong> Este mapa muestra la intensidad de actividad acumulada por hora. Los colores más intensos indican mayor volumen de trabajo.</p>
-                        <p style={{ fontSize: '0.85em', color: '#a1a1a6', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
-                            <strong>ℹ️ Nota Técnica:</strong> Las <em>Reuniones</em> se visualizan en su horario real exacto. Los <em>Emails y Chats</em> (origen Office 365) se distribuyen estimativamente a lo largo de la jornada laboral estándar (08:00-18:00) al no disponer de hora exacta en el origen de datos.
-                        </p>
-                    </div>
+                    <p><strong>💡 Vista Combinada:</strong> Arriba, el flujo continuo de trabajo. Abajo, el detalle granular por hora/día.</p>
                 </div>
             </div >
         );
     };
 
     const renderOverload = (rawOverloadData) => {
-        if (!rawOverloadData || !Array.isArray(rawOverloadData)) return <EmptyState icon="⚠️" title="Error de Datos" message="Formato de datos inválido" />;
+        try {
+            if (!rawOverloadData || !Array.isArray(rawOverloadData)) return <EmptyState icon="⚠️" title="Error de Datos" message="Formato de datos inválido" />;
 
-        // Filter out any potential null/undefined items from the array
-        const overloadData = rawOverloadData.filter(item => item && typeof item === 'object');
+            // Filter out any potential null/undefined items from the array
+            const overloadData = rawOverloadData.filter(item => item && typeof item === 'object');
 
-        // Extract unique departments safely
-        const departments = ['all', ...new Set(overloadData.map(u => u?.department || 'Sin Dept'))];
+            // Extract unique departments safely
+            const departments = ['all', ...new Set(overloadData.map(u => u?.department || 'Sin Dept'))];
 
-        let filteredData = overloadData.filter(user => {
-            const userName = user?.name || '';
-            const userEmail = user?.email || '';
-            const userDept = user?.department || 'Sin Dept';
-            const userRisk = user?.risk_level;
+            let filteredData = overloadData.filter(user => {
+                const userName = user?.name || '';
+                const userEmail = user?.email || '';
+                const userDept = user?.department || 'Sin Dept';
+                const userRisk = user?.risk_level;
 
-            const matchesRisk = overloadFilter === 'all' || userRisk === overloadFilter;
-            const matchesSearch = userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                userEmail.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesDep = selectedDep === 'all' || userDept === selectedDep;
-            return matchesRisk && matchesSearch && matchesDep;
-        });
+                const matchesRisk = overloadFilter === 'all' || userRisk === overloadFilter;
+                const matchesSearch = userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    userEmail.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesDep = selectedDep === 'all' || userDept === selectedDep;
+                return matchesRisk && matchesSearch && matchesDep;
+            });
 
-        const sortedData = [...filteredData].sort((a, b) => parseFloat(b?.overload_score || 0) - parseFloat(a?.overload_score || 0));
-        const highRisk = overloadData.filter(u => u?.risk_level === 'high').length;
+            const sortedData = [...filteredData].sort((a, b) => parseFloat(b?.overload_score || 0) - parseFloat(a?.overload_score || 0));
+            const highRisk = overloadData.filter(u => u?.risk_level === 'high').length;
 
-        return (
-            <div className="temporal-view">
-                <div className="stats-grid">
-                    <div className="stat-card danger">
-                        <AlertTriangle className="stat-icon" />
-                        <div className="stat-content">
-                            <div className="stat-label">Usuarios en Riesgo Alto</div>
-                            <div className="stat-value">{highRisk}</div>
+            return (
+                <div className="temporal-view">
+                    <div className="stats-grid">
+                        <div className="stat-card danger">
+                            <AlertTriangle className="stat-icon" />
+                            <div className="stat-content">
+                                <div className="stat-label">Usuarios en Riesgo Alto</div>
+                                <div className="stat-value">{highRisk}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div className="stat-card">
-                        <Users className="stat-icon" />
-                        <div className="stat-content">
-                            <div className="stat-label">Usuarios Analizados</div>
-                            <div className="stat-value">{overloadData.length}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="overload-list">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-                        <h3>Top Usuarios con Sobrecarga</h3>
-                        <div className="filters-container" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <select
-                                value={selectedDep}
-                                onChange={(e) => setSelectedDep(e.target.value)}
-                                style={{ padding: '6px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff' }}
-                            >
-                                {departments.map(dep => (
-                                    <option key={dep} value={dep}>{dep === 'all' ? 'Todos Depts' : dep}</option>
-                                ))}
-                            </select>
-
-                            <input
-                                type="text"
-                                placeholder="Buscar usuario..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff', width: '200px' }}
-                            />
-
-                            <div className="risk-filters" style={{ display: 'flex', gap: '8px' }}>
-                                <button
-                                    className={`filter-btn ${overloadFilter === 'all' ? 'active' : ''}`}
-                                    onClick={() => setOverloadFilter('all')}
-                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: overloadFilter === 'all' ? '#0a84ff' : 'transparent', color: '#fff', cursor: 'pointer' }}
-                                >
-                                    Todos
-                                </button>
-                                <button
-                                    className={`filter-btn ${overloadFilter === 'high' ? 'active' : ''}`}
-                                    onClick={() => setOverloadFilter('high')}
-                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff3b30', background: overloadFilter === 'high' ? 'rgba(255, 59, 48, 0.2)' : 'transparent', color: '#ff3b30', cursor: 'pointer' }}
-                                >
-                                    Riesgo Alto
-                                </button>
-                                <button
-                                    className={`filter-btn ${overloadFilter === 'medium' ? 'active' : ''}`}
-                                    onClick={() => setOverloadFilter('medium')}
-                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff9500', background: overloadFilter === 'medium' ? 'rgba(255, 149, 0, 0.2)' : 'transparent', color: '#ff9500', cursor: 'pointer' }}
-                                >
-                                    Medio
-                                </button>
+                        <div className="stat-card">
+                            <Users className="stat-icon" />
+                            <div className="stat-content">
+                                <div className="stat-label">Usuarios Analizados</div>
+                                <div className="stat-value">{overloadData.length}</div>
                             </div>
                         </div>
                     </div>
-                    <div className="users-list-header">
-                        <span>Usuario</span>
-                        <span>Departamento</span>
-                        <span>Nivel de Riesgo</span>
-                        <span>Score de Sobrecarga</span>
-                    </div>
-                    <div className="users-scroll-container">
-                        {sortedData.map((user, index) => (
-                            <div key={index} className={`user-card-row risk-${user.risk_level}`}>
-                                <div className="user-info">
-                                    <div className="user-avatar">{(user.name || '?').charAt(0)}</div>
-                                    <div>
-                                        <div className="user-name">{user.name || 'Desconocido'}</div>
-                                        <div className="user-email">{user.email || 'Sin email'}</div>
-                                    </div>
+
+                    <div className="overload-list">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                            <h3>Top Usuarios con Sobrecarga</h3>
+                            <div className="filters-container" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <select
+                                    value={selectedDep}
+                                    onChange={(e) => setSelectedDep(e.target.value)}
+                                    style={{ padding: '6px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff' }}
+                                >
+                                    {departments.map(dep => (
+                                        <option key={dep} value={dep}>{dep === 'all' ? 'Todos Depts' : dep}</option>
+                                    ))}
+                                </select>
+
+                                <input
+                                    type="text"
+                                    placeholder="Buscar usuario..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff', width: '200px' }}
+                                />
+
+                                <div className="risk-filters" style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        className={`filter-btn ${overloadFilter === 'all' ? 'active' : ''}`}
+                                        onClick={() => setOverloadFilter('all')}
+                                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: overloadFilter === 'all' ? '#0a84ff' : 'transparent', color: '#fff', cursor: 'pointer' }}
+                                    >
+                                        Todos
+                                    </button>
+                                    <button
+                                        className={`filter-btn ${overloadFilter === 'high' ? 'active' : ''}`}
+                                        onClick={() => setOverloadFilter('high')}
+                                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff3b30', background: overloadFilter === 'high' ? 'rgba(255, 59, 48, 0.2)' : 'transparent', color: '#ff3b30', cursor: 'pointer' }}
+                                    >
+                                        Riesgo Alto
+                                    </button>
+                                    <button
+                                        className={`filter-btn ${overloadFilter === 'medium' ? 'active' : ''}`}
+                                        onClick={() => setOverloadFilter('medium')}
+                                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff9500', background: overloadFilter === 'medium' ? 'rgba(255, 149, 0, 0.2)' : 'transparent', color: '#ff9500', cursor: 'pointer' }}
+                                    >
+                                        Medio
+                                    </button>
                                 </div>
-                                <div className="user-dept">{user.department || 'Sin Dept'}</div>
-                                <div className="user-risk">
-                                    <span className={`risk-badge ${user.risk_level}`}>
-                                        {user.risk_level === 'high' ? 'Alto' : user.risk_level === 'medium' ? 'Medio' : 'Bajo'}
-                                    </span>
-                                </div>
-                                <div className="user-score">
-                                    <div className="score-bar-bg" title={`Score Basado en:\n• Reuniones (${user.total_meetings || 0}): Contribuye 30%\n• Horas Reunión (${parseFloat(user.total_meeting_hours || 0).toFixed(1)}h): Contribuye 40%\n• Emails (${(parseInt(user.emails_sent || 0) + parseInt(user.emails_received || 0))}): Contribuye 30%`}>
-                                        <div
-                                            className="score-bar-fill"
-                                            style={{
-                                                width: `${Math.min(parseFloat(user.overload_score || 0), 100)}%`,
-                                                backgroundColor: user.risk_level === 'high' ? '#ff3b30' : user.risk_level === 'medium' ? '#ff9500' : '#30d158'
-                                            }}
-                                        ></div>
+                            </div>
+                        </div>
+                        <div className="users-list-header">
+                            <span>Usuario</span>
+                            <span>Departamento</span>
+                            <span>Nivel de Riesgo</span>
+                            <span>Score de Sobrecarga</span>
+                        </div>
+                        <div className="users-scroll-container">
+                            {sortedData.map((user, index) => (
+                                <div key={index} className={`user-card-row risk-${user.risk_level}`}>
+                                    <div className="user-info">
+                                        <div className="user-avatar">{String(user.name || '?').charAt(0)}</div>
+                                        <div>
+                                            <div className="user-name">{user.name || 'Desconocido'}</div>
+                                            <div className="user-email">{user.email || 'Sin email'}</div>
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                        <span style={{ fontWeight: 'bold' }}>{parseFloat(user.overload_score || 0).toFixed(1)}</span>
-                                        <span style={{ fontSize: '10px', color: '#888' }}>
-                                            {user.total_meetings || 0} rec / {parseFloat(user.total_meeting_hours || 0).toFixed(0)}h
+                                    <div className="user-dept">{user.department || 'Sin Dept'}</div>
+                                    <div className="user-risk">
+                                        <span className={`risk-badge ${user.risk_level}`}>
+                                            {user.risk_level === 'high' ? 'Alto' : user.risk_level === 'medium' ? 'Medio' : 'Bajo'}
                                         </span>
                                     </div>
+                                    <div className="user-score">
+                                        <div className="score-bar-bg" title={`Score: ${parseFloat(user.overload_score || 0).toFixed(1)}`}>
+                                            {/* Simplified title to avoid interpolation errors */}
+                                            <div
+                                                className="score-bar-fill"
+                                                style={{
+                                                    width: `${Math.min(parseFloat(user.overload_score || 0), 100)}%`,
+                                                    backgroundColor: user.risk_level === 'high' ? '#ff3b30' : user.risk_level === 'medium' ? '#ff9500' : '#30d158'
+                                                }}
+                                            ></div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                            <span style={{ fontWeight: 'bold' }}>{parseFloat(user.overload_score || 0).toFixed(1)}</span>
+                                            <span style={{ fontSize: '10px', color: '#888' }}>
+                                                {user.total_meetings || 0} rec
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                    </div>
+                    <div className="view-disclaimer">
+                        <p><strong>💡 Cálculo del Score:</strong> Promedio ponderado. Un score superior a 70 indica riesgo crítico.</p>
                     </div>
                 </div>
-                <div className="view-disclaimer">
-                    <p><strong>💡 Cálculo del Score:</strong> Promedio ponderado de 3 factores: volumen de reuniones (30%), duración total (40%) y volumen de emails (30%). Un score superior a 70 indica riesgo crítico.</p>
+            );
+        } catch (error) {
+            console.error("Overload Render Crash:", error);
+            return (
+                <div style={{ padding: '24px', color: '#ff3b30', background: 'rgba(255, 59, 48, 0.1)', borderRadius: '8px' }}>
+                    <h3>💥 Error Crítico Visualizando Sobrecarga</h3>
+                    <p style={{ fontFamily: 'monospace' }}>{error.message}</p>
+                    <p>Por favor, reporta este mensaje.</p>
                 </div>
-            </div>
-        );
+            );
+        }
     };
 
     const renderResponseTime = (responseData) => {
@@ -521,7 +587,7 @@ const TemporalTab = () => {
         if (error) return <ErrorState message={error} onRetry={loadAllData} />;
 
         switch (activeView) {
-            case 'heatmap': return data.heatmap?.length > 0 ? renderHeatmap(data.heatmap) : <EmptyState icon="📊" title="Sin datos" message="No hay actividad registrada" />;
+            case 'heatmap': return data.heatmap?.length > 0 ? renderCombinedActivity(data.heatmap) : <EmptyState icon="📊" title="Sin datos" message="No hay actividad registrada" />;
             case 'overload': return data.overload?.length > 0 ? renderOverload(data.overload) : <EmptyState icon="✅" title="Todo bien" message="No se detectaron usuarios con sobrecarga" />;
             case 'responseTime': return data.responseTime?.length > 0 ? renderResponseTime(data.responseTime) : <EmptyState icon="⏱️" title="Sin datos" message="Faltan datos de respuesta" />;
             case 'timezone': return data.timezone?.length > 0 ? renderTimezone(data.timezone) : <EmptyState icon="🌍" title="Sin datos" message="No hay colaboraciones internacionales" />;

@@ -461,7 +461,15 @@ class GraphIngestionService
                 }
                 
                 // NEW: Process Interaction (Influence Graph)
-                $msgDate = isset($msg['receivedDateTime']) ? (new \DateTime($msg['receivedDateTime']))->format('Y-m-d') : date('Y-m-d');
+                $dateStr = $msg['receivedDateTime'] ?? ($msg['sentDateTime'] ?? ($msg['createdDateTime'] ?? null));
+                
+                if ($dateStr) {
+                    $msgDate = (new \DateTime($dateStr))->format('Y-m-d');
+                } else {
+                    $this->log("  ⚠️ Warning: No date found for message {$msg['id']}. Using import date.");
+                    $msgDate = date('Y-m-d');
+                }
+
                 $this->processEmailInteractions($msg, $dbUserId, $msgDate);
             }
 

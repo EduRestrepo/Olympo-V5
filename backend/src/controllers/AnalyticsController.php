@@ -72,9 +72,13 @@ class AnalyticsController
     public function calculateTemporalMetrics(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
+        $metricService = new MetricService();
         
         try {
-            $heatmapCount = $service->calculateHeatmapMetrics();
+            // Updated: Use MetricService for Heatmap (Activity Breakdown)
+            $metricService->calculateActivityHeatmap();
+            $heatmapCount = 1; // Service returns void, assume success
+
             $overloadCount = $service->calculateOverloadMetrics();
             $responseTimeCount = $service->calculateResponseTimeMetrics();
             $timezoneCount = $service->calculateTimezoneMetrics();

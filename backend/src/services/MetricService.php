@@ -20,6 +20,7 @@ class MetricService
         $this->calculateNetworkPulse();
         $this->calculateToneIndex();
         $this->calculateResponseTimes();
+        $this->calculateActivityHeatmap();
         error_log("[MetricService] Recalculation complete.");
     }
 
@@ -154,5 +155,104 @@ class MetricService
         $stmt = $this->db->query("SELECT COUNT(*) FROM response_times");
         $count = $stmt->fetchColumn();
         error_log("[MetricService] Calculated response times for $count actors.");
+    }
+
+    public function calculateActivityHeatmap(): void
+    {
+        error_log("[MetricService] Calculating activity heatmap...");
+
+        // Ensure table exists
+        $this->db->query("
+            CREATE TABLE IF NOT EXISTS activity_heatmap (
+                id SERIAL PRIMARY KEY,
+                actor_id INT NULL,
+                activity_date DATE NOT NULL,
+                hour_of_day INT NOT NULL,
+                email_count INT DEFAULT 0,
+                meeting_count INT DEFAULT 0,
+                total_activity INT DEFAULT 0,
+                day_of_week INT NOT NULL,
+                UNIQUE(actor_id, activity_date, hour_of_day)
+            )
+        ");
+
+        $this->db->query("TRUNCATE TABLE activity_heatmap");
+
+        // 1. Insert from Teams Calls (Real Timestamps)
+        $sqlTeams = "
+            INSERT INTO activity_heatmap (actor_id, activity_date, hour_of_day, meeting_count, total_activity, day_of_week)
+            SELECT 
+                user_id as actor_id,
+                DATE(call_timestamp) as activity_date,
+                EXTRACT(HOUR FROM call_timestamp) as hour_of_day,
+                COUNT(*) as meeting_count,
+                COUNT(*) as total_activity,
+                EXTRACT(DOW FROM call_timestamp) as day_of_week
+            FROM teams_call_records
+            WHERE call_timestamp >= CURRENT_DATE - INTERVAL '30 days'
+            GROUP BY 1, 2, 3, 6
+            ON CONFLICT (actor_id, activity_date, hour_of_day) 
+            DO UPDATE SET 
+                meeting_count = EXCLUDED.meeting_count,
+                total_activity = activity_heatmap.total_activity + EXCLUDED.total_activity
+        ";
+        $this->db->query($sqlTeams);
+
+        // 2. Insert/Update from Interactions (Emails)
+        // Emails have a 'date' but no 'time' in interactions table (interaction_date is DATE).
+        // heuristic: Distribute email volume across working hours (8-18)
+        // For simplicity in this aggregated view: We will assign them to a default 'peak' hour window or split them.
+        // Better heuristic: Assign to '10am' (hour 10) as a proxy for 'morning batch' and '4pm' (hour 16) for afternoon.
+        // OR: Just ignore time for emails in heatmap? No, we need it for the graph.
+        // Let's use a standard distribution: 09:00 - 18:00 flat distribution.
+        
+        $sqlEmails = "
+            SELECT source_id, interaction_date, volume 
+            FROM interactions 
+            WHERE channel = 'Email' 
+            AND interaction_date >= CURRENT_DATE - INTERVAL '30 days'
+        ";
+        $stmt = $this->db->query($sqlEmails);
+        $emails = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $this->db->beginTransaction();
+        $ins = $this->db->prepare("
+            INSERT INTO activity_heatmap (actor_id, activity_date, hour_of_day, email_count, total_activity, day_of_week)
+            VALUES (:aid, :date, :h, :cnt, :cnt, :dow)
+            ON CONFLICT (actor_id, activity_date, hour_of_day) 
+            DO UPDATE SET 
+                email_count = activity_heatmap.email_count + :cnt,
+                total_activity = activity_heatmap.total_activity + :cnt
+        ");
+
+        foreach ($emails as $row) {
+            $vol = (int)$row['volume'];
+            if ($vol <= 0) continue;
+
+            $date = $row['interaction_date'];
+            $dow = date('w', strtotime($date));
+            $aid = $row['source_id'];
+
+            // Distribute volume across 09, 11, 14, 16 hours
+            $hours = [9, 11, 14, 16];
+            $base = floor($vol / 4);
+            $remainder = $vol % 4;
+
+            foreach ($hours as $idx => $h) {
+                $count = $base + ($idx < $remainder ? 1 : 0);
+                if ($count > 0) {
+                    $ins->execute([
+                        'aid' => $aid,
+                        'date' => $date,
+                        'h' => $h,
+                        'cnt' => $count,
+                        'dow' => $dow
+                    ]);
+                }
+            }
+        }
+        $this->db->commit();
+        
+        error_log("[MetricService] Heatmap generation complete.");
     }
 }
