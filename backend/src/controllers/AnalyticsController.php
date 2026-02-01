@@ -73,7 +73,7 @@ class AnalyticsController
     {
         $service = new TemporalAnalysisService($this->db);
         
-        $heatmapCount = $service->calculateActivityHeatmap();
+        $heatmapCount = $service->calculateHeatmapMetrics();
         $overloadCount = $service->calculateOverloadMetrics();
         $responseTimeCount = $service->calculateResponseTimeMetrics();
         $timezoneCount = $service->calculateTimezoneMetrics();
