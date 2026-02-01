@@ -7,7 +7,9 @@ import './IntelligenceTab.css';
 const IntelligenceTab = () => {
     const [activeView, setActiveView] = useState('churn');
     const [loading, setLoading] = useState(false);
+    const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
         churn: [],
         burnout: [],
@@ -20,54 +22,79 @@ const IntelligenceTab = () => {
         { id: 'isolation', label: 'Aislamiento', icon: '🏝️' }
     ];
 
+    // Load ALL data once on mount
     useEffect(() => {
-        fetchData();
-    }, [activeView]);
+        loadAllData();
+    }, []);
 
-    const fetchData = async () => {
+    const loadAllData = async () => {
+        if (dataLoaded) return;
+
         setLoading(true);
         setError(null);
 
         try {
-            let result;
-            switch (activeView) {
-                case 'churn':
-                    result = await analyticsApi.predictions.getChurnRisk();
-                    // Auto-calculate if no data
-                    if (!result || result.length === 0) {
-                        await analyticsApi.predictions.calculate();
-                        result = await analyticsApi.predictions.getChurnRisk();
-                    }
-                    setData(prev => ({ ...prev, churn: result }));
-                    break;
-                case 'burnout':
-                    result = await analyticsApi.predictions.getBurnout();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.predictions.calculate();
-                        result = await analyticsApi.predictions.getBurnout();
-                    }
-                    setData(prev => ({ ...prev, burnout: result }));
-                    break;
-                case 'isolation':
-                    result = await analyticsApi.predictions.getIsolation();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.predictions.calculate();
-                        result = await analyticsApi.predictions.getIsolation();
-                    }
-                    setData(prev => ({ ...prev, isolation: result }));
-                    break;
+            const [churn, burnout, isolation] = await Promise.all([
+                analyticsApi.predictions.getChurnRisk(),
+                analyticsApi.predictions.getBurnout(),
+                analyticsApi.predictions.getIsolation()
+            ]);
+
+            const needsCalculation =
+                !churn || churn.length === 0 ||
+                !burnout || burnout.length === 0 ||
+                !isolation || isolation.length === 0;
+
+            if (needsCalculation) {
+                setCalculating(true);
+                setLoading(false);
+                await analyticsApi.predictions.calculate();
+                setCalculating(false);
+                setLoading(true);
+
+                const [newChurn, newBurnout, newIsolation] = await Promise.all([
+                    analyticsApi.predictions.getChurnRisk(),
+                    analyticsApi.predictions.getBurnout(),
+                    analyticsApi.predictions.getIsolation()
+                ]);
+
+                setData({
+                    churn: newChurn || [],
+                    burnout: newBurnout || [],
+                    isolation: newIsolation || []
+                });
+            } else {
+                setData({
+                    churn: churn || [],
+                    burnout: burnout || [],
+                    isolation: isolation || []
+                });
             }
+
+            setDataLoaded(true);
         } catch (err) {
-            console.error('Error fetching intelligence data:', err);
+            console.error('Error loading intelligence data:', err);
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setLoading(false);
+            setCalculating(false);
         }
     };
 
     const renderContent = () => {
+        if (calculating) {
+            return (
+                <div className="calculating-state">
+                    <LoadingSpinner message="🔄 Calculando análisis predictivo..." />
+                    <p className="calculating-info">
+                        Esto puede tardar unos segundos. Los datos se están generando automáticamente.
+                    </p>
+                </div>
+            );
+        }
+
         if (loading) return <LoadingSpinner message="Cargando análisis predictivo..." />;
-        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+        if (error) return <ErrorState message={error} onRetry={loadAllData} />;
 
         const currentData = data[activeView];
         if (!currentData || currentData.length === 0) {

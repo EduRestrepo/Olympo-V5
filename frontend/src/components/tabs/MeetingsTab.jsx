@@ -7,7 +7,9 @@ import './MeetingsTab.css';
 const MeetingsTab = () => {
     const [activeView, setActiveView] = useState('efficiency');
     const [loading, setLoading] = useState(false);
+    const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
         efficiency: [],
         costs: [],
@@ -20,54 +22,79 @@ const MeetingsTab = () => {
         { id: 'recommendations', label: 'Recomendaciones', icon: '💡' }
     ];
 
+    // Load ALL data once on mount
     useEffect(() => {
-        fetchData();
-    }, [activeView]);
+        loadAllData();
+    }, []);
 
-    const fetchData = async () => {
+    const loadAllData = async () => {
+        if (dataLoaded) return;
+
         setLoading(true);
         setError(null);
 
         try {
-            let result;
-            switch (activeView) {
-                case 'efficiency':
-                    result = await analyticsApi.meetings.getEfficiency();
-                    // Auto-calculate if no data
-                    if (!result || result.length === 0) {
-                        await analyticsApi.meetings.calculate();
-                        result = await analyticsApi.meetings.getEfficiency();
-                    }
-                    setData(prev => ({ ...prev, efficiency: result }));
-                    break;
-                case 'costs':
-                    result = await analyticsApi.meetings.getCosts();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.meetings.calculate();
-                        result = await analyticsApi.meetings.getCosts();
-                    }
-                    setData(prev => ({ ...prev, costs: result }));
-                    break;
-                case 'recommendations':
-                    result = await analyticsApi.meetings.getRecommendations();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.meetings.calculate();
-                        result = await analyticsApi.meetings.getRecommendations();
-                    }
-                    setData(prev => ({ ...prev, recommendations: result }));
-                    break;
+            const [efficiency, costs, recommendations] = await Promise.all([
+                analyticsApi.meetings.getEfficiency(),
+                analyticsApi.meetings.getCosts(),
+                analyticsApi.meetings.getRecommendations()
+            ]);
+
+            const needsCalculation =
+                !efficiency || efficiency.length === 0 ||
+                !costs || costs.length === 0 ||
+                !recommendations || recommendations.length === 0;
+
+            if (needsCalculation) {
+                setCalculating(true);
+                setLoading(false);
+                await analyticsApi.meetings.calculate();
+                setCalculating(false);
+                setLoading(true);
+
+                const [newEfficiency, newCosts, newRecommendations] = await Promise.all([
+                    analyticsApi.meetings.getEfficiency(),
+                    analyticsApi.meetings.getCosts(),
+                    analyticsApi.meetings.getRecommendations()
+                ]);
+
+                setData({
+                    efficiency: newEfficiency || [],
+                    costs: newCosts || [],
+                    recommendations: newRecommendations || []
+                });
+            } else {
+                setData({
+                    efficiency: efficiency || [],
+                    costs: costs || [],
+                    recommendations: recommendations || []
+                });
             }
+
+            setDataLoaded(true);
         } catch (err) {
-            console.error('Error fetching meetings data:', err);
+            console.error('Error loading meetings data:', err);
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setLoading(false);
+            setCalculating(false);
         }
     };
 
     const renderContent = () => {
+        if (calculating) {
+            return (
+                <div className="calculating-state">
+                    <LoadingSpinner message="🔄 Calculando métricas de reuniones..." />
+                    <p className="calculating-info">
+                        Esto puede tardar unos segundos. Los datos se están generando automáticamente.
+                    </p>
+                </div>
+            );
+        }
+
         if (loading) return <LoadingSpinner message="Cargando datos de reuniones..." />;
-        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+        if (error) return <ErrorState message={error} onRetry={loadAllData} />;
 
         const currentData = data[activeView];
         if (!currentData || currentData.length === 0) {

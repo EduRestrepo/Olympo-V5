@@ -10,6 +10,7 @@ const TemporalTab = () => {
     const [loading, setLoading] = useState(false);
     const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
         heatmap: [],
         overload: [],
@@ -24,68 +25,68 @@ const TemporalTab = () => {
         { id: 'timezone', label: 'Zonas Horarias', icon: '🌍' }
     ];
 
+    // Load ALL data once on mount
     useEffect(() => {
-        fetchData();
-    }, [activeView]);
+        loadAllData();
+    }, []);
 
-    const fetchData = async () => {
+    const loadAllData = async () => {
+        if (dataLoaded) return; // Skip if already loaded
+
         setLoading(true);
         setError(null);
 
         try {
-            let result;
-            switch (activeView) {
-                case 'heatmap':
-                    result = await analyticsApi.temporal.getHeatmap();
-                    if (!result || result.length === 0) {
-                        setCalculating(true);
-                        setLoading(false);
-                        await analyticsApi.temporal.calculate();
-                        setCalculating(false);
-                        setLoading(true);
-                        result = await analyticsApi.temporal.getHeatmap();
-                    }
-                    setData(prev => ({ ...prev, heatmap: result }));
-                    break;
-                case 'overload':
-                    result = await analyticsApi.temporal.getOverload();
-                    if (!result || result.length === 0) {
-                        setCalculating(true);
-                        setLoading(false);
-                        await analyticsApi.temporal.calculate();
-                        setCalculating(false);
-                        setLoading(true);
-                        result = await analyticsApi.temporal.getOverload();
-                    }
-                    setData(prev => ({ ...prev, overload: result }));
-                    break;
-                case 'responseTime':
-                    result = await analyticsApi.temporal.getResponseTime();
-                    if (!result || result.length === 0) {
-                        setCalculating(true);
-                        setLoading(false);
-                        await analyticsApi.temporal.calculate();
-                        setCalculating(false);
-                        setLoading(true);
-                        result = await analyticsApi.temporal.getResponseTime();
-                    }
-                    setData(prev => ({ ...prev, responseTime: result }));
-                    break;
-                case 'timezone':
-                    result = await analyticsApi.temporal.getTimezone();
-                    if (!result || result.length === 0) {
-                        setCalculating(true);
-                        setLoading(false);
-                        await analyticsApi.temporal.calculate();
-                        setCalculating(false);
-                        setLoading(true);
-                        result = await analyticsApi.temporal.getTimezone();
-                    }
-                    setData(prev => ({ ...prev, timezone: result }));
-                    break;
+            // Fetch all data in parallel
+            const [heatmap, overload, responseTime, timezone] = await Promise.all([
+                analyticsApi.temporal.getHeatmap(),
+                analyticsApi.temporal.getOverload(),
+                analyticsApi.temporal.getResponseTime(),
+                analyticsApi.temporal.getTimezone()
+            ]);
+
+            // Check if ANY data is missing
+            const needsCalculation =
+                !heatmap || heatmap.length === 0 ||
+                !overload || overload.length === 0 ||
+                !responseTime || responseTime.length === 0 ||
+                !timezone || timezone.length === 0;
+
+            if (needsCalculation) {
+                // Calculate once for ALL metrics
+                setCalculating(true);
+                setLoading(false);
+                await analyticsApi.temporal.calculate();
+                setCalculating(false);
+                setLoading(true);
+
+                // Re-fetch all data after calculation
+                const [newHeatmap, newOverload, newResponseTime, newTimezone] = await Promise.all([
+                    analyticsApi.temporal.getHeatmap(),
+                    analyticsApi.temporal.getOverload(),
+                    analyticsApi.temporal.getResponseTime(),
+                    analyticsApi.temporal.getTimezone()
+                ]);
+
+                setData({
+                    heatmap: newHeatmap || [],
+                    overload: newOverload || [],
+                    responseTime: newResponseTime || [],
+                    timezone: newTimezone || []
+                });
+            } else {
+                // Use fetched data
+                setData({
+                    heatmap: heatmap || [],
+                    overload: overload || [],
+                    responseTime: responseTime || [],
+                    timezone: timezone || []
+                });
             }
+
+            setDataLoaded(true);
         } catch (err) {
-            console.error('Error fetching temporal data:', err);
+            console.error('Error loading temporal data:', err);
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setLoading(false);

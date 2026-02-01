@@ -7,7 +7,9 @@ import './CommunitiesTab.css';
 const CommunitiesTab = () => {
     const [activeView, setActiveView] = useState('communities');
     const [loading, setLoading] = useState(false);
+    const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
         communities: [],
         silos: [],
@@ -22,58 +24,91 @@ const CommunitiesTab = () => {
         { id: 'diversity', label: 'Diversidad', icon: '🌈' }
     ];
 
+    // Load ALL data once on mount
     useEffect(() => {
-        fetchData();
-    }, [activeView]);
+        loadAllData();
+    }, []);
 
-    const fetchData = async () => {
+    const loadAllData = async () => {
+        if (dataLoaded) return;
+
         setLoading(true);
         setError(null);
 
         try {
-            let result;
-            switch (activeView) {
-                case 'communities':
-                    result = await analyticsApi.communities.getAll();
-                    // Auto-calculate if no data
-                    if (!result || result.length === 0) {
-                        await analyticsApi.communities.detect();
-                        result = await analyticsApi.communities.getAll();
-                    }
-                    setData(prev => ({ ...prev, communities: result }));
-                    break;
-                case 'silos':
-                    result = await analyticsApi.communities.getSilos();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.communities.detectSilos();
-                        result = await analyticsApi.communities.getSilos();
-                    }
-                    setData(prev => ({ ...prev, silos: result }));
-                    break;
-                case 'bridges':
-                    result = await analyticsApi.communities.getBridges();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.communities.detectBridges();
-                        result = await analyticsApi.communities.getBridges();
-                    }
-                    setData(prev => ({ ...prev, bridges: result }));
-                    break;
-                case 'diversity':
-                    result = await analyticsApi.communities.getDiversity();
-                    setData(prev => ({ ...prev, diversity: result }));
-                    break;
+            // Fetch all data in parallel
+            const [communities, silos, bridges, diversity] = await Promise.all([
+                analyticsApi.communities.getAll(),
+                analyticsApi.communities.getSilos(),
+                analyticsApi.communities.getBridges(),
+                analyticsApi.communities.getDiversity()
+            ]);
+
+            // Check if ANY data is missing
+            const needsCalculation =
+                !communities || communities.length === 0 ||
+                !silos || silos.length === 0 ||
+                !bridges || bridges.length === 0;
+
+            if (needsCalculation) {
+                // Calculate once for ALL metrics
+                setCalculating(true);
+                setLoading(false);
+                await Promise.all([
+                    analyticsApi.communities.detect(),
+                    analyticsApi.communities.detectSilos(),
+                    analyticsApi.communities.detectBridges()
+                ]);
+                setCalculating(false);
+                setLoading(true);
+
+                // Re-fetch all data
+                const [newCommunities, newSilos, newBridges, newDiversity] = await Promise.all([
+                    analyticsApi.communities.getAll(),
+                    analyticsApi.communities.getSilos(),
+                    analyticsApi.communities.getBridges(),
+                    analyticsApi.communities.getDiversity()
+                ]);
+
+                setData({
+                    communities: newCommunities || [],
+                    silos: newSilos || [],
+                    bridges: newBridges || [],
+                    diversity: newDiversity || []
+                });
+            } else {
+                setData({
+                    communities: communities || [],
+                    silos: silos || [],
+                    bridges: bridges || [],
+                    diversity: diversity || []
+                });
             }
+
+            setDataLoaded(true);
         } catch (err) {
-            console.error('Error fetching communities data:', err);
+            console.error('Error loading communities data:', err);
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setLoading(false);
+            setCalculating(false);
         }
     };
 
     const renderContent = () => {
+        if (calculating) {
+            return (
+                <div className="calculating-state">
+                    <LoadingSpinner message="🔄 Calculando métricas de comunidades..." />
+                    <p className="calculating-info">
+                        Esto puede tardar unos segundos. Los datos se están generando automáticamente.
+                    </p>
+                </div>
+            );
+        }
+
         if (loading) return <LoadingSpinner message="Cargando datos de comunidades..." />;
-        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+        if (error) return <ErrorState message={error} onRetry={loadAllData} />;
 
         const currentData = data[activeView];
         if (!currentData || currentData.length === 0) {

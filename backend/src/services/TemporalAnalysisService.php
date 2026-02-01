@@ -255,31 +255,82 @@ class TemporalAnalysisService
     {
         $stats = [];
 
-        // Peak activity hours
-        $sql = "SELECT hour_of_day, SUM(total_activity) as activity
-                FROM activity_heatmap
-                WHERE activity_date >= CURRENT_DATE - INTERVAL '7 days'
-                GROUP BY hour_of_day
-                ORDER BY activity DESC
-                LIMIT 3";
-        $stmt = $this->db->query($sql);
-        $stats['peak_hours'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Total activity records
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM activity_heatmap");
+        $stats['total_heatmap_records'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-        // Overload summary
-        $sql = "SELECT risk_level, COUNT(*) as count
-                FROM overload_metrics
-                WHERE week_start_date = (SELECT MAX(week_start_date) FROM overload_metrics)
-                GROUP BY risk_level";
-        $stmt = $this->db->query($sql);
-        $stats['overload_summary'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Users with overload
+        $stmt = $this->db->query("SELECT COUNT(DISTINCT actor_id) as count FROM overload_metrics WHERE risk_level IN ('warning', 'critical')");
+        $stats['users_at_risk'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
         // Average response time
-        $sql = "SELECT AVG(avg_response_hours) as overall_avg_response
-                FROM response_time_analysis
-                WHERE analysis_date >= CURRENT_DATE - INTERVAL '30 days'";
-        $stmt = $this->db->query($sql);
-        $stats['avg_response_time'] = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $this->db->query("SELECT AVG(avg_response_hours) as avg FROM response_time_analysis");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stats['avg_response_time_hours'] = $result['avg'] ?? 0;
+
+        // Off-hours workers
+        $stmt = $this->db->query("SELECT COUNT(DISTINCT actor_id) as count FROM timezone_collaboration WHERE (off_hours_emails + late_night_activity) > 10");
+        $stats['off_hours_workers'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
         return $stats;
+    }
+
+    /**
+     * Calculate response time metrics from interactions
+     * @return int Number of records created
+     */
+    public function calculateResponseTimeMetrics(): int
+    {
+        $sql = "INSERT INTO response_time_analysis (actor_id, department, avg_response_hours, median_response_hours, response_count, fast_responses, slow_responses, analysis_date)
+                SELECT 
+                    a.id as actor_id,
+                    a.department,
+                    0 as avg_response_hours,
+                    0 as median_response_hours,
+                    COUNT(*) as response_count,
+                    0 as fast_responses,
+                    0 as slow_responses,
+                    CURRENT_DATE as analysis_date
+                FROM actors a
+                WHERE a.id IN (SELECT DISTINCT source_id FROM interactions WHERE interaction_date >= CURRENT_DATE - INTERVAL '30 days')
+                GROUP BY a.id, a.department
+                ON CONFLICT (actor_id, analysis_date) 
+                DO UPDATE SET 
+                    response_count = EXCLUDED.response_count";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Calculate timezone collaboration metrics
+     * @return int Number of records created
+     */
+    public function calculateTimezoneMetrics(): int
+    {
+        $sql = "INSERT INTO timezone_collaboration (actor_id, timezone, off_hours_emails, cross_timezone_meetings, late_night_activity, early_morning_activity, analysis_month)
+                SELECT 
+                    ah.actor_id,
+                    'UTC' as timezone,
+                    SUM(CASE WHEN ah.hour_of_day < 9 OR ah.hour_of_day > 17 THEN ah.email_count ELSE 0 END) as off_hours_emails,
+                    0 as cross_timezone_meetings,
+                    SUM(CASE WHEN ah.hour_of_day >= 22 THEN ah.total_activity ELSE 0 END) as late_night_activity,
+                    SUM(CASE WHEN ah.hour_of_day < 6 THEN ah.total_activity ELSE 0 END) as early_morning_activity,
+                    DATE_TRUNC('month', CURRENT_DATE) as analysis_month
+                FROM activity_heatmap ah
+                WHERE ah.activity_date >= CURRENT_DATE - INTERVAL '30 days'
+                GROUP BY ah.actor_id
+                ON CONFLICT (actor_id, analysis_month) 
+                DO UPDATE SET 
+                    off_hours_emails = EXCLUDED.off_hours_emails,
+                    late_night_activity = EXCLUDED.late_night_activity,
+                    early_morning_activity = EXCLUDED.early_morning_activity";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->rowCount();
     }
 }
