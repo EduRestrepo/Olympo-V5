@@ -153,6 +153,24 @@ class AnalyticsController
         return new \Symfony\Component\HttpFoundation\JsonResponse($diversity);
     }
 
+    public function calculateCommunityMetrics(Request $request)
+    {
+        $service = new CommunityDetectionService($this->db);
+        
+        $communitiesCount = count($service->detectCommunities());
+        $silosCount = count($service->detectSilos());
+        $bridgesCount = count($service->detectBridges());
+
+        $result = [
+            'success' => true,
+            'communities_found' => $communitiesCount,
+            'silos_detected' => $silosCount,
+            'bridges_detected' => $bridgesCount
+        ];
+
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
+    }
+
     // ========================================================================
     // MEETING ANALYSIS ENDPOINTS
     // ========================================================================

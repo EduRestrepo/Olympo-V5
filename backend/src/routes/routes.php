@@ -115,6 +115,10 @@ $routes->add('network_diversity', (new Route('/api/analytics/communities/diversi
     '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'getNetworkDiversity']
 ]))->setMethods(['GET']));
 
+$routes->add('calculate_community_metrics', (new Route('/api/analytics/communities/calculate', [
+    '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'calculateCommunityMetrics']
+]))->setMethods(['POST']));
+
 // Meeting Analysis
 $routes->add('meeting_efficiency', (new Route('/api/analytics/meetings/efficiency', [
     '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'getMeetingEfficiency']

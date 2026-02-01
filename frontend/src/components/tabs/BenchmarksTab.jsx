@@ -7,7 +7,9 @@ import './BenchmarksTab.css';
 const BenchmarksTab = () => {
     const [activeView, setActiveView] = useState('departments');
     const [loading, setLoading] = useState(false);
+    const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
         departments: [],
         rankings: []
@@ -18,46 +20,74 @@ const BenchmarksTab = () => {
         { id: 'rankings', label: 'Rankings', icon: '🏆' }
     ];
 
+    // Load ALL data once on mount
     useEffect(() => {
-        fetchData();
-    }, [activeView]);
+        loadAllData();
+    }, []);
 
-    const fetchData = async () => {
+    const loadAllData = async () => {
+        if (dataLoaded) return;
+
         setLoading(true);
         setError(null);
 
         try {
-            let result;
-            switch (activeView) {
-                case 'departments':
-                    result = await analyticsApi.benchmarks.getDepartments();
-                    // Auto-calculate if no data
-                    if (!result || result.length === 0) {
-                        await analyticsApi.benchmarks.calculate();
-                        result = await analyticsApi.benchmarks.getDepartments();
-                    }
-                    setData(prev => ({ ...prev, departments: result }));
-                    break;
-                case 'rankings':
-                    result = await analyticsApi.benchmarks.getRankings();
-                    if (!result || result.length === 0) {
-                        await analyticsApi.benchmarks.calculate();
-                        result = await analyticsApi.benchmarks.getRankings();
-                    }
-                    setData(prev => ({ ...prev, rankings: result }));
-                    break;
+            const [departments, rankings] = await Promise.all([
+                analyticsApi.benchmarks.getDepartments(),
+                analyticsApi.benchmarks.getRankings()
+            ]);
+
+            const needsCalculation =
+                !departments || departments.length === 0 ||
+                !rankings || rankings.length === 0;
+
+            if (needsCalculation) {
+                setCalculating(true);
+                setLoading(false);
+                await analyticsApi.benchmarks.calculate();
+                setCalculating(false);
+                setLoading(true);
+
+                const [newDepartments, newRankings] = await Promise.all([
+                    analyticsApi.benchmarks.getDepartments(),
+                    analyticsApi.benchmarks.getRankings()
+                ]);
+
+                setData({
+                    departments: newDepartments || [],
+                    rankings: newRankings || []
+                });
+            } else {
+                setData({
+                    departments: departments || [],
+                    rankings: rankings || []
+                });
             }
+
+            setDataLoaded(true);
         } catch (err) {
-            console.error('Error fetching benchmarks data:', err);
+            console.error('Error loading benchmarks data:', err);
             setError(err.message || 'Error al cargar los datos');
         } finally {
             setLoading(false);
+            setCalculating(false);
         }
     };
 
     const renderContent = () => {
+        if (calculating) {
+            return (
+                <div className="calculating-state">
+                    <LoadingSpinner message="🔄 Calculando benchmarks..." />
+                    <p className="calculating-info">
+                        Esto puede tardar unos segundos. Los datos se están generando automáticamente.
+                    </p>
+                </div>
+            );
+        }
+
         if (loading) return <LoadingSpinner message="Cargando benchmarks..." />;
-        if (error) return <ErrorState message={error} onRetry={fetchData} />;
+        if (error) return <ErrorState message={error} onRetry={loadAllData} />;
 
         const currentData = data[activeView];
         if (!currentData || currentData.length === 0) {

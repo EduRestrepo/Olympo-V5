@@ -54,11 +54,7 @@ const CommunitiesTab = () => {
                 // Calculate once for ALL metrics
                 setCalculating(true);
                 setLoading(false);
-                await Promise.all([
-                    analyticsApi.communities.detect(),
-                    analyticsApi.communities.detectSilos(),
-                    analyticsApi.communities.detectBridges()
-                ]);
+                await analyticsApi.communities.calculate();
                 setCalculating(false);
                 setLoading(true);
 

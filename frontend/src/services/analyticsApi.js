@@ -109,6 +109,15 @@ export const analyticsApi = {
             return response.json();
         },
 
+        calculate: async () => {
+            const response = await fetch(`${API_BASE}/analytics/communities/calculate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        },
+
         getDiversity: async (actorId = null) => {
             const params = actorId ? `?actor_id=${actorId}` : '';
             const response = await fetch(`${API_BASE}/analytics/communities/diversity${params}`);
