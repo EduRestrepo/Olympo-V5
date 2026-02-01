@@ -28,7 +28,16 @@
   flex-wrap: nowrap;
   gap: 0.75rem;
   padding: 0.5rem;
-  overflow-x: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.tab-list::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari/Opera */
 }
 
 .tab-button {
