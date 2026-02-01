@@ -1,0 +1,23 @@
+.meetings-tab {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.alert-banner.warning {
+    background: rgba(255, 149, 0, 0.1);
+    border: 2px solid #ff9500;
+}
+
+.info-banner.success {
+    background: rgba(52, 199, 89, 0.1);
+    border: 2px solid #34c759;
+}
+
+.recommendations-list {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 24px;
+    border: 2px solid var(--border-color);
+    min-height: 300px;
+}

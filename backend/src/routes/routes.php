@@ -61,4 +61,140 @@ $routes->add('get_logs', (new Route('/api/settings/logs', [
     '_controller' => ['Olympus\Controllers\SettingsController', 'getLogs']
 ]))->setMethods(['GET']));
 
+// ============================================================================
+// ADVANCED ANALYTICS ROUTES (V5.1)
+// ============================================================================
+
+// Temporal Analysis
+$routes->add('activity_heatmap', (new Route('/api/analytics/temporal/heatmap', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getActivityHeatmap']
+]))->setMethods(['GET']));
+
+$routes->add('overloaded_users', (new Route('/api/analytics/temporal/overload', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getOverloadedUsers']
+]))->setMethods(['GET']));
+
+$routes->add('response_time_analysis', (new Route('/api/analytics/temporal/response-time', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getResponseTimeAnalysis']
+]))->setMethods(['GET']));
+
+$routes->add('timezone_collaboration', (new Route('/api/analytics/temporal/timezone', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getTimezoneCollaboration']
+]))->setMethods(['GET']));
+
+$routes->add('calculate_temporal', (new Route('/api/analytics/temporal/calculate', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'calculateTemporalMetrics']
+]))->setMethods(['POST']));
+
+// Community Detection
+$routes->add('detect_communities', (new Route('/api/analytics/communities/detect', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'detectCommunities']
+]))->setMethods(['POST']));
+
+$routes->add('get_communities', (new Route('/api/analytics/communities', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getCommunities']
+]))->setMethods(['GET']));
+
+$routes->add('get_silos', (new Route('/api/analytics/communities/silos', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getSilos']
+]))->setMethods(['GET']));
+
+$routes->add('detect_silos', (new Route('/api/analytics/communities/silos/detect', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'detectSilos']
+]))->setMethods(['POST']));
+
+$routes->add('get_bridges', (new Route('/api/analytics/communities/bridges', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getBridges']
+]))->setMethods(['GET']));
+
+$routes->add('detect_bridges', (new Route('/api/analytics/communities/bridges/detect', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'detectBridges']
+]))->setMethods(['POST']));
+
+$routes->add('network_diversity', (new Route('/api/analytics/communities/diversity', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getNetworkDiversity']
+]))->setMethods(['GET']));
+
+// Meeting Analysis
+$routes->add('meeting_efficiency', (new Route('/api/analytics/meetings/efficiency', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getMeetingEfficiency']
+]))->setMethods(['GET']));
+
+$routes->add('meeting_costs', (new Route('/api/analytics/meetings/costs', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getMeetingCosts']
+]))->setMethods(['GET']));
+
+$routes->add('meeting_recommendations', (new Route('/api/analytics/meetings/recommendations', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getMeetingRecommendations']
+]))->setMethods(['GET']));
+
+$routes->add('calculate_meeting_metrics', (new Route('/api/analytics/meetings/calculate', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'calculateMeetingMetrics']
+]))->setMethods(['POST']));
+
+// Predictive Analytics
+$routes->add('churn_risk', (new Route('/api/analytics/predictions/churn', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getChurnRisk']
+]))->setMethods(['GET']));
+
+$routes->add('burnout_indicators', (new Route('/api/analytics/predictions/burnout', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getBurnoutIndicators']
+]))->setMethods(['GET']));
+
+$routes->add('isolation_alerts', (new Route('/api/analytics/predictions/isolation', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getIsolationAlerts']
+]))->setMethods(['GET']));
+
+$routes->add('calculate_predictions', (new Route('/api/analytics/predictions/calculate', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'calculatePredictiveMetrics']
+]))->setMethods(['POST']));
+
+// Benchmarking
+$routes->add('department_benchmarks', (new Route('/api/analytics/benchmarks/departments', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getDepartmentBenchmarks']
+]))->setMethods(['GET']));
+
+$routes->add('rankings', (new Route('/api/analytics/benchmarks/rankings', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getRankings']
+]))->setMethods(['GET']));
+
+$routes->add('calculate_benchmarks', (new Route('/api/analytics/benchmarks/calculate', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'calculateBenchmarks']
+]))->setMethods(['POST']));
+
+// Export
+$routes->add('export_data', (new Route('/api/analytics/export', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'exportData']
+]))->setMethods(['GET']));
+
+// Gamification
+$routes->add('user_badges', (new Route('/api/analytics/gamification/badges/{actor_id}', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getUserBadges']
+]))->setMethods(['GET']));
+
+$routes->add('connection_suggestions', (new Route('/api/analytics/gamification/suggestions/{actor_id}', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getConnectionSuggestions']
+]))->setMethods(['GET']));
+
+$routes->add('user_goals', (new Route('/api/analytics/gamification/goals/{actor_id}', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getUserGoals']
+]))->setMethods(['GET']));
+
+// Batch Processing & AD Groups
+$routes->add('batch_jobs', (new Route('/api/analytics/batch/jobs', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getBatchJobs']
+]))->setMethods(['GET']));
+
+$routes->add('ad_groups', (new Route('/api/analytics/ad-groups', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getADGroups']
+]))->setMethods(['GET']));
+
+$routes->add('extraction_scopes', (new Route('/api/analytics/extraction-scopes', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'getExtractionScopes']
+]))->setMethods(['GET']));
+
+$routes->add('create_extraction_scope', (new Route('/api/analytics/extraction-scopes', [
+    '_controller' => ['App\\Controllers\\AnalyticsController', 'createExtractionScope']
+]))->setMethods(['POST']));
+
 return $routes;

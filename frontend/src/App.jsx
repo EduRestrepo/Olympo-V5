@@ -8,6 +8,12 @@ import ToneIndex from './components/ToneIndex';
 import InfluenceGraph from './components/InfluenceGraph';
 import RadarProfile from './components/RadarProfile';
 import Settings from './components/Settings';
+import TabContainer from './components/shared/TabContainer';
+import TemporalTab from './components/tabs/TemporalTab';
+import CommunitiesTab from './components/tabs/CommunitiesTab';
+import MeetingsTab from './components/tabs/MeetingsTab';
+import IntelligenceTab from './components/tabs/IntelligenceTab';
+import BenchmarksTab from './components/tabs/BenchmarksTab';
 import { api } from './services/api';
 import { Info, EyeOff, Eye, ShieldCheck, Activity, LayoutDashboard, Settings as SettingsIcon } from 'lucide-react';
 
@@ -17,6 +23,7 @@ function App() {
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [selectedActor, setSelectedActor] = useState(null);
     const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' or 'settings'
+    const [activeTab, setActiveTab] = useState('overview'); // Tab navigation
 
     useEffect(() => {
         api.getAbout().then(setAbout);
@@ -131,17 +138,37 @@ function App() {
             )}
 
             {activePage === 'dashboard' ? (
-                <div className="grid-dashboard">
-                    <TopInfluencers onSelectActor={setSelectedActor} isAnonymous={isAnonymous} />
-                    <ScoreExplanation />
+                <TabContainer
+                    tabs={[
+                        { id: 'overview', label: 'Dashboard', icon: '📊', description: 'Vista general de la red' },
+                        { id: 'temporal', label: 'Temporal', icon: '⏰', description: 'Análisis temporal' },
+                        { id: 'communities', label: 'Comunidades', icon: '👥', description: 'Detección de comunidades' },
+                        { id: 'meetings', label: 'Reuniones', icon: '📞', description: 'Análisis de reuniones' },
+                        { id: 'intelligence', label: 'Inteligencia', icon: '🔮', description: 'Analytics predictivos' },
+                        { id: 'benchmarks', label: 'Benchmarks', icon: '📈', description: 'Comparaciones y rankings' }
+                    ]}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                >
+                    {activeTab === 'overview' && (
+                        <div className="grid-dashboard">
+                            <TopInfluencers onSelectActor={setSelectedActor} isAnonymous={isAnonymous} />
+                            <ScoreExplanation />
 
-                    <PowerBalance />
-                    <ChannelTotals />
+                            <PowerBalance />
+                            <ChannelTotals />
 
-                    <NetworkPulse />
-                    <ToneIndex />
-                    <InfluenceGraph onSelectActor={setSelectedActor} isAnonymous={isAnonymous} />
-                </div>
+                            <NetworkPulse />
+                            <ToneIndex />
+                            <InfluenceGraph onSelectActor={setSelectedActor} isAnonymous={isAnonymous} />
+                        </div>
+                    )}
+                    {activeTab === 'temporal' && <TemporalTab />}
+                    {activeTab === 'communities' && <CommunitiesTab />}
+                    {activeTab === 'meetings' && <MeetingsTab />}
+                    {activeTab === 'intelligence' && <IntelligenceTab />}
+                    {activeTab === 'benchmarks' && <BenchmarksTab />}
+                </TabContainer>
             ) : (
                 <Settings />
             )}

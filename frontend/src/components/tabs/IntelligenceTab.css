@@ -1,0 +1,65 @@
+.intelligence-tab {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stat-card.warning {
+    border-color: #ff9500;
+    background: rgba(255, 149, 0, 0.05);
+}
+
+.risk-factors {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 24px;
+    border: 2px solid var(--border-color);
+    margin-bottom: 24px;
+}
+
+.risk-factors h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.factors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.factor-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.factor-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.factor-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.factor-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .factors-grid {
+        grid-template-columns: 1fr;
+    }
+}
