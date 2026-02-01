@@ -71,21 +71,33 @@ class MetricService
     private function calculateNetworkPulse(): void
     {
         error_log("[MetricService] Calculating network pulse...");
+        
+        // Get System Timezone
+        $repo = new \Olympus\Db\SettingRepository();
+        $timezone = $repo->getByKey('system_timezone', 'UTC');
+        
         // Clear old pulse data
         $this->db->query("TRUNCATE TABLE network_pulse_daily");
 
+        // We convert timestamps to the target timezone before extracting the DATE
+        // This ensures that activity late at night (e.g. 23:00 EST) counts for that day, 
+        // not the next day (UTC).
         $sql = "
             INSERT INTO network_pulse_daily (date, activity_level)
             SELECT date, SUM(cnt) as activity_level FROM (
                 SELECT interaction_date as date, SUM(volume) as cnt FROM interactions GROUP BY interaction_date
                 UNION ALL
-                SELECT DATE(call_timestamp) as date, COUNT(*) as cnt FROM teams_call_records GROUP BY DATE(call_timestamp)
+                SELECT DATE(call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone) as date, COUNT(*) as cnt 
+                FROM teams_call_records 
+                GROUP BY DATE(call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone)
             ) as combined
             WHERE date IS NOT NULL
             GROUP BY date
             ORDER BY date ASC
         ";
-        $this->db->query($sql);
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['timezone' => $timezone]);
     }
 
     private function calculateToneIndex(): void
@@ -270,18 +282,41 @@ class MetricService
         // 1. Clear existing links
         $this->db->query("TRUNCATE TABLE influence_links");
 
-        // 2. Generate new links from interactions
+        // 2. Generate new links from interactions (Email) AND Teams Calls (Heuristic)
         // We aggregate interactions between pairs and normalize weight.
         // Formula: weight = ln(volume + 1) / ln(max_volume + 1)
         
         $sql = "
             INSERT INTO influence_links (source_id, target_id, weight)
-            WITH PairActivity AS (
+            WITH TeamsPairs AS (
+                -- Heuristic: Users in the same call (same timestamp, duration) are connected
+                SELECT 
+                    t1.user_id as source_id, 
+                    t2.user_id as target_id,
+                    COUNT(*) as vol
+                FROM teams_call_records t1
+                JOIN teams_call_records t2 ON t1.call_timestamp = t2.call_timestamp 
+                    AND t1.duration_seconds = t2.duration_seconds
+                    AND t1.user_id != t2.user_id
+                WHERE t1.participant_count > 1 -- Only multi-party calls
+                GROUP BY t1.user_id, t2.user_id
+            ),
+            EmailPairs AS (
                 SELECT 
                     source_id, 
                     target_id, 
-                    SUM(volume) as total_vol
+                    SUM(volume) as vol
                 FROM interactions
+                GROUP BY source_id, target_id
+            ),
+            CombinedActivity AS (
+                SELECT source_id, target_id, vol FROM EmailPairs
+                UNION ALL
+                SELECT source_id, target_id, vol FROM TeamsPairs
+            ),
+            PairActivity AS (
+                SELECT source_id, target_id, SUM(vol) as total_vol
+                FROM CombinedActivity
                 GROUP BY source_id, target_id
             ),
             MaxActivity AS (

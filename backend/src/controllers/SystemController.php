@@ -8,6 +8,7 @@ class SystemController
 {
     public function getAbout(): JsonResponse
     {
+        return new JsonResponse([
             'project' => 'Olympus Analytics',
             'version' => 'v5.1 Stable (Advanced Analytics)',
             'description' => 'Plataforma de analítica organizacional basada en metadatos de Microsoft 365. Revela patrones de influencia y dinámicas de equipo sin acceder al contenido.',

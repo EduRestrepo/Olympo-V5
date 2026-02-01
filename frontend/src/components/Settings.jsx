@@ -266,13 +266,36 @@ const Settings = () => {
                     <div className="stat-item">
                         <label className="stat-label">Zona Horaria (Heatmaps)</label>
                         <select className="graph-search-input" name="system_timezone" value={settings.system_timezone} onChange={handleChange} style={{ width: '100%', marginTop: '0.5rem' }}>
-                            <option value="UTC">UTC (Universal)</option>
-                            <option value="America/Bogota">Bogotá / Lima / Quito (UTC-5)</option>
-                            <option value="America/New_York">New York / Miami (UTC-5)</option>
-                            <option value="America/Chicago">Chicago / México (UTC-6)</option>
-                            <option value="America/Los_Angeles">Los Angeles (UTC-8)</option>
-                            <option value="Europe/Madrid">Madrid / París (UTC+1)</option>
-                            <option value="Europe/London">Londres (UTC+0)</option>
+                            <option value="UTC">UTC (Universal Coordinated Time)</option>
+
+                            <optgroup label="América del Norte">
+                                <option value="America/Los_Angeles">Pacific Time (Los Angeles, Vancouver) UTC-8</option>
+                                <option value="America/Denver">Mountain Time (Denver) UTC-7</option>
+                                <option value="America/Chicago">Central Time (Chicago, Mexico City) UTC-6</option>
+                                <option value="America/New_York">Eastern Time (New York, Miami) UTC-5</option>
+                            </optgroup>
+
+                            <optgroup label="América del Sur">
+                                <option value="America/Bogota">Colombia / Perú / Ecuador (UTC-5)</option>
+                                <option value="America/Santiago">Chile (Santiago) UTC-4/-3</option>
+                                <option value="America/Argentina/Buenos_Aires">Argentina / Uruguay (UTC-3)</option>
+                                <option value="America/Sao_Paulo">Brasil (São Paulo) UTC-3</option>
+                            </optgroup>
+
+                            <optgroup label="Europa">
+                                <option value="Europe/London">Reino Unido / Irlanda (UTC+0)</option>
+                                <option value="Europe/Madrid">Europa Central (Madrid, París, Berlín) UTC+1</option>
+                                <option value="Europe/Athens">Europa del Este (Atenas, Helsinki) UTC+2</option>
+                            </optgroup>
+
+                            <optgroup label="Asia & Pacífico">
+                                <option value="Asia/Dubai">Dubái (UTC+4)</option>
+                                <option value="Asia/Kolkata">India (UTC+5:30)</option>
+                                <option value="Asia/Bangkok">Bangkok / Yakarta (UTC+7)</option>
+                                <option value="Asia/Singapore">Singapur / China (UTC+8)</option>
+                                <option value="Asia/Tokyo">Japón / Corea (UTC+9)</option>
+                                <option value="Australia/Sydney">Sídney (UTC+11)</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div className="stat-item" style={{ gridColumn: 'span 2', marginTop: '0.5rem', background: 'rgba(248, 81, 73, 0.05)', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '6px', padding: '1rem' }}>
@@ -419,7 +442,15 @@ const Settings = () => {
                 <div className="stat-item" style={{ marginTop: '2rem', background: '#0d1117', border: '1px solid #30363d', borderRadius: '6px', padding: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <label className="stat-label" style={{ color: 'var(--text-main)' }}>Consola de Operaciones</label>
-                        {lastSync && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Última sinc: {lastSync}</span>}
+                        {lastSync && (
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                Última sinc: {new Date(lastSync).toLocaleString('es-ES', {
+                                    timeZone: settings.system_timezone || 'UTC',
+                                    year: 'numeric', month: '2-digit', day: '2-digit',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                })} ({settings.system_timezone})
+                            </span>
+                        )}
                     </div>
 
                     <textarea id="log-viewer" readOnly value={logs}

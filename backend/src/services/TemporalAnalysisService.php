@@ -132,8 +132,8 @@ class TemporalAnalysisService
                     END as risk_level
                 FROM actors a
                 LEFT JOIN teams_call_records tcr ON a.id = tcr.user_id 
-                    AND tcr.call_timestamp >= :week_start::date
-                    AND tcr.call_timestamp < :week_start::date + INTERVAL '7 days'
+                    AND DATE(tcr.call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone) >= :week_start::date
+                    AND DATE(tcr.call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone) < :week_start::date + INTERVAL '7 days'
                 LEFT JOIN interactions i ON a.id = i.source_id 
                     AND i.interaction_date >= :week_start::date
                     AND i.interaction_date < :week_start::date + INTERVAL '7 days'
@@ -150,8 +150,12 @@ class TemporalAnalysisService
                     overload_score = EXCLUDED.overload_score,
                     risk_level = EXCLUDED.risk_level";
 
+        $repo = new \Olympus\Db\SettingRepository();
+        $timezone = $repo->getByKey('system_timezone', 'UTC');
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':week_start', $weekStart);
+        $stmt->bindParam(':timezone', $timezone);
         $stmt->execute();
 
         return $stmt->rowCount();

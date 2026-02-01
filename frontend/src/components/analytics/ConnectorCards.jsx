@@ -52,7 +52,13 @@ const ConnectorCards = ({ bridges }) => {
                     <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '0.75rem', color: '#8b949e' }}>{bridge.email}</span>
-                            <button className="btn-secondary" style={{ padding: '2px 8px', fontSize: '0.7rem' }}>Ver Perfil</button>
+                            <button
+                                className="btn-secondary"
+                                style={{ padding: '2px 8px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                onClick={() => alert(`Perfil de ${bridge.name} en construcción`)}
+                            >
+                                Ver Perfil
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -43,7 +43,22 @@ class SettingsController
         $success = $this->repository->updateMultiple($data);
 
         if ($success) {
-            return new JsonResponse(['message' => 'Configuración guardada correctamente']);
+            // Trigger recalculation of metrics to apply new settings (e.g. Timezone, Weights) immediately
+            try {
+                $metricService = new \Olympus\Services\MetricService();
+                $metricService->calculateAggregates();
+                
+                // Also trigger Temporal Analysis recalculations (Overload, etc.)
+                $db = \Olympus\Db\Connection::get();
+                $temporalService = new \Olympus\Services\TemporalAnalysisService($db);
+                $temporalService->calculateOverloadMetrics();
+                
+                // Note: We don't fail the request if calc fails, just log it.
+            } catch (\Exception $e) {
+                error_log("SettingsController::saveSettings - Error recalculating metrics: " . $e->getMessage());
+            }
+
+            return new JsonResponse(['message' => 'Configuración guardada y métricas actualizadas correctamente']);
         } else {
             error_log("SettingsController::saveSettings - Repository update failed");
             return new JsonResponse(['error' => 'Error al guardar la configuración en base de datos'], 500);
