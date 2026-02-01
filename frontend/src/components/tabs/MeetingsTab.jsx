@@ -116,6 +116,10 @@ const MeetingsTab = () => {
                         </div>
                     ))}
                 </div>
+
+                <div className="view-disclaimer" style={{ marginTop: '24px', padding: '16px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.2)', borderRadius: '8px', fontSize: '0.9rem', color: '#c9d1d9' }}>
+                    <p style={{ margin: 0 }}><strong>💡 Eficiencia de Reuniones:</strong> Analizamos la duración, número de asistentes y frecuencia de las reuniones. Un alto costo o baja eficiencia sugiere la necesidad de optimizar la agenda y reducir reuniones innecesarias.</p>
+                </div>
             </div>
         );
     };

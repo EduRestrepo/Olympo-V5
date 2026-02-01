@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Share2, Globe, TrendingUp } from 'lucide-react';
 
-const ConnectorCards = ({ bridges }) => {
+const ConnectorCards = ({ bridges, onViewProfile }) => {
     return (
         <div className="connectors-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
             {bridges.map((bridge, index) => (
@@ -55,7 +55,7 @@ const ConnectorCards = ({ bridges }) => {
                             <button
                                 className="btn-secondary"
                                 style={{ padding: '2px 8px', fontSize: '0.7rem', cursor: 'pointer' }}
-                                onClick={() => alert(`Perfil de ${bridge.name} en construcción`)}
+                                onClick={() => onViewProfile && onViewProfile(bridge)}
                             >
                                 Ver Perfil
                             </button>

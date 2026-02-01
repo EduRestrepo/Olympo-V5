@@ -386,7 +386,7 @@ const TemporalTab = () => {
                     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #444; }
                 `}} />
                 <div className="view-disclaimer">
-                    <p><strong>💡 Vista Combinada:</strong> Arriba, el flujo continuo de trabajo. Abajo, el detalle granular por hora/día.</p>
+                    <p><strong>💡 Vista de Actividad:</strong> Este mapa de calor visualiza la intensidad de la colaboración digital (correos y reuniones). Las celdas más brillantes indican momentos de alta demanda. Use esta vista para detectar patrones de trabajo fuera de horario o validar el respeto al tiempo personal.</p>
                 </div>
             </div>
         );
@@ -529,7 +529,7 @@ const TemporalTab = () => {
                         </div>
                     </div>
                     <div className="view-disclaimer">
-                        <p><strong>💡 Cálculo del Score:</strong> Promedio ponderado. Un score superior a 70 indica riesgo crítico.</p>
+                        <p><strong>💡 Score de Sobrecarga:</strong> Índice compuesto que pondera volumen de trabajo, reuniones y actividad fuera de horario. Un riesgo 'Alto' sugiere saturación sostenida que puede llevar al burnout. Se recomienda revisar la distribución de cargas.</p>
                     </div>
                 </div>
             );
@@ -655,7 +655,7 @@ const TemporalTab = () => {
                 </div>
 
                 <div className="view-disclaimer">
-                    <p><strong>💡 Nota de Metodología:</strong> Analizamos pares de interacciones correlacionadas (A envía, B responde) en un margen de 24h. Los tiempos se expresan en horas laborables equivalentes.</p>
+                    <p><strong>💡 Latencia de Respuesta:</strong> Tiempo medio entre recibir un correo y responderlo. Tiempos muy largos pueden indicar cuellos de botella; tiempos inmediatos constantes pueden señalar una cultura de interrupción que afecta el trabajo profundo.</p>
                 </div>
             </div >
         );
@@ -759,7 +759,7 @@ const TemporalTab = () => {
                 </div>
 
                 <div className="view-disclaimer">
-                    <p><strong>💡 Cómo leer esta vista:</strong> Cada tarjeta representa un departamento origen. Las barras indican hacia dónde fluye la comunicación y con qué intensidad. Un flujo equilibrado es señal de buena salud organizacional.</p>
+                    <p><strong>💡 Flujo de Interacción:</strong> Visualiza la estructura de colaboración global. Un equilibrio entre 'envíos' y 'recepciones' indica colaboración saludable. Desequilibrios fuertes pueden señalar dependencias unidireccionales entre departamentos.</p>
                 </div>
             </div>
         );

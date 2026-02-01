@@ -1,13 +1,14 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
-const SiloChart = ({ silos }) => {
-    // Sort by isolation score
-    const data = [...silos].sort((a, b) => b.isolation_score - a.isolation_score);
-
-    const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label }) => {
+    try {
         if (active && payload && payload.length) {
             const item = payload[0].payload;
+            if (!item) return null;
+
+            const score = Number(item.isolation_score || 0);
+
             return (
                 <div className="custom-tooltip" style={{
                     background: 'rgba(13, 17, 23, 0.95)',
@@ -18,25 +19,36 @@ const SiloChart = ({ silos }) => {
                 }}>
                     <p style={{ margin: 0, fontWeight: 'bold', color: '#fff' }}>{label}</p>
                     <p style={{ margin: '4px 0', color: 'var(--accent-primary)' }}>
-                        Puntuación Silo: {item.isolation_score.toFixed(1)}%
+                        Puntuación Silo: {!isNaN(score) ? score.toFixed(1) : '0.0'}%
                     </p>
                     <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '8px' }}>
-                        <p style={{ margin: '2px 0' }}>Conexiones Internas: {item.internal_connections}</p>
-                        <p style={{ margin: '2px 0' }}>Conexiones Externas: {item.external_connections}</p>
+                        <p style={{ margin: '2px 0' }}>Conexiones Internas: {item.internal_connections || 0}</p>
+                        <p style={{ margin: '2px 0' }}>Conexiones Externas: {item.external_connections || 0}</p>
                         <p style={{
                             margin: '8px 0 0 0',
                             fontWeight: 'bold',
                             color: item.silo_risk === 'high' ? '#f85149' : (item.silo_risk === 'medium' ? '#d29922' : '#2da44e'),
                             textTransform: 'uppercase'
                         }}>
-                            Riesgo: {item.silo_risk}
+                            Riesgo: {item.silo_risk || 'unknown'}
                         </p>
                     </div>
                 </div>
             );
         }
-        return null;
-    };
+    } catch (e) {
+        console.warn("Error rendering tooltip:", e);
+        return null; // Fallback to prevent crash
+    }
+    return null;
+};
+
+const SiloChart = ({ silos }) => {
+    // Sort by isolation score
+    const data = React.useMemo(() => {
+        if (!silos) return [];
+        return [...silos].sort((a, b) => (b.isolation_score || 0) - (a.isolation_score || 0));
+    }, [silos]);
 
     return (
         <div className="silo-chart-container" style={{ width: '100%', height: '400px', marginTop: '20px' }}>
@@ -60,7 +72,7 @@ const SiloChart = ({ silos }) => {
                         {data.map((entry, index) => (
                             <Cell
                                 key={`cell-${index}`}
-                                fill={entry.isolation_score > 70 ? '#f85149' : (entry.isolation_score > 40 ? '#d29922' : '#2da44e')}
+                                fill={(entry.isolation_score || 0) > 70 ? '#f85149' : ((entry.isolation_score || 0) > 40 ? '#d29922' : '#2da44e')}
                                 fillOpacity={0.8}
                             />
                         ))}

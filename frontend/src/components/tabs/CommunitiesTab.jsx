@@ -6,11 +6,13 @@ import CommunityMap from '../analytics/CommunityMap';
 import SiloChart from '../analytics/SiloChart';
 import ConnectorCards from '../analytics/ConnectorCards';
 import DiversityStats from '../analytics/DiversityStats';
+import RadarProfile from '../RadarProfile';
 import { Users, LayoutGrid, Network, Layers, Target, Info, RefreshCw } from 'lucide-react';
 import './CommunitiesTab.css';
 
 const CommunitiesTab = () => {
     const [activeView, setActiveView] = useState('communities');
+    const [selectedProfile, setSelectedProfile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
@@ -139,8 +141,17 @@ const CommunitiesTab = () => {
                 <div className="view-render-container">
                     {activeView === 'communities' && <CommunityMap communities={data.communities} />}
                     {activeView === 'silos' && <SiloChart silos={data.silos} />}
-                    {activeView === 'bridges' && <ConnectorCards bridges={data.bridges} />}
+                    {activeView === 'bridges' && (
+                        <ConnectorCards
+                            bridges={data.bridges}
+                            onViewProfile={setSelectedProfile}
+                        />
+                    )}
                     {activeView === 'diversity' && <DiversityStats diversity={data.diversity} />}
+                </div>
+
+                <div className="view-disclaimer" style={{ marginTop: '24px', padding: '16px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.2)', borderRadius: '8px', fontSize: '0.9rem', color: '#c9d1d9' }}>
+                    <p style={{ margin: 0 }}><strong>💡 Nota:</strong> Este mapa de comunidades se genera dinámicamente analizando patrones de comunicación. Los "Silos" indican áreas con alto aislamiento, mientras que los "Conectores" son usuarios clave que facilitan el flujo de información entre grupos.</p>
                 </div>
             </div>
         );
@@ -169,6 +180,15 @@ const CommunitiesTab = () => {
             <div className="view-content">
                 {renderContent()}
             </div>
+
+            {/* Profile Modal */}
+            {selectedProfile && (
+                <RadarProfile
+                    actor={selectedProfile}
+                    onClose={() => setSelectedProfile(null)}
+                    isAnonymous={false}
+                />
+            )}
         </div>
     );
 };

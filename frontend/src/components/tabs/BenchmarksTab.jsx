@@ -109,6 +109,10 @@ const BenchmarksTab = () => {
                         </div>
                     ))}
                 </div>
+
+                <div className="view-disclaimer" style={{ marginTop: '24px', padding: '16px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.2)', borderRadius: '8px', fontSize: '0.9rem', color: '#c9d1d9' }}>
+                    <p style={{ margin: 0 }}><strong>💡 Comparativa Sectorial:</strong> Estos benchmarks permiten comparar el desempeño de tu organización o departamento con estándares de la industria, identificando áreas de mejora competitiva.</p>
+                </div>
             </div>
         );
     };

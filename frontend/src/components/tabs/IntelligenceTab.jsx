@@ -116,6 +116,10 @@ const IntelligenceTab = () => {
                         </div>
                     ))}
                 </div>
+
+                <div className="view-disclaimer" style={{ marginTop: '24px', padding: '16px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.2)', borderRadius: '8px', fontSize: '0.9rem', color: '#c9d1d9' }}>
+                    <p style={{ margin: 0 }}><strong>💡 Inteligencia Artificial:</strong> Estos modelos predictivos identifican riesgos de fuga de talento, burnout y aislamiento basándose en patrones de comportamiento digital, permitiendo intervenciones proactivas.</p>
+                </div>
             </div>
         );
     };

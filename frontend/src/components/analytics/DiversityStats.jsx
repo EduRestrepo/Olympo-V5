@@ -7,8 +7,8 @@ const DiversityStats = ({ diversity }) => {
     const topDiversity = [...diversity].sort((a, b) => b.diversity_score - a.diversity_score).slice(0, 5);
 
     // Aggregate averages
-    const avgDiversity = diversity.reduce((acc, curr) => acc + curr.diversity_score, 0) / diversity.length;
-    const avgDepts = diversity.reduce((acc, curr) => acc + curr.unique_departments_connected, 0) / diversity.length;
+    const avgDiversity = diversity.length > 0 ? diversity.reduce((acc, curr) => acc + curr.diversity_score, 0) / diversity.length : 0;
+    const avgDepts = diversity.length > 0 ? diversity.reduce((acc, curr) => acc + curr.unique_departments_connected, 0) / diversity.length : 0;
 
     // Data for a summary radar chart (mocking some dimensions to enrich it)
     const radarData = [
