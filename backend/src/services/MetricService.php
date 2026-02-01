@@ -178,16 +178,22 @@ class MetricService
             )
         ");
 
+        // Get System Timezone
+        $repo = new \Olympus\Db\SettingRepository();
+        $timezone = $repo->getByKey('system_timezone', 'UTC');
+        error_log("[MetricService] Using timezone for heatmap: $timezone");
+
         // 1. Insert from Teams Calls (Real Timestamps)
+        // Convert UTC timestamp to System Timezone for hour extraction
         $sqlTeams = "
             INSERT INTO activity_heatmap (actor_id, activity_date, hour_of_day, meeting_count, total_activity, day_of_week)
             SELECT 
                 user_id as actor_id,
-                DATE(call_timestamp) as activity_date,
-                EXTRACT(HOUR FROM call_timestamp) as hour_of_day,
+                DATE(call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone) as activity_date,
+                EXTRACT(HOUR FROM (call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone)) as hour_of_day,
                 COUNT(*) as meeting_count,
                 COUNT(*) as total_activity,
-                EXTRACT(DOW FROM call_timestamp) as day_of_week
+                EXTRACT(DOW FROM (call_timestamp AT TIME ZONE 'UTC' AT TIME ZONE :timezone)) as day_of_week
             FROM teams_call_records
             WHERE call_timestamp >= CURRENT_DATE - INTERVAL '30 days'
             GROUP BY 1, 2, 3, 6
@@ -196,7 +202,9 @@ class MetricService
                 meeting_count = EXCLUDED.meeting_count,
                 total_activity = activity_heatmap.total_activity + EXCLUDED.total_activity
         ";
-        $this->db->query($sqlTeams);
+        
+        $stmt = $this->db->prepare($sqlTeams);
+        $stmt->execute(['timezone' => $timezone]);
 
         // 2. Insert/Update from Interactions (Emails)
         // Emails have a 'date' but no 'time' in interactions table (interaction_date is DATE).

@@ -4,7 +4,7 @@
 
 Olympus no es solo una herramienta de análisis de datos; es una respuesta a la necesidad de comprender la "organización oculta" que opera debajo del organigrama formal.
 
-> **Nota:** Documentación actualizada para **Olympus v5.0 Stable**.
+> **Nota:** Documentación actualizada para **Olympus v5.1 Stable**.
 
 ### 1. El Organigrama vs. La Red Real
 Las empresas suelen gestionarse basándose en el organigrama oficial: una estructura jerárquica, ordenada y predecible. Sin embargo, **el trabajo real fluye a través de relaciones informales**, confianza, y redes de colaboración que el organigrama no captura.

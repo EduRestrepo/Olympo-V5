@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { Clock, AlertTriangle, Timer, Globe, TrendingUp, User, Users, Activity } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import analyticsApi from '../../services/analyticsApi';

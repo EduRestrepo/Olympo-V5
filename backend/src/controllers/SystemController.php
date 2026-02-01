@@ -8,11 +8,11 @@ class SystemController
 {
     public function getAbout(): JsonResponse
     {
-        return new JsonResponse([
             'project' => 'Olympus Analytics',
-            'version' => 'v5.0 Stable (Milestone)',
-            'developer' => 'Eduardo Restrepo',
-            'description' => 'Organizational Network Analysis based on Microsoft 365 Metadata.'
+            'version' => 'v5.1 Stable (Advanced Analytics)',
+            'description' => 'Plataforma de analítica organizacional basada en metadatos de Microsoft 365. Revela patrones de influencia y dinámicas de equipo sin acceder al contenido.',
+            'author' => 'Eduardo Restrepo',
+            'emails' => ['eduardo.restrepo@gmail.com', 'eduardo.restrepo@protonmail.ch']
         ]);
     }
 }

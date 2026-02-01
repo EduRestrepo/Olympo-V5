@@ -13,7 +13,7 @@ const DiversityStats = ({ diversity }) => {
     // Data for a summary radar chart (mocking some dimensions to enrich it)
     const radarData = [
         { subject: 'Alcance Dptos', A: avgDepts * 20, fullMark: 100 },
-        { subject: 'Diversidad', A: avgDiversity, fullMark: 100 },
+        { subject: 'Pluralidad', A: avgDiversity, fullMark: 100 },
         { subject: 'Colaboración', A: 85, fullMark: 100 },
         { subject: 'Apertura', A: 70, fullMark: 100 },
         { subject: 'Velocidad', A: 65, fullMark: 100 },
@@ -30,7 +30,7 @@ const DiversityStats = ({ diversity }) => {
                             <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>SALUD DE RED</span>
                         </div>
                         <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fff' }}>{Math.round(avgDiversity)}%</div>
-                        <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#8b949e' }}>Puntuación media de diversidad inter-departamental</p>
+                        <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#8b949e' }}>Puntuación media de pluralidad inter-departamental</p>
                     </div>
 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -43,7 +43,7 @@ const DiversityStats = ({ diversity }) => {
                     </div>
 
                     <div className="top-contributors" style={{ gridColumn: 'span 2', background: 'rgba(0,0,0,0.1)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: '#8b949e', textTransform: 'uppercase' }}>Líderes de Diversidad</h4>
+                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: '#8b949e', textTransform: 'uppercase' }}>Líderes de Pluralidad</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             {topDiversity.map((user, i) => (
                                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 1rem', borderRadius: '6px' }}>

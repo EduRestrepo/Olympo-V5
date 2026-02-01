@@ -130,6 +130,16 @@ function App() {
                             <h3 style={{ color: 'var(--accent-primary)' }}>{about.project}</h3>
                             <p><strong>Versión:</strong> {about.version}</p>
                             <p>{about.description}</p>
+                            {about.author && (
+                                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+                                    <p><strong>Autor:</strong> {about.author}</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                        {about.emails && about.emails.map((email, i) => (
+                                            <small key={i} style={{ color: 'var(--text-muted)' }}>{email}</small>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <p>Cargando información...</p>

@@ -16,7 +16,8 @@ const Settings = () => {
         influence_weight_email: '0.6',
         influence_weight_teams: '0.4',
         threshold_email_vol: '500',
-        threshold_teams_freq: '50'
+        threshold_teams_freq: '50',
+        system_timezone: 'UTC'
     });
 
     const [loading, setLoading] = useState(true);
@@ -260,6 +261,18 @@ const Settings = () => {
                         <select className="graph-search-input" name="app_debug" value={settings.app_debug} onChange={handleChange} style={{ width: '100%', marginTop: '0.5rem' }}>
                             <option value="true">Activado</option>
                             <option value="false">Desactivado</option>
+                        </select>
+                    </div>
+                    <div className="stat-item">
+                        <label className="stat-label">Zona Horaria (Heatmaps)</label>
+                        <select className="graph-search-input" name="system_timezone" value={settings.system_timezone} onChange={handleChange} style={{ width: '100%', marginTop: '0.5rem' }}>
+                            <option value="UTC">UTC (Universal)</option>
+                            <option value="America/Bogota">Bogotá / Lima / Quito (UTC-5)</option>
+                            <option value="America/New_York">New York / Miami (UTC-5)</option>
+                            <option value="America/Chicago">Chicago / México (UTC-6)</option>
+                            <option value="America/Los_Angeles">Los Angeles (UTC-8)</option>
+                            <option value="Europe/Madrid">Madrid / París (UTC+1)</option>
+                            <option value="Europe/London">Londres (UTC+0)</option>
                         </select>
                     </div>
                     <div className="stat-item" style={{ gridColumn: 'span 2', marginTop: '0.5rem', background: 'rgba(248, 81, 73, 0.05)', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '6px', padding: '1rem' }}>

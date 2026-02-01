@@ -2,6 +2,7 @@
     "name": "olympus-frontend",
     "private": true,
     "version": "1.0.0",
+    "author": "Eduardo Restrepo <eduardo.restrepo@gmail.com>",
     "type": "module",
     "scripts": {
         "dev": "vite",

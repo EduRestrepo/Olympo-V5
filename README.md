@@ -399,7 +399,7 @@ The dashboard now features **6 organized tabs** for better navigation:
 
 ---
 
-## 📈 Recent Updates (v5.0)
+## 📈 Recent Updates (v5.1)
 
 ### Network Graph Enhancements
 - ⚡ Electric energy spheres with vibrant blue gradients
@@ -448,6 +448,14 @@ For issues, questions, or feature requests:
 
 ---
 
+## 👨‍💻 About the Author
+
+**Eduardo Restrepo**
+- 📧 [eduardo.restrepo@gmail.com](mailto:eduardo.restrepo@gmail.com)
+- 📧 [eduardo.restrepo@protonmail.ch](mailto:eduardo.restrepo@protonmail.ch)
+
+---
+
 ## 🙏 Acknowledgments
 
 - Microsoft Graph API for metadata access
@@ -457,3 +465,11 @@ For issues, questions, or feature requests:
 ---
 
 **Built with ❤️ for organizational transparency and privacy**
+
+---
+
+## 🗄️ Modelo de Datos
+
+Para una descripción detallada de la estructura de la base de datos, tablas y relaciones, consulte el documento:
+
+👉 **[Documentación del Modelo de Datos](./DATA_MODEL.md)**

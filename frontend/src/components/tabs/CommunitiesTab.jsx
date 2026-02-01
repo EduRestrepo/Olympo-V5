@@ -26,7 +26,7 @@ const CommunitiesTab = () => {
         { id: 'communities', label: 'Mapa de Comunidades', icon: <Network size={18} />, description: 'Agrupaciones naturales de usuarios segun su interaccion' },
         { id: 'silos', label: 'Detector de Silos', icon: <Layers size={18} />, description: 'Departamentos con alta concentracion de interaccion interna' },
         { id: 'bridges', label: 'Conectores', icon: <Users size={18} />, description: 'Personas clave que unen diferentes areas' },
-        { id: 'diversity', label: 'Diversidad', icon: <Target size={18} />, description: 'Salud de la red y apertura de colaboracion' }
+        { id: 'diversity', label: 'Pluralidad', icon: <Target size={18} />, description: 'Salud de la red y apertura de colaboracion' }
     ];
 
     // Load ALL data once on mount

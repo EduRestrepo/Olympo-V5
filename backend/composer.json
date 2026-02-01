@@ -3,6 +3,16 @@
     "description": "Organizational Analytics Platform Backend",
     "type": "project",
     "license": "proprietary",
+    "authors": [
+        {
+            "name": "Eduardo Restrepo",
+            "email": "eduardo.restrepo@gmail.com"
+        },
+        {
+            "name": "Eduardo Restrepo",
+            "email": "eduardo.restrepo@protonmail.ch"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "ext-pdo_pgsql": "*",
