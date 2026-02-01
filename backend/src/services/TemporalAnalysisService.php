@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace Olympus\Services;
 
+use Olympus\Db\Connection;
 use PDO;
 
 class TemporalAnalysisService

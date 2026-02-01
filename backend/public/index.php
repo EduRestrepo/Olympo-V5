@@ -65,7 +65,10 @@ try {
     $class = $controller[0];
     $method = $controller[1];
 
-    $instance = new $class();
+    // Get database connection
+    $db = \Olympus\Db\Connection::get();
+    
+    $instance = new $class($db);
     $response = $instance->$method($request);
 
 } catch (ResourceNotFoundException $e) {

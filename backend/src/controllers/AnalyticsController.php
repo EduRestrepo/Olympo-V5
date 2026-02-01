@@ -9,10 +9,10 @@ use Olympus\Services\CommunityDetectionService;
 use Olympus\Services\MeetingAnalysisService;
 use Olympus\Services\PredictiveAnalyticsService;
 use Olympus\Services\BenchmarkingService;
-use App\Services\BatchProcessingService;
-use App\Services\ADGroupService;
-use App\Services\ExportService;
-use App\Services\GamificationService;
+use Olympus\Services\BatchProcessingService;
+use Olympus\Services\ADGroupService;
+use Olympus\Services\ExportService;
+use Olympus\Services\GamificationService;
 
 class AnalyticsController
 {
@@ -27,10 +27,10 @@ class AnalyticsController
     // TEMPORAL ANALYSIS ENDPOINTS
     // ========================================================================
 
-    public function getActivityHeatmap(Request $request, Response $response): Response
+    public function getActivityHeatmap(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
-        $params = $request->getQueryParams();
+        $params = $request->query->all();
         
         $data = $service->getActivityHeatmap(
             $params['actor_id'] ?? null,
@@ -38,42 +38,38 @@ class AnalyticsController
             $params['end_date'] ?? null
         );
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getOverloadedUsers(Request $request, Response $response): Response
+    public function getOverloadedUsers(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getOverloadedUsers($params['risk_level'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getResponseTimeAnalysis(Request $request, Response $response): Response
+    public function getResponseTimeAnalysis(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getResponseTimeAnalysis($params['department'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getTimezoneCollaboration(Request $request, Response $response): Response
+    public function getTimezoneCollaboration(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
         $data = $service->getTimezoneCollaboration();
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function calculateTemporalMetrics(Request $request, Response $response): Response
+    public function calculateTemporalMetrics(Request $request)
     {
         $service = new TemporalAnalysisService($this->db);
         
@@ -86,86 +82,78 @@ class AnalyticsController
             'overload_records' => $overloadCount
         ];
 
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 
     // ========================================================================
     // COMMUNITY DETECTION ENDPOINTS
     // ========================================================================
 
-    public function detectCommunities(Request $request, Response $response): Response
+    public function detectCommunities(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $communities = $service->detectCommunities();
 
-        $response->getBody()->write(json_encode($communities));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($communities);
     }
 
-    public function getCommunities(Request $request, Response $response): Response
+    public function getCommunities(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $communities = $service->getCommunities();
 
-        $response->getBody()->write(json_encode($communities));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($communities);
     }
 
-    public function getSilos(Request $request, Response $response): Response
+    public function getSilos(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $params = $request->getQueryParams();
         
         $silos = $service->getSilos($params['risk_level'] ?? null);
 
-        $response->getBody()->write(json_encode($silos));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($silos);
     }
 
-    public function detectSilos(Request $request, Response $response): Response
+    public function detectSilos(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $silos = $service->detectSilos();
 
-        $response->getBody()->write(json_encode($silos));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($silos);
     }
 
-    public function getBridges(Request $request, Response $response): Response
+    public function getBridges(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $params = $request->getQueryParams();
         
         $bridges = $service->getBridges($params['limit'] ?? 20);
 
-        $response->getBody()->write(json_encode($bridges));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($bridges);
     }
 
-    public function detectBridges(Request $request, Response $response): Response
+    public function detectBridges(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $bridges = $service->detectBridges();
 
-        $response->getBody()->write(json_encode($bridges));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($bridges);
     }
 
-    public function getNetworkDiversity(Request $request, Response $response): Response
+    public function getNetworkDiversity(Request $request)
     {
         $service = new CommunityDetectionService($this->db);
         $diversity = $service->getNetworkDiversity();
 
-        $response->getBody()->write(json_encode($diversity));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($diversity);
     }
 
     // ========================================================================
     // MEETING ANALYSIS ENDPOINTS
     // ========================================================================
 
-    public function getMeetingEfficiency(Request $request, Response $response): Response
+    public function getMeetingEfficiency(Request $request)
     {
         $service = new MeetingAnalysisService($this->db);
         $params = $request->getQueryParams();
@@ -175,33 +163,30 @@ class AnalyticsController
             $params['min_score'] ?? null
         );
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getMeetingCosts(Request $request, Response $response): Response
+    public function getMeetingCosts(Request $request)
     {
         $service = new MeetingAnalysisService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getMeetingCosts($params['group_by'] ?? 'organizer');
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getMeetingRecommendations(Request $request, Response $response): Response
+    public function getMeetingRecommendations(Request $request)
     {
         $service = new MeetingAnalysisService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getRecommendations($params['type'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function calculateMeetingMetrics(Request $request, Response $response): Response
+    public function calculateMeetingMetrics(Request $request)
     {
         $service = new MeetingAnalysisService($this->db);
         
@@ -216,48 +201,44 @@ class AnalyticsController
             'recommendations' => $recommendationsCount
         ];
 
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 
     // ========================================================================
     // PREDICTIVE ANALYTICS ENDPOINTS
     // ========================================================================
 
-    public function getChurnRisk(Request $request, Response $response): Response
+    public function getChurnRisk(Request $request)
     {
         $service = new PredictiveAnalyticsService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getChurnRisk($params['risk_level'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getBurnoutIndicators(Request $request, Response $response): Response
+    public function getBurnoutIndicators(Request $request)
     {
         $service = new PredictiveAnalyticsService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getBurnoutIndicators($params['risk_level'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getIsolationAlerts(Request $request, Response $response): Response
+    public function getIsolationAlerts(Request $request)
     {
         $service = new PredictiveAnalyticsService($this->db);
         $params = $request->getQueryParams();
         
         $data = $service->getIsolationAlerts($params['alert_level'] ?? null);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function calculatePredictiveMetrics(Request $request, Response $response): Response
+    public function calculatePredictiveMetrics(Request $request)
     {
         $service = new PredictiveAnalyticsService($this->db);
         
@@ -272,15 +253,14 @@ class AnalyticsController
             'isolation_records' => $isolationCount
         ];
 
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 
     // ========================================================================
     // BENCHMARKING ENDPOINTS
     // ========================================================================
 
-    public function getDepartmentBenchmarks(Request $request, Response $response): Response
+    public function getDepartmentBenchmarks(Request $request)
     {
         $service = new BenchmarkingService($this->db);
         $params = $request->getQueryParams();
@@ -290,11 +270,10 @@ class AnalyticsController
             $params['metric_name'] ?? null
         );
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function getRankings(Request $request, Response $response): Response
+    public function getRankings(Request $request)
     {
         $service = new BenchmarkingService($this->db);
         $params = $request->getQueryParams();
@@ -304,11 +283,10 @@ class AnalyticsController
             $params['limit'] ?? 20
         );
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
     }
 
-    public function calculateBenchmarks(Request $request, Response $response): Response
+    public function calculateBenchmarks(Request $request)
     {
         $service = new BenchmarkingService($this->db);
         
@@ -322,15 +300,14 @@ class AnalyticsController
             'ranking_records' => $rankingCount
         ];
 
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 
     // ========================================================================
     // EXPORT ENDPOINTS
     // ========================================================================
 
-    public function exportData(Request $request, Response $response): Response
+    public function exportData(Request $request)
     {
         $service = new ExportService($this->db);
         $params = $request->getQueryParams();
@@ -357,8 +334,7 @@ class AnalyticsController
         
         $badges = $service->getUserBadges($actorId);
 
-        $response->getBody()->write(json_encode($badges));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($badges);
     }
 
     public function getConnectionSuggestions(Request $request, Response $response, array $args): Response
@@ -369,8 +345,7 @@ class AnalyticsController
         
         $suggestions = $service->getConnectionSuggestions($actorId, $params['status'] ?? 'pending');
 
-        $response->getBody()->write(json_encode($suggestions));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($suggestions);
     }
 
     public function getUserGoals(Request $request, Response $response, array $args): Response
@@ -381,48 +356,44 @@ class AnalyticsController
         
         $goals = $service->getUserGoals($actorId, $params['status'] ?? 'active');
 
-        $response->getBody()->write(json_encode($goals));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($goals);
     }
 
     // ========================================================================
     // BATCH PROCESSING & AD GROUPS ENDPOINTS
     // ========================================================================
 
-    public function getBatchJobs(Request $request, Response $response): Response
+    public function getBatchJobs(Request $request)
     {
         $service = new BatchProcessingService($this->db);
         $params = $request->getQueryParams();
         
         $jobs = $service->getBatchJobs($params['status'] ?? null);
 
-        $response->getBody()->write(json_encode($jobs));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($jobs);
     }
 
-    public function getADGroups(Request $request, Response $response): Response
+    public function getADGroups(Request $request)
     {
         $service = new ADGroupService($this->db);
         $params = $request->getQueryParams();
         
         $groups = $service->getADGroups($params['is_enabled'] ?? null);
 
-        $response->getBody()->write(json_encode($groups));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($groups);
     }
 
-    public function getExtractionScopes(Request $request, Response $response): Response
+    public function getExtractionScopes(Request $request)
     {
         $service = new ADGroupService($this->db);
         $params = $request->getQueryParams();
         
         $scopes = $service->getExtractionScopes($params['is_active'] ?? null);
 
-        $response->getBody()->write(json_encode($scopes));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($scopes);
     }
 
-    public function createExtractionScope(Request $request, Response $response): Response
+    public function createExtractionScope(Request $request)
     {
         $service = new ADGroupService($this->db);
         $body = json_decode($request->getBody()->getContents(), true);
@@ -430,7 +401,6 @@ class AnalyticsController
         $scopeId = $service->createExtractionScope($body);
 
         $result = ['success' => true, 'scope_id' => $scopeId];
-        $response->getBody()->write(json_encode($result));
-        return $response->withHeader('Content-Type', 'application/json');
+        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 }
