@@ -33,44 +33,51 @@ class SettingsController
         $data = json_decode($json, true);
 
         if (!$data) {
+            error_log("SettingsController::saveSettings - Invalid JSON received: " . substr($json, 0, 100));
             return new JsonResponse(['error' => 'Invalid JSON'], 400);
         }
+
+        // Validate critical fields if necessary (optional)
+        // error_log("Attempting to save settings: " . print_r(array_keys($data), true));
 
         $success = $this->repository->updateMultiple($data);
 
         if ($success) {
             return new JsonResponse(['message' => 'Configuración guardada correctamente']);
         } else {
-            return new JsonResponse(['error' => 'Error al guardar la configuración'], 500);
+            error_log("SettingsController::saveSettings - Repository update failed");
+            return new JsonResponse(['error' => 'Error al guardar la configuración en base de datos'], 500);
         }
     }
-    public function testConnection(): JsonResponse
+    public function testConnection(Request $request): JsonResponse
     {
-        // Simple connectivity check (can be improved by actually calling Graph)
-        // For now, we check if credentials are present
-        $clientId = $this->repository->getByKey('ms_graph_client_id');
-        $clientSecret = $this->repository->getByKey('ms_graph_client_secret');
-        $tenantId = $this->repository->getByKey('ms_graph_tenant_id');
+        // 1. Try to get credentials from Request Body (Priority)
+        $json = $request->getContent();
+        $data = json_decode($json, true) ?? [];
+
+        $clientId = $data['ms_graph_client_id'] ?? null;
+        $clientSecret = $data['ms_graph_client_secret'] ?? null;
+        $tenantId = $data['ms_graph_tenant_id'] ?? null;
+
+        // 2. Fallback to Database if not provided in request
+        if (empty($clientId) || empty($clientSecret) || empty($tenantId)) {
+            $clientId = $this->repository->getByKey('ms_graph_client_id');
+            $clientSecret = $this->repository->getByKey('ms_graph_client_secret');
+            $tenantId = $this->repository->getByKey('ms_graph_tenant_id');
+        }
 
         if (empty($clientId) || empty($clientSecret) || empty($tenantId)) {
             return new JsonResponse([
                 'status' => 'error', 
-                'message' => 'Faltan credenciales (Client ID, Secret o Tenant ID)'
+                'message' => 'Faltan credenciales (Client ID, Secret o Tenant ID). Por favor ingresea los datos.'
             ], 400);
         }
 
-        // Try to authenticate using GraphIngestionService
+        // Try to authenticate using Guzzle directly to verify credentials
         try {
-            $service = new \Olympus\Services\GraphIngestionService();
-            // We need a public method in Service to test auth only
-            // For now, we can catch the error during constructor or create a specific method
-            // Since constructor loads settings, and authentication happens later...
-            // Let's modify GraphIngestionService to have a testAuth method or just instantiate and try token.
-            
-            // As a quick check, we can rely on a try-catch block wrapping a token fetch attempt
-            // Assuming we modify Service to expose a test method, OR just do it here using Guzzle
             $guzzle = new \GuzzleHttp\Client();
             $url = 'https://login.microsoftonline.com/' . $tenantId . '/oauth2/v2.0/token';
+            
             $response = $guzzle->post($url, [
                 'form_params' => [
                     'client_id' => $clientId,
@@ -78,14 +85,26 @@ class SettingsController
                     'scope' => 'https://graph.microsoft.com/.default',
                     'grant_type' => 'client_credentials',
                 ],
+                'timeout' => 10 // Set a timeout
             ]);
             
-            return new JsonResponse(['status' => 'success', 'message' => 'Conexión exitosa con Microsoft Graph']);
+            $body = json_decode($response->getBody(), true);
+            
+            if (isset($body['access_token'])) {
+                 return new JsonResponse(['status' => 'success', 'message' => 'Conexión exitosa con Microsoft Graph. Credenciales válidas.']);
+            } else {
+                 return new JsonResponse(['status' => 'error', 'message' => 'Respuesta inesperada de Microsoft (No Token)'], 500);
+            }
+
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $responseBody = $e->getResponse() ? $e->getResponse()->getBody()->getContents() : 'No response body';
+            // Parse common MS Graph errors
+            $errorJson = json_decode($responseBody, true);
+            $errorDesc = $errorJson['error_description'] ?? $errorJson['error'] ?? $e->getMessage();
+
             return new JsonResponse([
                 'status' => 'error', 
-                'message' => 'Error de autenticación (4xx): ' . $e->getMessage() . ' | Detalles: ' . $responseBody
+                'message' => 'Error de autenticación: ' . $errorDesc
             ], 400);
         } catch (\Exception $e) {
             return new JsonResponse([

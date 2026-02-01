@@ -79,7 +79,9 @@ const Settings = () => {
         setTestingConnection(true);
         setMessage({ type: '', text: '' });
         try {
-            const res = await api.post('/api/settings/test-connection', {});
+            // Send current settings to allow testing BEFORE saving
+            const res = await api.post('/api/settings/test-connection', settings);
+
             // Check for null/undefined response which commonly happens with the api wrapper
             if (res) {
                 if (res.status === 'success') {

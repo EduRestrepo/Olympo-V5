@@ -226,20 +226,11 @@ class TemporalAnalysisService
     public function getTimezoneCollaboration(): array
     {
         $sql = "SELECT 
-                    tc.actor_id,
-                    a.name,
-                    a.department,
-                    tc.timezone,
-                    tc.off_hours_emails,
-                    tc.cross_timezone_meetings,
-                    tc.late_night_activity,
-                    tc.early_morning_activity,
-                    tc.analysis_month,
-                    (tc.off_hours_emails + tc.late_night_activity + tc.early_morning_activity) as total_off_hours
-                FROM timezone_collaboration tc
-                JOIN actors a ON tc.actor_id = a.id
-                WHERE tc.analysis_month >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '3 months')
-                ORDER BY total_off_hours DESC";
+                    source_region,
+                    target_region,
+                    interaction_count
+                FROM timezone_collaboration
+                ORDER BY interaction_count DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -308,25 +299,46 @@ class TemporalAnalysisService
      * Calculate timezone collaboration metrics
      * @return int Number of records created
      */
+    /**
+     * Calculate timezone collaboration metrics (Cross-Region Flows)
+     * @return int Number of records created
+     */
     public function calculateTimezoneMetrics(): int
     {
-        $sql = "INSERT INTO timezone_collaboration (actor_id, timezone, off_hours_emails, cross_timezone_meetings, late_night_activity, early_morning_activity, analysis_month)
+        // 1. Refactor schema to support Region/Department flows
+        // We drop and recreate to ensure schema matches our new needs
+        $dropSql = "DROP TABLE IF EXISTS timezone_collaboration";
+        $createSql = "CREATE TABLE IF NOT EXISTS timezone_collaboration (
+            id SERIAL PRIMARY KEY,
+            source_region VARCHAR(100),
+            target_region VARCHAR(100),
+            interaction_count INTEGER DEFAULT 0,
+            analysis_month DATE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(source_region, target_region, analysis_month)
+        )";
+        
+        $this->db->exec($dropSql);
+        $this->db->exec($createSql);
+
+        // 2. Aggregate interactions to simulate "Region" flows
+        // Using 'Department' as the proxy for Region since 'location' might not exist on all envs
+        $sql = "INSERT INTO timezone_collaboration (source_region, target_region, interaction_count, analysis_month)
                 SELECT 
-                    ah.actor_id,
-                    'UTC' as timezone,
-                    SUM(CASE WHEN ah.hour_of_day < 9 OR ah.hour_of_day > 17 THEN ah.email_count ELSE 0 END) as off_hours_emails,
-                    0 as cross_timezone_meetings,
-                    SUM(CASE WHEN ah.hour_of_day >= 22 THEN ah.total_activity ELSE 0 END) as late_night_activity,
-                    SUM(CASE WHEN ah.hour_of_day < 6 THEN ah.total_activity ELSE 0 END) as early_morning_activity,
+                    COALESCE(a1.department, 'Unknown') as source_region,
+                    COALESCE(a2.department, 'Unknown') as target_region,
+                    COUNT(*) as interaction_count,
                     DATE_TRUNC('month', CURRENT_DATE) as analysis_month
-                FROM activity_heatmap ah
-                WHERE ah.activity_date >= CURRENT_DATE - INTERVAL '30 days'
-                GROUP BY ah.actor_id
-                ON CONFLICT (actor_id, analysis_month) 
+                FROM interactions i
+                JOIN actors a1 ON i.source_id = a1.id
+                JOIN actors a2 ON i.target_id = a2.id
+                WHERE i.interaction_date >= CURRENT_DATE - INTERVAL '30 days'
+                  AND a1.id != a2.id 
+                  AND COALESCE(a1.department, 'Unknown') != COALESCE(a2.department, 'Unknown')
+                GROUP BY 1, 2
+                ON CONFLICT (source_region, target_region, analysis_month) 
                 DO UPDATE SET 
-                    off_hours_emails = EXCLUDED.off_hours_emails,
-                    late_night_activity = EXCLUDED.late_night_activity,
-                    early_morning_activity = EXCLUDED.early_morning_activity";
+                    interaction_count = EXCLUDED.interaction_count";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
