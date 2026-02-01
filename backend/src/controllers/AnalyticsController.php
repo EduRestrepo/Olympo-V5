@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Controllers;
+namespace Olympus\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use App\Services\TemporalAnalysisService;
-use App\Services\CommunityDetectionService;
-use App\Services\MeetingAnalysisService;
-use App\Services\PredictiveAnalyticsService;
-use App\Services\BenchmarkingService;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Olympus\Services\TemporalAnalysisService;
+use Olympus\Services\CommunityDetectionService;
+use Olympus\Services\MeetingAnalysisService;
+use Olympus\Services\PredictiveAnalyticsService;
+use Olympus\Services\BenchmarkingService;
 use App\Services\BatchProcessingService;
 use App\Services\ADGroupService;
 use App\Services\ExportService;
