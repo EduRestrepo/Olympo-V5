@@ -110,28 +110,28 @@ export default function ScoreExplanation() {
                         <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '4px' }}>
                             <span className="badge-icon" style={{ fontSize: '1.5rem' }}>♚</span>
                             <div>
-                                <strong style={{ color: '#e6edf3' }}>King / Reina (Formales)</strong>
+                                <strong style={{ color: '#e6edf3' }}>King (Formales)</strong>
                                 <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>El #1 absoluto de la organización. El nodo más central.</div>
                             </div>
                         </li>
                         <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '4px' }}>
                             <span className="badge-icon" style={{ fontSize: '1.5rem' }}>♛</span>
                             <div>
-                                <strong style={{ color: '#e6edf3' }}>Queen / Alfil (Estratega)</strong>
+                                <strong style={{ color: '#e6edf3' }}>Queen (Estratega)</strong>
                                 <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>Puestos #2 y #3. Alta influencia estratégica y alcance.</div>
                             </div>
                         </li>
                         <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '4px' }}>
                             <span className="badge-icon" style={{ fontSize: '1.5rem' }}>♜</span>
                             <div>
-                                <strong style={{ color: '#e6edf3' }}>Rook (Conector)</strong>
+                                <strong style={{ color: '#e6edf3' }}>Torre (Conector)</strong>
                                 <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>Top 10 (Puestos #4 - #10). Hubs clave que unen departamentos.</div>
                             </div>
                         </li>
                         <li style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
                             <span className="badge-icon" style={{ fontSize: '1.2rem', width: '24px', textAlign: 'center' }}>♗</span>
                             <div>
-                                <strong>Bishop (Guía)</strong>
+                                <strong>Alfil (Guía)</strong>
                                 <div style={{ fontSize: '0.8rem', color: '#8b949e' }}>Top 15% superior. Referentes técnicos y de conocimiento.</div>
                             </div>
                         </li>
