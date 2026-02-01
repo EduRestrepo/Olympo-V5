@@ -1,5 +1,7 @@
 <?php
 
+
+
 namespace Olympus\Services;
 
 use Olympus\Db\Connection;
@@ -80,7 +82,7 @@ class TemporalAnalysisService
                     SELECT 
                         EXTRACT(DOW FROM call_timestamp) as day_of_week,
                         EXTRACT(HOUR FROM call_timestamp) as hour_of_day,
-                        date_trunc('week', call_timestamp) as period_start,
+                        date_trunc('week', call_timestamp)::date as period_start,
                         COUNT(*) as volume
                     FROM teams_call_records
                     WHERE call_timestamp >= CURRENT_DATE - INTERVAL '30 days'
@@ -90,7 +92,7 @@ class TemporalAnalysisService
                 DailyInteractions AS (
                     SELECT 
                         EXTRACT(DOW FROM interaction_date) as day_of_week,
-                        date_trunc('week', interaction_date) as period_start,
+                        date_trunc('week', interaction_date)::date as period_start,
                         SUM(volume) as total_vol
                     FROM interactions
                     WHERE interaction_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -109,7 +111,7 @@ class TemporalAnalysisService
                         di.day_of_week,
                         wh.h as hour_of_day,
                         di.period_start,
-                        FLOOR(di.total_vol * wh.weight) as volume
+                        CEIL(di.total_vol * wh.weight) as volume
                      FROM DailyInteractions di
                      CROSS JOIN WorkHours wh
                 ),
@@ -362,7 +364,6 @@ class TemporalAnalysisService
                     CURRENT_DATE as analysis_date
                 FROM actors a
                 LEFT JOIN UserStats us ON a.id = us.user_id
-                WHERE a.status = 'active'
                 ON CONFLICT (actor_id, analysis_date) 
                 DO UPDATE SET 
                     avg_response_hours = EXCLUDED.avg_response_hours,

@@ -179,8 +179,17 @@ const TemporalTab = () => {
         const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const hours = Array.from({ length: 24 }, (_, i) => i);
 
-        // Max for normalization
-        const maxActivity = Math.max(...Object.values(aggregatedData), 1);
+        // Calculate 95th percentile to handle outliers
+        const values = Object.values(aggregatedData).sort((a, b) => a - b);
+        let maxActivity = 1;
+
+        if (values.length > 0) {
+            const percentileIndex = Math.floor(values.length * 0.95);
+            maxActivity = values[percentileIndex] || 1;
+        }
+
+        // Ensure we don't divide by zero and have a sensible minimum
+        maxActivity = Math.max(maxActivity, 1);
 
         const getIntensity = (day, hour) => {
             return aggregatedData[`${day}-${hour}`] || 0;
@@ -210,13 +219,19 @@ const TemporalTab = () => {
                             <React.Fragment key={dayIndex}>
                                 <div className="heatmap-row-label">{dayName}</div>
                                 {hours.map(hour => {
-                                    const value = getIntensity(dayIndex, hour); // 0 = Sun, 1 = Mon... check DB usually 0=Sun or 1=Sun
-                                    const opacity = value / maxActivity;
+                                    const value = getIntensity(dayIndex, hour);
+                                    // Use logarithmic scale to handle outliers (e.g., bulk imports)
+                                    // formula: log(value + 1) / log(max + 1)
+                                    const logValue = Math.log(value + 1);
+                                    const logMax = Math.log(maxActivity + 1);
+                                    const opacity = logMax > 0 ? (logValue / logMax) * 0.8 + 0.2 : 0; // Min opacity 0.2 if exists
+
                                     return (
                                         <HeatmapCell
                                             key={`${dayIndex}-${hour}`}
-                                            value={value}
+                                            value={value > 0 ? value : 0}
                                             max={maxActivity}
+                                            opacity={value > 0 ? opacity : 0}
                                         />
                                     );
                                 })}
@@ -241,14 +256,30 @@ const TemporalTab = () => {
         );
     };
 
-    const renderOverload = (overloadData) => {
-        let filteredData = overloadData;
-        if (overloadFilter !== 'all') {
-            filteredData = overloadData.filter(u => u.risk_level === overloadFilter);
-        }
+    const renderOverload = (rawOverloadData) => {
+        if (!rawOverloadData || !Array.isArray(rawOverloadData)) return <EmptyState icon="⚠️" title="Error de Datos" message="Formato de datos inválido" />;
 
-        const sortedData = [...filteredData].sort((a, b) => parseFloat(b.overload_score) - parseFloat(a.overload_score));
-        const highRisk = sortedData.filter(u => u.risk_level === 'high').length;
+        // Filter out any potential null/undefined items from the array
+        const overloadData = rawOverloadData.filter(item => item && typeof item === 'object');
+
+        // Extract unique departments safely
+        const departments = ['all', ...new Set(overloadData.map(u => u?.department || 'Sin Dept'))];
+
+        let filteredData = overloadData.filter(user => {
+            const userName = user?.name || '';
+            const userEmail = user?.email || '';
+            const userDept = user?.department || 'Sin Dept';
+            const userRisk = user?.risk_level;
+
+            const matchesRisk = overloadFilter === 'all' || userRisk === overloadFilter;
+            const matchesSearch = userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                userEmail.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesDep = selectedDep === 'all' || userDept === selectedDep;
+            return matchesRisk && matchesSearch && matchesDep;
+        });
+
+        const sortedData = [...filteredData].sort((a, b) => parseFloat(b?.overload_score || 0) - parseFloat(a?.overload_score || 0));
+        const highRisk = overloadData.filter(u => u?.risk_level === 'high').length;
 
         return (
             <div className="temporal-view">
@@ -270,30 +301,50 @@ const TemporalTab = () => {
                 </div>
 
                 <div className="overload-list">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                         <h3>Top Usuarios con Sobrecarga</h3>
-                        <div className="risk-filters" style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                                className={`filter-btn ${overloadFilter === 'all' ? 'active' : ''}`}
-                                onClick={() => setOverloadFilter('all')}
-                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: overloadFilter === 'all' ? '#0a84ff' : 'transparent', color: '#fff', cursor: 'pointer' }}
+                        <div className="filters-container" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <select
+                                value={selectedDep}
+                                onChange={(e) => setSelectedDep(e.target.value)}
+                                style={{ padding: '6px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff' }}
                             >
-                                Todos
-                            </button>
-                            <button
-                                className={`filter-btn ${overloadFilter === 'high' ? 'active' : ''}`}
-                                onClick={() => setOverloadFilter('high')}
-                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff3b30', background: overloadFilter === 'high' ? 'rgba(255, 59, 48, 0.2)' : 'transparent', color: '#ff3b30', cursor: 'pointer' }}
-                            >
-                                Riesgo Alto
-                            </button>
-                            <button
-                                className={`filter-btn ${overloadFilter === 'medium' ? 'active' : ''}`}
-                                onClick={() => setOverloadFilter('medium')}
-                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff9500', background: overloadFilter === 'medium' ? 'rgba(255, 149, 0, 0.2)' : 'transparent', color: '#ff9500', cursor: 'pointer' }}
-                            >
-                                Medio
-                            </button>
+                                {departments.map(dep => (
+                                    <option key={dep} value={dep}>{dep === 'all' ? 'Todos Depts' : dep}</option>
+                                ))}
+                            </select>
+
+                            <input
+                                type="text"
+                                placeholder="Buscar usuario..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: '#1c1c1e', color: '#fff', width: '200px' }}
+                            />
+
+                            <div className="risk-filters" style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    className={`filter-btn ${overloadFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setOverloadFilter('all')}
+                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #333', background: overloadFilter === 'all' ? '#0a84ff' : 'transparent', color: '#fff', cursor: 'pointer' }}
+                                >
+                                    Todos
+                                </button>
+                                <button
+                                    className={`filter-btn ${overloadFilter === 'high' ? 'active' : ''}`}
+                                    onClick={() => setOverloadFilter('high')}
+                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff3b30', background: overloadFilter === 'high' ? 'rgba(255, 59, 48, 0.2)' : 'transparent', color: '#ff3b30', cursor: 'pointer' }}
+                                >
+                                    Riesgo Alto
+                                </button>
+                                <button
+                                    className={`filter-btn ${overloadFilter === 'medium' ? 'active' : ''}`}
+                                    onClick={() => setOverloadFilter('medium')}
+                                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #ff9500', background: overloadFilter === 'medium' ? 'rgba(255, 149, 0, 0.2)' : 'transparent', color: '#ff9500', cursor: 'pointer' }}
+                                >
+                                    Medio
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="users-list-header">
@@ -306,36 +357,41 @@ const TemporalTab = () => {
                         {sortedData.map((user, index) => (
                             <div key={index} className={`user-card-row risk-${user.risk_level}`}>
                                 <div className="user-info">
-                                    <div className="user-avatar">{user.name.charAt(0)}</div>
+                                    <div className="user-avatar">{(user.name || '?').charAt(0)}</div>
                                     <div>
-                                        <div className="user-name">{user.name}</div>
-                                        <div className="user-email">{user.email}</div>
+                                        <div className="user-name">{user.name || 'Desconocido'}</div>
+                                        <div className="user-email">{user.email || 'Sin email'}</div>
                                     </div>
                                 </div>
-                                <div className="user-dept">{user.department}</div>
+                                <div className="user-dept">{user.department || 'Sin Dept'}</div>
                                 <div className="user-risk">
                                     <span className={`risk-badge ${user.risk_level}`}>
                                         {user.risk_level === 'high' ? 'Alto' : user.risk_level === 'medium' ? 'Medio' : 'Bajo'}
                                     </span>
                                 </div>
                                 <div className="user-score">
-                                    <div className="score-bar-bg">
+                                    <div className="score-bar-bg" title={`Score Basado en:\n• Reuniones (${user.total_meetings || 0}): Contribuye 30%\n• Horas Reunión (${parseFloat(user.total_meeting_hours || 0).toFixed(1)}h): Contribuye 40%\n• Emails (${(parseInt(user.emails_sent || 0) + parseInt(user.emails_received || 0))}): Contribuye 30%`}>
                                         <div
                                             className="score-bar-fill"
                                             style={{
-                                                width: `${Math.min(parseFloat(user.overload_score) * 10, 100)}%`,
-                                                backgroundColor: user.risk_level === 'high' ? '#ff3b30' : '#ff9500'
+                                                width: `${Math.min(parseFloat(user.overload_score || 0), 100)}%`,
+                                                backgroundColor: user.risk_level === 'high' ? '#ff3b30' : user.risk_level === 'medium' ? '#ff9500' : '#30d158'
                                             }}
                                         ></div>
                                     </div>
-                                    <span>{user.overload_score}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                        <span style={{ fontWeight: 'bold' }}>{parseFloat(user.overload_score || 0).toFixed(1)}</span>
+                                        <span style={{ fontSize: '10px', color: '#888' }}>
+                                            {user.total_meetings || 0} rec / {parseFloat(user.total_meeting_hours || 0).toFixed(0)}h
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div className="view-disclaimer">
-                    <p><strong>💡 Interpretación:</strong> Usuarios con indicadores de riesgo de burnout basados en reuniones excesivas y actividad fuera de horario. Un score alto sugiere necesidad de intervención o redistribución de carga.</p>
+                    <p><strong>💡 Cálculo del Score:</strong> Promedio ponderado de 3 factores: volumen de reuniones (30%), duración total (40%) y volumen de emails (30%). Un score superior a 70 indica riesgo crítico.</p>
                 </div>
             </div>
         );
@@ -380,6 +436,7 @@ const TemporalTab = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#333', color: '#fff' }}
                                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                    formatter={(value) => [`${parseFloat(value).toFixed(1)}h`, 'Horas Promedio']}
                                 />
                                 <Bar dataKey="hours" name="Horas Promedio" radius={[4, 4, 0, 0]}>
                                     {chartData.map((entry, index) => (
@@ -522,12 +579,9 @@ const TemporalTab = () => {
 };
 
 
-const HeatmapCell = ({ value, max }) => {
-    const intensity = value / (max || 1);
-    const opacity = 0.1 + (intensity * 0.9); // Min 0.1 opacity
-
+const HeatmapCell = ({ value, max, opacity }) => {
     // Original Blue Grid Style
-    const color = `rgba(10, 132, 255, ${opacity})`;
+    const color = value > 0 ? `rgba(10, 132, 255, ${opacity})` : 'rgba(255, 255, 255, 0.05)';
 
     return (
         <div
@@ -535,8 +589,9 @@ const HeatmapCell = ({ value, max }) => {
             style={{
                 backgroundColor: color,
                 // Add a subtle glow for high intensity cells
-                boxShadow: intensity > 0.7 ? `0 0 10px rgba(10, 132, 255, 0.5)` : 'none',
-                borderRadius: '4px' // Slightly rounded corners for the square
+                boxShadow: opacity > 0.8 ? `0 0 8px rgba(10, 132, 255, 0.4)` : 'none',
+                borderRadius: '4px',
+                border: '1px solid rgba(255,255,255,0.05)'
             }}
         >
             <div className="cell-tooltip">

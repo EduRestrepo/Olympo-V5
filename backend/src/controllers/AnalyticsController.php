@@ -73,18 +73,29 @@ class AnalyticsController
     {
         $service = new TemporalAnalysisService($this->db);
         
-        $heatmapCount = $service->calculateHeatmapMetrics();
-        $overloadCount = $service->calculateOverloadMetrics();
-        $responseTimeCount = $service->calculateResponseTimeMetrics();
-        $timezoneCount = $service->calculateTimezoneMetrics();
+        try {
+            $heatmapCount = $service->calculateHeatmapMetrics();
+            $overloadCount = $service->calculateOverloadMetrics();
+            $responseTimeCount = $service->calculateResponseTimeMetrics();
+            $timezoneCount = $service->calculateTimezoneMetrics();
 
-        $result = [
-            'success' => true,
-            'heatmap_records' => $heatmapCount,
-            'overload_records' => $overloadCount,
-            'response_time_records' => $responseTimeCount,
-            'timezone_records' => $timezoneCount
-        ];
+            $result = [
+                'success' => true,
+                'heatmap_records' => $heatmapCount,
+                'overload_records' => $overloadCount,
+                'response_time_records' => $responseTimeCount,
+                'timezone_records' => $timezoneCount
+            ];
+        } catch (\Exception $e) {
+            error_log("Error in calculateTemporalMetrics: " . $e->getMessage());
+            error_log("Trace: " . $e->getTraceAsString());
+            $result = [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ];
+            return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
+        }
 
         return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
