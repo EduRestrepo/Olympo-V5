@@ -58,11 +58,11 @@ class PredictiveAnalyticsService
                         (CASE WHEN pm.previous_network_size > 0
                             THEN ((pm.previous_network_size - cm.current_network_size)::float / pm.previous_network_size * 100)
                             ELSE 0 END) * 0.3 +
-                        (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '90 days'))::int * 0.5
+                        (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '90 days')::DATE))::int * 0.5
                     )) as risk_score,
                     CASE 
-                        WHEN (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '90 days'))::int > 30 THEN 'high'
-                        WHEN (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '90 days'))::int > 14 THEN 'medium'
+                        WHEN (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '90 days')::DATE))::int > 30 THEN 'high'
+                        WHEN (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '90 days')::DATE))::int > 14 THEN 'medium'
                         ELSE 'low'
                     END as risk_level,
                     CASE WHEN pm.previous_interactions > 0 
@@ -72,7 +72,7 @@ class PredictiveAnalyticsService
                         THEN ((pm.previous_network_size - cm.current_network_size)::float / pm.previous_network_size * 100)
                         ELSE 0 END as network_shrinkage_pct,
                     (cm.current_interactions < pm.previous_interactions * 0.5) as engagement_drop,
-                    (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '90 days'))::int as last_activity_days,
+                    (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '90 days')::DATE))::int as last_activity_days,
                     :analysis_date
                 FROM current_metrics cm
                 JOIN previous_metrics pm ON cm.actor_id = pm.actor_id
@@ -244,7 +244,7 @@ class PredictiveAnalyticsService
                     cm.actor_id,
                     LEAST(100, GREATEST(0, 
                         100 - (cm.active_connections * 5) +
-                        (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '60 days'))::int
+                        (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '60 days')::DATE))::int
                     )) as isolation_score,
                     CASE 
                         WHEN cm.active_connections <= 2 THEN 'critical'
@@ -252,7 +252,7 @@ class PredictiveAnalyticsService
                         ELSE 'none'
                     END as alert_level,
                     cm.active_connections,
-                    (CURRENT_DATE - COALESCE(cm.last_interaction_date, CURRENT_DATE - INTERVAL '60 days'))::int as days_since_last_interaction,
+                    (CURRENT_DATE - COALESCE(cm.last_interaction_date::DATE, (CURRENT_DATE - INTERVAL '60 days')::DATE))::int as days_since_last_interaction,
                     :analysis_date
                 FROM connection_metrics cm
                 ON CONFLICT (actor_id, analysis_date) DO UPDATE SET

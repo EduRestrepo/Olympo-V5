@@ -276,22 +276,32 @@ class AnalyticsController
 
     public function getBurnoutIndicators(Request $request)
     {
-        $service = new PredictiveAnalyticsService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getBurnoutIndicators($params['risk_level'] ?? null);
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        try {
+            $service = new PredictiveAnalyticsService($this->db);
+            $params = $request->query->all();
+            
+            $data = $service->getBurnoutIndicators($params['risk_level'] ?? null);
+    
+            return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        } catch (\Exception $e) {
+            error_log("Error in getBurnoutIndicators: " . $e->getMessage());
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function getIsolationAlerts(Request $request)
     {
-        $service = new PredictiveAnalyticsService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getIsolationAlerts($params['alert_level'] ?? null);
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        try {
+            $service = new PredictiveAnalyticsService($this->db);
+            $params = $request->query->all();
+            
+            $data = $service->getIsolationAlerts($params['alert_level'] ?? null);
+    
+            return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        } catch (\Exception $e) {
+            error_log("Error in getIsolationAlerts: " . $e->getMessage());
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function calculatePredictiveMetrics(Request $request)

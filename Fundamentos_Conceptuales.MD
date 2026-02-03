@@ -53,3 +53,23 @@ La Ley de Conway, formulada en 1968 por Melvin Conway, establece que los sistema
 
 ---
 **En resumen**: Olympus es un espejo digital que refleja la salud, la política y la realidad operativa de la organización, permitiendo a los líderes gestionar basándose en evidencia real, no en suposiciones.
+
+---
+### 6. Analítica Predictiva: Modelos Matemáticos (V5.1)
+
+Olympus utiliza modelos heurísticos avanzados para predecir riesgos organizacionales. A diferencia del "Machine Learning" de "caja negra", nuestros modelos son transparentes y explicables.
+
+#### A. Riesgo de Fuga (Churn Risk)
+Calcula la probabilidad de que un colaborador clave abandone la red.
+*   **Fórmula**: `Score = (Caída Interacciones × 0.4) + (Contracción Red × 0.3) + (Días Inactividad × 0.3)`
+*   **Justificación**: La desconexión no ocurre de golpe; es un proceso gradual de "enfriamiento" de las relaciones y reducción de la visibilidad.
+
+#### B. Riesgo de Burnout (Sobrecarga Digital)
+Identifica la saturación cognitiva antes de que se convierta en agotamiento clínico.
+*   **Fórmula**: `Score = (Semanas Sobrecarga × 15) + (Reuniones > 20h × 30) + (Emails > 150 × 25)`
+*   **Variables Clave**: Trabajo fuera de horario, fragmentación del tiempo por reuniones excesivas y volumen inmanejable de correo.
+
+#### C. Riesgo de Aislamiento
+Detecta nodos que están perdiendo centralidad y quedando fuera del flujo de información.
+*   **Fórmula**: `Score = 100 - (Conexiones Activas × 5) + Días Inactividad`
+*   **Umbral Crítico**: Un score > 70 indica que la persona tiene menos de 2 conexiones activas reales, lo que sugiere irrelevancia estructural o exclusión.

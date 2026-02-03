@@ -1,183 +1,547 @@
-[2026-02-02 17:23:11] Authenticating with Azure AD...
-[2026-02-02 17:23:11] Authentication successful.
-[2026-02-02 17:23:11] Starting ingestion in mode: PROD
-[2026-02-02 17:23:11] Fetching 3 mandatory users...
-[2026-02-02 17:23:12] Ingestion ready. Total unique users to process: 49
-[2026-02-02 17:23:12] Found 49 users to process.
-[2026-02-02 17:23:12] Processing User: eduardo.restrepo@perezllorca.com
-[2026-02-02 17:23:14]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:15] Processing User: ricardo.amo@perezllorca.com
-[2026-02-02 17:23:16]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:17] Processing User: dpardo@perezllorca.com
-[2026-02-02 17:23:18]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:18] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
-[2026-02-02 17:23:19]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:18Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:58:41] Authenticating with Azure AD...
+[2026-02-03 16:58:41] Authentication successful.
+[2026-02-03 16:58:41] Starting ingestion in mode: PROD
+[2026-02-03 16:58:41] Fetching 3 mandatory users...
+[2026-02-03 16:58:42] Ingestion ready. Total unique users to process: 49
+[2026-02-03 16:58:42] Found 49 users to process.
+[2026-02-03 16:58:42] Processing User: eduardo.restrepo@perezllorca.com
+[2026-02-03 16:58:43]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:58:44]   - Detected 1 escalation events.
+[2026-02-03 16:58:44] Processing User: ricardo.amo@perezllorca.com
+[2026-02-03 16:58:45]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:58:46]   - Detected 1 escalation events.
+[2026-02-03 16:58:46] Processing User: dpardo@perezllorca.com
+[2026-02-03 16:58:48]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:58:49] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
+[2026-02-03 16:58:58]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:58:49Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:19] Processing User: _pllpiCOL@perezllorca.com
-[2026-02-02 17:23:20]   - Imported 52 message headers (last 15 days).
-[2026-02-02 17:23:20] Processing User: _renovacionesCOL@perezllorca.com
-[2026-02-02 17:23:20]   - Imported 0 message headers (last 15 days).
-[2026-02-02 17:23:20] Processing User: 01930995F@perezllorca.com
-[2026-02-02 17:23:20]   - Error fetching messages for 01930995F@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/efd8e389-530c-4e34-b9d8-cb47b46dc5b9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:20Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:58:58] Processing User: _pllpiCOL@perezllorca.com
+[2026-02-03 16:58:59]   - Imported 52 message headers (last 15 days).
+[2026-02-03 16:58:59] Processing User: _renovacionesCOL@perezllorca.com
+[2026-02-03 16:58:59]   - Imported 0 message headers (last 15 days).
+[2026-02-03 16:58:59] Processing User: 01930995F@perezllorca.com
+[2026-02-03 16:59:00]   - Error fetching messages for 01930995F@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/efd8e389-530c-4e34-b9d8-cb47b46dc5b9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:58:59Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:20] Processing User: 02766252L@perezllorca.com
-[2026-02-02 17:23:20]   - Error fetching messages for 02766252L@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1532730d-1add-4e3c-af05-c47b1d1bf04d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:20Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:00] Processing User: 02766252L@perezllorca.com
+[2026-02-03 16:59:00]   - Error fetching messages for 02766252L@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1532730d-1add-4e3c-af05-c47b1d1bf04d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:00Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:20] Processing User: 03125373H@perezllorca.com
-[2026-02-02 17:23:21]   - Error fetching messages for 03125373H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3a2486bc-e21f-422d-842d-ea674de6ef5d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:20Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:00] Processing User: 03125373H@perezllorca.com
+[2026-02-03 16:59:00]   - Error fetching messages for 03125373H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3a2486bc-e21f-422d-842d-ea674de6ef5d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:00Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:21] Processing User: 16055181P@perezllorca.com
-[2026-02-02 17:23:21]   - Error fetching messages for 16055181P@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/10dce29b-8164-4505-b135-b8ec7237c90a/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:00] Processing User: 16055181P@perezllorca.com
+[2026-02-03 16:59:00]   - Error fetching messages for 16055181P@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/10dce29b-8164-4505-b135-b8ec7237c90a/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:00Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:21] Processing User: 39413247X@perezllorca.com
-[2026-02-02 17:23:21]   - Error fetching messages for 39413247X@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d8010d32-0caf-460e-921a-e323a95cd128/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:00] Processing User: 39413247X@perezllorca.com
+[2026-02-03 16:59:00]   - Error fetching messages for 39413247X@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d8010d32-0caf-460e-921a-e323a95cd128/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:00Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:21] Processing User: 3PAR@PEREZ-LLORCA.NET
-[2026-02-02 17:23:21]   - Error fetching messages for 3PAR@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/84630407-ea9b-4925-a61f-fd7ef3dd1227/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:00] Processing User: 3PAR@PEREZ-LLORCA.NET
+[2026-02-03 16:59:01]   - Error fetching messages for 3PAR@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/84630407-ea9b-4925-a61f-fd7ef3dd1227/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:00Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:21] Processing User: 44786740J@perezllorca.com
-[2026-02-02 17:23:21]   - Error fetching messages for 44786740J@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2c06e4e4-9c65-409c-82a9-86552289a1b0/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:01] Processing User: 44786740J@perezllorca.com
+[2026-02-03 16:59:01]   - Error fetching messages for 44786740J@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2c06e4e4-9c65-409c-82a9-86552289a1b0/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:01Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:21] Processing User: 47034406G@perezllorca.com
-[2026-02-02 17:23:22]   - Error fetching messages for 47034406G@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/37177725-4ff6-49cf-b253-8eef549e55c6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:01] Processing User: 47034406G@perezllorca.com
+[2026-02-03 16:59:01]   - Error fetching messages for 47034406G@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/37177725-4ff6-49cf-b253-8eef549e55c6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:01Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:22] Processing User: 49005842H@perezllorca.com
-[2026-02-02 17:23:22]   - Error fetching messages for 49005842H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d6fc87bc-296e-4f2f-9cbe-cb63f0eac0b7/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:22Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:01] Processing User: 49005842H@perezllorca.com
+[2026-02-03 16:59:01]   - Error fetching messages for 49005842H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d6fc87bc-296e-4f2f-9cbe-cb63f0eac0b7/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:01Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:22] Processing User: 50119639V@perezllorca.com
-[2026-02-02 17:23:22]   - Error fetching messages for 50119639V@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/809f379c-9213-41f2-8387-819d464e8d1c/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:22Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:01] Processing User: 50119639V@perezllorca.com
+[2026-02-03 16:59:01]   - Error fetching messages for 50119639V@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/809f379c-9213-41f2-8387-819d464e8d1c/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:01Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:22] Processing User: 50957906A@perezllorca.com
-[2026-02-02 17:23:22]   - Error fetching messages for 50957906A@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/38bd443f-9841-48bd-95ab-6fbd1a6ef155/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:22Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:01] Processing User: 50957906A@perezllorca.com
+[2026-02-03 16:59:02]   - Error fetching messages for 50957906A@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/38bd443f-9841-48bd-95ab-6fbd1a6ef155/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:01Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:22] Processing User: 51747651C@perezllorca.com
-[2026-02-02 17:23:22]   - Error fetching messages for 51747651C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/9fad7bb9-16fc-4a67-a3aa-3b9fd5446326/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:22Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:02] Processing User: 51747651C@perezllorca.com
+[2026-02-03 16:59:02]   - Error fetching messages for 51747651C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/9fad7bb9-16fc-4a67-a3aa-3b9fd5446326/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:02Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:22] Processing User: 52010772K@perezllorca.com
-[2026-02-02 17:23:23]   - Error fetching messages for 52010772K@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/67dce536-ea6c-4f97-8fe2-41bd027fabc8/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:22Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:02] Processing User: 52010772K@perezllorca.com
+[2026-02-03 16:59:02]   - Error fetching messages for 52010772K@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/67dce536-ea6c-4f97-8fe2-41bd027fabc8/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:02Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:23] Processing User: 52057808E@perezllorca.com
-[2026-02-02 17:23:23]   - Error fetching messages for 52057808E@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1c7270ea-297a-43f3-84bc-969a6c97c426/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:23Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:02] Processing User: 52057808E@perezllorca.com
+[2026-02-03 16:59:02]   - Error fetching messages for 52057808E@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1c7270ea-297a-43f3-84bc-969a6c97c426/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:02Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:23] Processing User: 52214730S@perezllorca.com
-[2026-02-02 17:23:23]   - Error fetching messages for 52214730S@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/b7b6a0c4-24fd-4fa7-89c7-09c34a8c82c3/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:23Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:02] Processing User: 52214730S@perezllorca.com
+[2026-02-03 16:59:03]   - Error fetching messages for 52214730S@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/b7b6a0c4-24fd-4fa7-89c7-09c34a8c82c3/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:02Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:23] Processing User: 53553274M@perezllorca.com
-[2026-02-02 17:23:23]   - Error fetching messages for 53553274M@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/801c0cb3-6e4d-4e6f-a36d-5ad46ce89e3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:23Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:03] Processing User: 53553274M@perezllorca.com
+[2026-02-03 16:59:03]   - Error fetching messages for 53553274M@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/801c0cb3-6e4d-4e6f-a36d-5ad46ce89e3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:03Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:23] Processing User: 54430141C@perezllorca.com
-[2026-02-02 17:23:24]   - Error fetching messages for 54430141C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/22403609-74ef-4868-9dd9-f20fdfce44dd/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:23Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:03] Processing User: 54430141C@perezllorca.com
+[2026-02-03 16:59:03]   - Error fetching messages for 54430141C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/22403609-74ef-4868-9dd9-f20fdfce44dd/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:03Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:24] Processing User: 646402901@perezllorca.com
-[2026-02-02 17:23:24]   - Error fetching messages for 646402901@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2ef8cbd6-93fa-4a22-aa42-d78d1bcc78f9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:24Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:03] Processing User: 646402901@perezllorca.com
+[2026-02-03 16:59:03]   - Error fetching messages for 646402901@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2ef8cbd6-93fa-4a22-aa42-d78d1bcc78f9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:03Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:24] Processing User: 71226736Z@perezllorca.com
-[2026-02-02 17:23:25]   - Imported 23 message headers (last 15 days).
-[2026-02-02 17:23:25] Processing User: 72522744H@perezllorca.com
-[2026-02-02 17:23:25]   - Error fetching messages for 72522744H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/e273d70c-bfb6-4623-a3e9-21c8b181cb3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:25Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:03] Processing User: 71226736Z@perezllorca.com
+[2026-02-03 16:59:04]   - Imported 23 message headers (last 15 days).
+[2026-02-03 16:59:04] Processing User: 72522744H@perezllorca.com
+[2026-02-03 16:59:04]   - Error fetching messages for 72522744H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/e273d70c-bfb6-4623-a3e9-21c8b181cb3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:04Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:25] Processing User: 72821723C@perezllorca.com
-[2026-02-02 17:23:25]   - Error fetching messages for 72821723C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/967b2d0c-03da-4b67-9862-e17e64ccf8f1/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:25Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:04] Processing User: 72821723C@perezllorca.com
+[2026-02-03 16:59:04]   - Error fetching messages for 72821723C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/967b2d0c-03da-4b67-9862-e17e64ccf8f1/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:04Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:25] Processing User: 75169727T@perezllorca.com
-[2026-02-02 17:23:25]   - Error fetching messages for 75169727T@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/cf7574a7-039f-4f61-9fde-9705bcce2e77/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:25Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:04] Processing User: 75169727T@perezllorca.com
+[2026-02-03 16:59:05]   - Error fetching messages for 75169727T@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/cf7574a7-039f-4f61-9fde-9705bcce2e77/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:04Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:25] Processing User: 77151262Q@perezllorca.com
-[2026-02-02 17:23:26]   - Error fetching messages for 77151262Q@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/935c5c52-1d74-4f16-a469-e6ba7d0ad18f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:25Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:05] Processing User: 77151262Q@perezllorca.com
+[2026-02-03 16:59:05]   - Error fetching messages for 77151262Q@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/935c5c52-1d74-4f16-a469-e6ba7d0ad18f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:05Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:26] Processing User: aaguilera@perezllorca.com
-[2026-02-02 17:23:27]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:28]   - Detected 1 escalation events.
-[2026-02-02 17:23:28] Processing User: aaguirre@perezllorca.com
-[2026-02-02 17:23:31]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:33] Processing User: aalberte@perezllorca.com
-[2026-02-02 17:23:37]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:39]   - Detected 1 escalation events.
-[2026-02-02 17:23:39] Processing User: aalcolea@perezllorca.com
-[2026-02-02 17:23:39]   - Error fetching messages for aalcolea@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3932b534-a6a7-4b2e-933d-fb50da3d6d69/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:39Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:05] Processing User: aaguilera@perezllorca.com
+[2026-02-03 16:59:07]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:08] Processing User: aaguirre@perezllorca.com
+[2026-02-03 16:59:11]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:13] Processing User: aalberte@perezllorca.com
+[2026-02-03 16:59:18]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:19]   - Detected 1 escalation events.
+[2026-02-03 16:59:19] Processing User: aalcolea@perezllorca.com
+[2026-02-03 16:59:19]   - Error fetching messages for aalcolea@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3932b534-a6a7-4b2e-933d-fb50da3d6d69/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:19Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:39] Processing User: aalvarez.appdev.minsait@adpll.onmicrosoft.com
-[2026-02-02 17:23:40]   - Error fetching messages for aalvarez.appdev.minsait@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/de632163-bbce-4272-b0b3-ad2736d913e6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:39Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:19] Processing User: aalvarez.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 16:59:19]   - Error fetching messages for aalvarez.appdev.minsait@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/de632163-bbce-4272-b0b3-ad2736d913e6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:19Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:40] Processing User: aalvarez.ext@perezllorca.com
-[2026-02-02 17:23:40]   - Error fetching messages for aalvarez.ext@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c7ecfc21-7b8d-4ccd-a888-42748e78139b/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:40Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:19] Processing User: aalvarez.ext@perezllorca.com
+[2026-02-03 16:59:19]   - Error fetching messages for aalvarez.ext@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c7ecfc21-7b8d-4ccd-a888-42748e78139b/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:19Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:40] Processing User: aalvarez@perezllorca.com
-[2026-02-02 17:23:40]   - Error fetching messages for aalvarez@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/aeebab5e-88bf-43a5-be09-2da74588c448/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:40Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:19] Processing User: aalvarez@perezllorca.com
+[2026-02-03 16:59:20]   - Error fetching messages for aalvarez@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/aeebab5e-88bf-43a5-be09-2da74588c448/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:19Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:40] Processing User: aalvarezt@minsait.com
-[2026-02-02 17:23:40]   - Error fetching messages for aalvarezt@minsait.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1876a1e6-36ac-40ba-89ec-f7d7b299daf9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:40Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:20] Processing User: aalvarezt@minsait.com
+[2026-02-03 16:59:20]   - Error fetching messages for aalvarezt@minsait.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1876a1e6-36ac-40ba-89ec-f7d7b299daf9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:20Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:40] Processing User: aamo@perezllorca.com
-[2026-02-02 17:23:43]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:43] Processing User: abalboa@perezllorca.com
-[2026-02-02 17:23:44]   - Error fetching messages for abalboa@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/745c680b-cee3-4037-a337-05aff410442d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:23:43Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:20] Processing User: aamo@perezllorca.com
+[2026-02-03 16:59:22]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:23] Processing User: abalboa@perezllorca.com
+[2026-02-03 16:59:23]   - Error fetching messages for abalboa@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/745c680b-cee3-4037-a337-05aff410442d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:23Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:23:44] Processing User: abarandiaran@perezllorca.com
-[2026-02-02 17:23:54]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:23:55]   - Detected 1 escalation events.
-[2026-02-02 17:23:55] Processing User: abarquero@perezllorca.com
-[2026-02-02 17:24:00]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:24:00]   - Detected 6 escalation events.
-[2026-02-02 17:24:00] Processing User: ablanco.adm@adpll.onmicrosoft.com
-[2026-02-02 17:24:00]   - Error fetching messages for ablanco.adm@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2538d01a-1747-49c0-a6e5-a2bc216d660e/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:24:00Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:23] Processing User: abarandiaran@perezllorca.com
+[2026-02-03 16:59:28]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:29] Processing User: abarquero@perezllorca.com
+[2026-02-03 16:59:37]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:37]   - Detected 6 escalation events.
+[2026-02-03 16:59:37] Processing User: ablanco.adm@adpll.onmicrosoft.com
+[2026-02-03 16:59:37]   - Error fetching messages for ablanco.adm@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2538d01a-1747-49c0-a6e5-a2bc216d660e/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:37Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:24:00] Processing User: abongiovanni@perezllorca.com
-[2026-02-02 17:24:01]   - Error fetching messages for abongiovanni@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c167b184-fb3b-452e-872e-6e2254835df2/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:24:00Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:37] Processing User: abongiovanni@perezllorca.com
+[2026-02-03 16:59:37]   - Error fetching messages for abongiovanni@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c167b184-fb3b-452e-872e-6e2254835df2/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:37Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:24:01] Processing User: abril.gonzalez@perezllorca.com
-[2026-02-02 17:24:04]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:24:05]   - Detected 1 escalation events.
-[2026-02-02 17:24:05] Processing User: acamacho@perezllorca.com
-[2026-02-02 17:24:05]   - Error fetching messages for acamacho@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/f26559d7-4619-4f3c-bc13-0d4651d72b30/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-18T17:24:05Z&$top=100` resulted in a `404 Not Found` response:
+[2026-02-03 16:59:37] Processing User: abril.gonzalez@perezllorca.com
+[2026-02-03 16:59:45]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:45]   - Detected 1 escalation events.
+[2026-02-03 16:59:45] Processing User: acamacho@perezllorca.com
+[2026-02-03 16:59:45]   - Error fetching messages for acamacho@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/f26559d7-4619-4f3c-bc13-0d4651d72b30/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T16:59:45Z&$top=100` resulted in a `404 Not Found` response:
 {"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
 
-[2026-02-02 17:24:05] Processing User: acardillo@perezllorca.com
-[2026-02-02 17:24:07]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:24:08]   - Detected 3 escalation events.
-[2026-02-02 17:24:08] Processing User: acastiglioni@perezllorca.com
-[2026-02-02 17:24:24]   - Imported 100 message headers (last 15 days).
-[2026-02-02 17:24:24]   - Detected 3 escalation events.
-[2026-02-02 17:24:24] Processing User: acendon.appdev.minsait@adpll.onmicrosoft.com
-[2026-02-02 17:24:25]   - Imported 0 message headers (last 15 days).
-[2026-02-02 17:24:25] Processing User: acendon.ext@perezllorca.com
-[2026-02-02 17:24:25]   - Imported 7 message headers (last 15 days).
-[2026-02-02 17:24:25] Fetching global Teams call records (last 15 days)...
-[2026-02-02 17:24:25] Syncing 60 Teams call records...
-[2026-02-02 17:24:26] User map built with 49 valid mappings.
-[2026-02-02 17:24:35] Teams sync: Processed 56 record-user involvements.
-[2026-02-02 17:24:35] Created 45 new actors from Teams call participants.
-[2026-02-02 17:24:35] Found 4 users in calls without email (Top 10: Barnes Barcia Alfonso, Baron Allue, Pilar, Paula Oliveira, Marcela Estrada Montoya)
-[2026-02-02 17:24:35] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
-[2026-02-02 17:24:36] Ingestion completed successfully.
+[2026-02-03 16:59:45] Processing User: acardillo@perezllorca.com
+[2026-02-03 16:59:50]   - Imported 100 message headers (last 15 days).
+[2026-02-03 16:59:50]   - Detected 1 escalation events.
+[2026-02-03 16:59:50] Processing User: acastiglioni@perezllorca.com
+[2026-02-03 17:00:00]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:00:00]   - Detected 3 escalation events.
+[2026-02-03 17:00:00] Processing User: acendon.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 17:00:01]   - Imported 0 message headers (last 15 days).
+[2026-02-03 17:00:01] Processing User: acendon.ext@perezllorca.com
+[2026-02-03 17:00:01]   - Imported 6 message headers (last 15 days).
+[2026-02-03 17:00:01] Fetching global Teams call records (last 15 days)...
+[2026-02-03 17:00:01] Error during global Teams ingestion: Client error: `GET https://graph.microsoft.com/v1.0/communications/callRecords?$filter=startDateTime%20ge%202026-01-19T17:00:01Z&$expand=participants_v2` resulted in a `400 Bad Request` response:
+{"error":{"code":"","message":"The query specified in the URI is not valid. Query option 'Expand' is not allowed. To allow it, set the 'AllowedQueryOptions' property on EnableQueryAttribute or QueryValidationSettings.","details":[],"innerError":{"message":"Query option 'Expand' is not allowed. To allow it, set the 'AllowedQueryOptions' property on EnableQueryAttribute or QueryValidationSettings.","date":"2026-02-03T17:00:01","request-id":"c1fe80dc-b02b-4f6f-9475-70badc397c1b","client-request-id":"c1fe80dc-b02b-4f6f-9475-70badc397c1b"}}}
+
+[2026-02-03 17:00:01] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
+[2026-02-03 17:00:02] Ingestion completed successfully.
+[2026-02-03 17:23:01] Authenticating with Azure AD...
+[2026-02-03 17:23:02] Authentication successful.
+[2026-02-03 17:23:02] Starting ingestion in mode: PROD
+[2026-02-03 17:23:02] Fetching 3 mandatory users...
+[2026-02-03 17:23:03] Ingestion ready. Total unique users to process: 49
+[2026-02-03 17:23:03] Found 49 users to process.
+[2026-02-03 17:23:03] Processing User: eduardo.restrepo@perezllorca.com
+[2026-02-03 17:23:03]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:04]   - Detected 1 escalation events.
+[2026-02-03 17:23:04] Processing User: ricardo.amo@perezllorca.com
+[2026-02-03 17:23:05]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:05]   - Detected 1 escalation events.
+[2026-02-03 17:23:06] Processing User: dpardo@perezllorca.com
+[2026-02-03 17:23:07]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:07] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
+[2026-02-03 17:23:07]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:07Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:07] Processing User: _pllpiCOL@perezllorca.com
+[2026-02-03 17:23:08]   - Imported 52 message headers (last 15 days).
+[2026-02-03 17:23:08] Processing User: _renovacionesCOL@perezllorca.com
+[2026-02-03 17:23:08]   - Imported 0 message headers (last 15 days).
+[2026-02-03 17:23:08] Processing User: 01930995F@perezllorca.com
+[2026-02-03 17:23:08]   - Error fetching messages for 01930995F@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/efd8e389-530c-4e34-b9d8-cb47b46dc5b9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:08Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:08] Processing User: 02766252L@perezllorca.com
+[2026-02-03 17:23:08]   - Error fetching messages for 02766252L@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1532730d-1add-4e3c-af05-c47b1d1bf04d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:08Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:08] Processing User: 03125373H@perezllorca.com
+[2026-02-03 17:23:09]   - Error fetching messages for 03125373H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3a2486bc-e21f-422d-842d-ea674de6ef5d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:08Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:09] Processing User: 16055181P@perezllorca.com
+[2026-02-03 17:23:09]   - Error fetching messages for 16055181P@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/10dce29b-8164-4505-b135-b8ec7237c90a/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:09Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:09] Processing User: 39413247X@perezllorca.com
+[2026-02-03 17:23:09]   - Error fetching messages for 39413247X@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d8010d32-0caf-460e-921a-e323a95cd128/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:09Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:09] Processing User: 3PAR@PEREZ-LLORCA.NET
+[2026-02-03 17:23:09]   - Error fetching messages for 3PAR@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/84630407-ea9b-4925-a61f-fd7ef3dd1227/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:09Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:09] Processing User: 44786740J@perezllorca.com
+[2026-02-03 17:23:09]   - Error fetching messages for 44786740J@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2c06e4e4-9c65-409c-82a9-86552289a1b0/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:09Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:10] Processing User: 47034406G@perezllorca.com
+[2026-02-03 17:23:10]   - Error fetching messages for 47034406G@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/37177725-4ff6-49cf-b253-8eef549e55c6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:10Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:10] Processing User: 49005842H@perezllorca.com
+[2026-02-03 17:23:10]   - Error fetching messages for 49005842H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d6fc87bc-296e-4f2f-9cbe-cb63f0eac0b7/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:10Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:10] Processing User: 50119639V@perezllorca.com
+[2026-02-03 17:23:10]   - Error fetching messages for 50119639V@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/809f379c-9213-41f2-8387-819d464e8d1c/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:10Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:10] Processing User: 50957906A@perezllorca.com
+[2026-02-03 17:23:10]   - Error fetching messages for 50957906A@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/38bd443f-9841-48bd-95ab-6fbd1a6ef155/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:10Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:10] Processing User: 51747651C@perezllorca.com
+[2026-02-03 17:23:11]   - Error fetching messages for 51747651C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/9fad7bb9-16fc-4a67-a3aa-3b9fd5446326/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:10Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:11] Processing User: 52010772K@perezllorca.com
+[2026-02-03 17:23:11]   - Error fetching messages for 52010772K@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/67dce536-ea6c-4f97-8fe2-41bd027fabc8/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:11Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:11] Processing User: 52057808E@perezllorca.com
+[2026-02-03 17:23:11]   - Error fetching messages for 52057808E@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1c7270ea-297a-43f3-84bc-969a6c97c426/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:11Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:11] Processing User: 52214730S@perezllorca.com
+[2026-02-03 17:23:11]   - Error fetching messages for 52214730S@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/b7b6a0c4-24fd-4fa7-89c7-09c34a8c82c3/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:11Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:11] Processing User: 53553274M@perezllorca.com
+[2026-02-03 17:23:11]   - Error fetching messages for 53553274M@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/801c0cb3-6e4d-4e6f-a36d-5ad46ce89e3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:11Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:11] Processing User: 54430141C@perezllorca.com
+[2026-02-03 17:23:12]   - Error fetching messages for 54430141C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/22403609-74ef-4868-9dd9-f20fdfce44dd/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:11Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:12] Processing User: 646402901@perezllorca.com
+[2026-02-03 17:23:12]   - Error fetching messages for 646402901@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2ef8cbd6-93fa-4a22-aa42-d78d1bcc78f9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:12Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:12] Processing User: 71226736Z@perezllorca.com
+[2026-02-03 17:23:12]   - Imported 23 message headers (last 15 days).
+[2026-02-03 17:23:12] Processing User: 72522744H@perezllorca.com
+[2026-02-03 17:23:12]   - Error fetching messages for 72522744H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/e273d70c-bfb6-4623-a3e9-21c8b181cb3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:12Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:12] Processing User: 72821723C@perezllorca.com
+[2026-02-03 17:23:13]   - Error fetching messages for 72821723C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/967b2d0c-03da-4b67-9862-e17e64ccf8f1/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:12Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:13] Processing User: 75169727T@perezllorca.com
+[2026-02-03 17:23:13]   - Error fetching messages for 75169727T@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/cf7574a7-039f-4f61-9fde-9705bcce2e77/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:13Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:13] Processing User: 77151262Q@perezllorca.com
+[2026-02-03 17:23:13]   - Error fetching messages for 77151262Q@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/935c5c52-1d74-4f16-a469-e6ba7d0ad18f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:13Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:13] Processing User: aaguilera@perezllorca.com
+[2026-02-03 17:23:14]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:15] Processing User: aaguirre@perezllorca.com
+[2026-02-03 17:23:16]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:18] Processing User: aalberte@perezllorca.com
+[2026-02-03 17:23:19]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:20]   - Detected 1 escalation events.
+[2026-02-03 17:23:20] Processing User: aalcolea@perezllorca.com
+[2026-02-03 17:23:20]   - Error fetching messages for aalcolea@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3932b534-a6a7-4b2e-933d-fb50da3d6d69/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:20Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:20] Processing User: aalvarez.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 17:23:20]   - Error fetching messages for aalvarez.appdev.minsait@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/de632163-bbce-4272-b0b3-ad2736d913e6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:20Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:21] Processing User: aalvarez.ext@perezllorca.com
+[2026-02-03 17:23:21]   - Error fetching messages for aalvarez.ext@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c7ecfc21-7b8d-4ccd-a888-42748e78139b/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:21] Processing User: aalvarez@perezllorca.com
+[2026-02-03 17:23:21]   - Error fetching messages for aalvarez@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/aeebab5e-88bf-43a5-be09-2da74588c448/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:21] Processing User: aalvarezt@minsait.com
+[2026-02-03 17:23:21]   - Error fetching messages for aalvarezt@minsait.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1876a1e6-36ac-40ba-89ec-f7d7b299daf9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:21Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:21] Processing User: aamo@perezllorca.com
+[2026-02-03 17:23:22]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:23]   - Detected 1 escalation events.
+[2026-02-03 17:23:23] Processing User: abalboa@perezllorca.com
+[2026-02-03 17:23:23]   - Error fetching messages for abalboa@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/745c680b-cee3-4037-a337-05aff410442d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:23Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:23] Processing User: abarandiaran@perezllorca.com
+[2026-02-03 17:23:26]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:27] Processing User: abarquero@perezllorca.com
+[2026-02-03 17:23:28]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:28]   - Detected 6 escalation events.
+[2026-02-03 17:23:28] Processing User: ablanco.adm@adpll.onmicrosoft.com
+[2026-02-03 17:23:29]   - Error fetching messages for ablanco.adm@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2538d01a-1747-49c0-a6e5-a2bc216d660e/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:29] Processing User: abongiovanni@perezllorca.com
+[2026-02-03 17:23:29]   - Error fetching messages for abongiovanni@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c167b184-fb3b-452e-872e-6e2254835df2/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:29] Processing User: abril.gonzalez@perezllorca.com
+[2026-02-03 17:23:30]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:30] Processing User: acamacho@perezllorca.com
+[2026-02-03 17:23:31]   - Error fetching messages for acamacho@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/f26559d7-4619-4f3c-bc13-0d4651d72b30/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:23:30Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:23:31] Processing User: acardillo@perezllorca.com
+[2026-02-03 17:23:32]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:32]   - Detected 1 escalation events.
+[2026-02-03 17:23:32] Processing User: acastiglioni@perezllorca.com
+[2026-02-03 17:23:35]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:23:36]   - Detected 3 escalation events.
+[2026-02-03 17:23:36] Processing User: acendon.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 17:23:36]   - Imported 0 message headers (last 15 days).
+[2026-02-03 17:23:36] Processing User: acendon.ext@perezllorca.com
+[2026-02-03 17:23:37]   - Imported 6 message headers (last 15 days).
+[2026-02-03 17:23:37] Fetching global Teams call records (last 15 days)...
+[2026-02-03 17:23:37] Syncing 60 Teams call records...
+[2026-02-03 17:23:37] User map built with 49 valid mappings.
+[2026-02-03 17:23:47] Teams sync: Processed 56 record-user involvements.
+[2026-02-03 17:23:47] Created 45 new actors from Teams call participants.
+[2026-02-03 17:23:47] Found 4 users in calls without email (Top 10: Sebastian Ibarguren, Diego Molina Bolaño, Nasya Yocotzin Alvarado Perez, Valentin Lemaire)
+[2026-02-03 17:23:47] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
+[2026-02-03 17:23:48] Ingestion completed successfully.
+[2026-02-03 17:29:19] Authenticating with Azure AD...
+[2026-02-03 17:29:19] Authentication successful.
+[2026-02-03 17:29:19] Starting ingestion in mode: PROD
+[2026-02-03 17:29:19] Fetching 3 mandatory users...
+[2026-02-03 17:29:20] Ingestion ready. Total unique users to process: 49
+[2026-02-03 17:29:20] Found 49 users to process.
+[2026-02-03 17:29:20] Processing User: eduardo.restrepo@perezllorca.com
+[2026-02-03 17:29:21]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:22]   - Detected 1 escalation events.
+[2026-02-03 17:29:22] Processing User: ricardo.amo@perezllorca.com
+[2026-02-03 17:29:23]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:23]   - Detected 1 escalation events.
+[2026-02-03 17:29:23] Processing User: dpardo@perezllorca.com
+[2026-02-03 17:29:25]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:26] Processing User: ___VMware_Conv_SA___@PEREZ-LLORCA.NET
+[2026-02-03 17:29:26]   - Error fetching messages for ___VMware_Conv_SA___@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/ce3ba29d-3a96-4da6-bfca-efc5d862b108/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:26Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:26] Processing User: _pllpiCOL@perezllorca.com
+[2026-02-03 17:29:26]   - Imported 52 message headers (last 15 days).
+[2026-02-03 17:29:27] Processing User: _renovacionesCOL@perezllorca.com
+[2026-02-03 17:29:27]   - Imported 0 message headers (last 15 days).
+[2026-02-03 17:29:27] Processing User: 01930995F@perezllorca.com
+[2026-02-03 17:29:27]   - Error fetching messages for 01930995F@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/efd8e389-530c-4e34-b9d8-cb47b46dc5b9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:27Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:27] Processing User: 02766252L@perezllorca.com
+[2026-02-03 17:29:27]   - Error fetching messages for 02766252L@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1532730d-1add-4e3c-af05-c47b1d1bf04d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:27Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:27] Processing User: 03125373H@perezllorca.com
+[2026-02-03 17:29:27]   - Error fetching messages for 03125373H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3a2486bc-e21f-422d-842d-ea674de6ef5d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:27Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:27] Processing User: 16055181P@perezllorca.com
+[2026-02-03 17:29:28]   - Error fetching messages for 16055181P@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/10dce29b-8164-4505-b135-b8ec7237c90a/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:27Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:28] Processing User: 39413247X@perezllorca.com
+[2026-02-03 17:29:28]   - Error fetching messages for 39413247X@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d8010d32-0caf-460e-921a-e323a95cd128/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:28] Processing User: 3PAR@PEREZ-LLORCA.NET
+[2026-02-03 17:29:28]   - Error fetching messages for 3PAR@PEREZ-LLORCA.NET: Client error: `GET https://graph.microsoft.com/v1.0/users/84630407-ea9b-4925-a61f-fd7ef3dd1227/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:28] Processing User: 44786740J@perezllorca.com
+[2026-02-03 17:29:28]   - Error fetching messages for 44786740J@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2c06e4e4-9c65-409c-82a9-86552289a1b0/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:28] Processing User: 47034406G@perezllorca.com
+[2026-02-03 17:29:28]   - Error fetching messages for 47034406G@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/37177725-4ff6-49cf-b253-8eef549e55c6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:28] Processing User: 49005842H@perezllorca.com
+[2026-02-03 17:29:29]   - Error fetching messages for 49005842H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/d6fc87bc-296e-4f2f-9cbe-cb63f0eac0b7/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:28Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:29] Processing User: 50119639V@perezllorca.com
+[2026-02-03 17:29:29]   - Error fetching messages for 50119639V@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/809f379c-9213-41f2-8387-819d464e8d1c/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:29] Processing User: 50957906A@perezllorca.com
+[2026-02-03 17:29:29]   - Error fetching messages for 50957906A@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/38bd443f-9841-48bd-95ab-6fbd1a6ef155/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:29] Processing User: 51747651C@perezllorca.com
+[2026-02-03 17:29:29]   - Error fetching messages for 51747651C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/9fad7bb9-16fc-4a67-a3aa-3b9fd5446326/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:29] Processing User: 52010772K@perezllorca.com
+[2026-02-03 17:29:29]   - Error fetching messages for 52010772K@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/67dce536-ea6c-4f97-8fe2-41bd027fabc8/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:29] Processing User: 52057808E@perezllorca.com
+[2026-02-03 17:29:30]   - Error fetching messages for 52057808E@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1c7270ea-297a-43f3-84bc-969a6c97c426/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:29Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:30] Processing User: 52214730S@perezllorca.com
+[2026-02-03 17:29:30]   - Error fetching messages for 52214730S@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/b7b6a0c4-24fd-4fa7-89c7-09c34a8c82c3/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:30Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:30] Processing User: 53553274M@perezllorca.com
+[2026-02-03 17:29:30]   - Error fetching messages for 53553274M@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/801c0cb3-6e4d-4e6f-a36d-5ad46ce89e3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:30Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:30] Processing User: 54430141C@perezllorca.com
+[2026-02-03 17:29:30]   - Error fetching messages for 54430141C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/22403609-74ef-4868-9dd9-f20fdfce44dd/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:30Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:30] Processing User: 646402901@perezllorca.com
+[2026-02-03 17:29:31]   - Error fetching messages for 646402901@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2ef8cbd6-93fa-4a22-aa42-d78d1bcc78f9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:30Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:31] Processing User: 71226736Z@perezllorca.com
+[2026-02-03 17:29:31]   - Imported 23 message headers (last 15 days).
+[2026-02-03 17:29:31] Processing User: 72522744H@perezllorca.com
+[2026-02-03 17:29:31]   - Error fetching messages for 72522744H@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/e273d70c-bfb6-4623-a3e9-21c8b181cb3f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:31Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:31] Processing User: 72821723C@perezllorca.com
+[2026-02-03 17:29:32]   - Error fetching messages for 72821723C@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/967b2d0c-03da-4b67-9862-e17e64ccf8f1/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:31Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:32] Processing User: 75169727T@perezllorca.com
+[2026-02-03 17:29:32]   - Error fetching messages for 75169727T@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/cf7574a7-039f-4f61-9fde-9705bcce2e77/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:32Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:32] Processing User: 77151262Q@perezllorca.com
+[2026-02-03 17:29:32]   - Error fetching messages for 77151262Q@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/935c5c52-1d74-4f16-a469-e6ba7d0ad18f/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:32Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:32] Processing User: aaguilera@perezllorca.com
+[2026-02-03 17:29:33]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:34] Processing User: aaguirre@perezllorca.com
+[2026-02-03 17:29:36]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:38] Processing User: aalberte@perezllorca.com
+[2026-02-03 17:29:40]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:41]   - Detected 1 escalation events.
+[2026-02-03 17:29:41] Processing User: aalcolea@perezllorca.com
+[2026-02-03 17:29:41]   - Error fetching messages for aalcolea@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/3932b534-a6a7-4b2e-933d-fb50da3d6d69/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:41Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:41] Processing User: aalvarez.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 17:29:41]   - Error fetching messages for aalvarez.appdev.minsait@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/de632163-bbce-4272-b0b3-ad2736d913e6/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:41Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:41] Processing User: aalvarez.ext@perezllorca.com
+[2026-02-03 17:29:41]   - Error fetching messages for aalvarez.ext@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c7ecfc21-7b8d-4ccd-a888-42748e78139b/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:41Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:41] Processing User: aalvarez@perezllorca.com
+[2026-02-03 17:29:41]   - Error fetching messages for aalvarez@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/aeebab5e-88bf-43a5-be09-2da74588c448/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:41Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:41] Processing User: aalvarezt@minsait.com
+[2026-02-03 17:29:42]   - Error fetching messages for aalvarezt@minsait.com: Client error: `GET https://graph.microsoft.com/v1.0/users/1876a1e6-36ac-40ba-89ec-f7d7b299daf9/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:41Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:42] Processing User: aamo@perezllorca.com
+[2026-02-03 17:29:43]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:44]   - Detected 1 escalation events.
+[2026-02-03 17:29:44] Processing User: abalboa@perezllorca.com
+[2026-02-03 17:29:44]   - Error fetching messages for abalboa@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/745c680b-cee3-4037-a337-05aff410442d/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:44Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:44] Processing User: abarandiaran@perezllorca.com
+[2026-02-03 17:29:46]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:46] Processing User: abarquero@perezllorca.com
+[2026-02-03 17:29:49]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:49]   - Detected 6 escalation events.
+[2026-02-03 17:29:49] Processing User: ablanco.adm@adpll.onmicrosoft.com
+[2026-02-03 17:29:49]   - Error fetching messages for ablanco.adm@adpll.onmicrosoft.com: Client error: `GET https://graph.microsoft.com/v1.0/users/2538d01a-1747-49c0-a6e5-a2bc216d660e/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:49Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:49] Processing User: abongiovanni@perezllorca.com
+[2026-02-03 17:29:49]   - Error fetching messages for abongiovanni@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/c167b184-fb3b-452e-872e-6e2254835df2/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:49Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:49] Processing User: abril.gonzalez@perezllorca.com
+[2026-02-03 17:29:51]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:51] Processing User: acamacho@perezllorca.com
+[2026-02-03 17:29:52]   - Error fetching messages for acamacho@perezllorca.com: Client error: `GET https://graph.microsoft.com/v1.0/users/f26559d7-4619-4f3c-bc13-0d4651d72b30/messages?$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime%20ge%202026-01-19T17:29:51Z&$top=100` resulted in a `404 Not Found` response:
+{"error":{"code":"MailboxNotEnabledForRESTAPI","message":"The mailbox is either inactive, soft-deleted, or is hosted on-premise."}}
+
+[2026-02-03 17:29:52] Processing User: acardillo@perezllorca.com
+[2026-02-03 17:29:53]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:54]   - Detected 1 escalation events.
+[2026-02-03 17:29:54] Processing User: acastiglioni@perezllorca.com
+[2026-02-03 17:29:56]   - Imported 100 message headers (last 15 days).
+[2026-02-03 17:29:56]   - Detected 2 escalation events.
+[2026-02-03 17:29:56] Processing User: acendon.appdev.minsait@adpll.onmicrosoft.com
+[2026-02-03 17:29:57]   - Imported 0 message headers (last 15 days).
+[2026-02-03 17:29:57] Processing User: acendon.ext@perezllorca.com
+[2026-02-03 17:29:57]   - Imported 6 message headers (last 15 days).
+[2026-02-03 17:29:57] Fetching global Teams call records (last 15 days)...
+[2026-02-03 17:29:58] Syncing 60 Teams call records...
+[2026-02-03 17:29:58] User map built with 49 valid mappings.
+[2026-02-03 17:30:08] Teams sync: Processed 56 record-user involvements.
+[2026-02-03 17:30:08] Created 46 new actors from Teams call participants.
+[2026-02-03 17:30:08] Found 4 users in calls without email (Top 10: Sebastian Ibarguren, Diego Molina Bolaño, Nasya Yocotzin Alvarado Perez, Valentin Lemaire)
+[2026-02-03 17:30:08] Calculating Aggregated Metrics (Pulse, Totals, Tone)...
+[2026-02-03 17:30:09] Ingestion completed successfully.

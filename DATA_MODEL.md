@@ -102,9 +102,9 @@ Modelos predictivos sobre riesgos y tendencias.
 
 | Tabla | Descripción |
 | :--- | :--- |
-| **`churn_risk_scores`** | Probabilidad de rotación basada en desconexión de la red y caída de actividad. |
-| **`burnout_indicators`** | Indicadores de riesgo de "quemarse" (trabajo en fin de semana, sobrecarga sostenida). |
-| **`isolation_alerts`** | Alertas sobre usuarios que se están quedando aislados de la red. |
+| **`churn_risk_scores`** | Probabilidad de rotación. Columns: `risk_score` (0-100), `risk_level` (high/med/low), `engagement_drop` (BOOL), `last_activity_days` (INT), `communication_decline_pct` (FLOAT), `network_shrinkage_pct` (FLOAT), `analysis_date`. |
+| **`burnout_indicators`** | Indicadores de agotamiento. Columns: `burnout_score` (0-100), `risk_level`, `sustained_overload_weeks` (INT), `off_hours_work_pct` (FLOAT), `response_time_increase_pct` (FLOAT), `weekend_activity_pct` (FLOAT). |
+| **`isolation_alerts`** | Alertas de aislamiento. Columns: `isolation_score` (0-100), `alert_level` (critical/warning), `active_connections_count` (INT), `days_since_last_interaction` (INT), `connection_decline_pct` (FLOAT). |
 | **`collaboration_forecasts`** | Predicción de volumen de colaboración futuro por departamento. |
 
 ### 7. Gamificación

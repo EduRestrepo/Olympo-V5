@@ -246,7 +246,7 @@ class GraphIngestionService
         try {
             // Fetch call records (Note: $top is not supported here by Graph API)
             // Added expand=participants_v2 to get actual participant counts
-            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}&\$expand=participants_v2");
+            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}");
             $response = $request->execute();
             
             $body = method_exists($response, 'getBody') ? $response->getBody() : $response;

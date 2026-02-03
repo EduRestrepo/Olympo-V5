@@ -22,6 +22,12 @@
 
 ### 🆕 Advanced Analytics (V5.1)
 
+**🔮 Predictive Intelligence (Enhanced)**
+- **Churn Risk**: Detect users with declining communication patterns. Includes **Pagination & Search**.
+- **Burnout Indicators**: Multi-factor analysis (overtime, email volume, meeting load).
+- **Isolation Alerts**: Find users with below-threshold network connectivity.
+- **Detailed Explanations**: New technical disclaimers explaining the exact algorithms used.
+
 **⏰ Temporal Analysis**
 - Activity heatmaps by hour/day
 - Overload detection (burnout risk)
@@ -39,12 +45,6 @@
 - Cost analysis (hours × participants)
 - Attendance pattern detection
 - Automated recommendations
-
-**🔮 Predictive Intelligence**
-- Churn risk prediction
-- Burnout indicators
-- Isolation alerts
-- Collaboration forecasting
 
 **📈 Benchmarking & Export**
 - Department comparisons
@@ -400,6 +400,11 @@ The dashboard now features **6 organized tabs** for better navigation:
 ---
 
 ## 📈 Recent Updates (v5.1)
+
+### Predictive Intelligence UI
+- **Pagination**: Implemented 10-item pagination for all risk lists.
+- **Search**: Added real-time search filtering for users.
+- **Technical Transparency**: Integrated detailed technical explanations for all predictive models in the UI.
 
 ### Network Graph Enhancements
 - ⚡ Electric energy spheres with vibrant blue gradients

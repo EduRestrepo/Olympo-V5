@@ -27,6 +27,35 @@ const BenchmarksTab = () => {
         loadAllData();
     }, []);
 
+    const processBenchmarkData = (rawData) => {
+        if (!rawData || !Array.isArray(rawData)) return [];
+
+        const pivoted = {};
+
+        rawData.forEach(row => {
+            if (!pivoted[row.department]) {
+                pivoted[row.department] = {
+                    department: row.department,
+                    // Initialize metrics to 0
+                    meeting_hours: 0,
+                    email_volume: 0,
+                    collaboration_score: 0,
+                    avg_response_time: 0,
+                    network_size: 0
+                };
+            }
+
+            // Map backend metric names to frontend data keys if needed, 
+            // or just use the metric_name directly if they match.
+            // Based on backend: 'meeting_hours', 'email_volume', etc. match.
+            if (row.metric_name) {
+                pivoted[row.department][row.metric_name] = parseFloat(row.metric_value) || 0;
+            }
+        });
+
+        return Object.values(pivoted);
+    };
+
     const loadAllData = async () => {
         if (dataLoaded) return;
 
@@ -51,12 +80,16 @@ const BenchmarksTab = () => {
                     analyticsApi.benchmarks.getDepartments()
                 ]);
 
+                // Transform the flat data into pivoted data for the chart
+                const pivotedData = processBenchmarkData(newDepartments || []);
                 setData({
-                    departments: newDepartments || []
+                    departments: pivotedData
                 });
             } else {
+                // Transform the flat data into pivoted data for the chart
+                const pivotedData = processBenchmarkData(departments || []);
                 setData({
-                    departments: departments || []
+                    departments: pivotedData
                 });
             }
 
