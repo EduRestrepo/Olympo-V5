@@ -261,12 +261,17 @@ class AnalyticsController
 
     public function getChurnRisk(Request $request)
     {
-        $service = new PredictiveAnalyticsService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getChurnRisk($params['risk_level'] ?? null);
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        try {
+            $service = new PredictiveAnalyticsService($this->db);
+            $params = $request->query->all();
+            
+            $data = $service->getChurnRisk($params['risk_level'] ?? null); // Method call
+    
+            return new \Symfony\Component\HttpFoundation\JsonResponse($data);
+        } catch (\Exception $e) {
+            error_log("Error in getChurnRisk: " . $e->getMessage());
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function getBurnoutIndicators(Request $request)

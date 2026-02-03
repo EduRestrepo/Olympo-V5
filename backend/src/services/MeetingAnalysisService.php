@@ -39,6 +39,7 @@ class MeetingAnalysisService
                 FROM teams_call_records tcr
                 WHERE tcr.call_timestamp >= CURRENT_DATE - INTERVAL '30 days'
                     AND tcr.is_organizer = TRUE
+                    AND tcr.participant_count > 1
                 ON CONFLICT (meeting_id) DO UPDATE SET
                     efficiency_score = EXCLUDED.efficiency_score,
                     cost_hours = EXCLUDED.cost_hours";
@@ -69,7 +70,8 @@ class MeetingAnalysisService
                     mes.meeting_date
                 FROM meeting_efficiency_scores mes
                 JOIN actors a ON mes.organizer_id = a.id
-                WHERE mes.meeting_date >= CURRENT_DATE - INTERVAL '30 days'";
+                WHERE mes.meeting_date >= CURRENT_DATE - INTERVAL '30 days'
+                  AND mes.participant_count > 1";
 
         if ($organizerId) {
             $sql .= " AND mes.organizer_id = :organizer_id";
@@ -215,8 +217,8 @@ class MeetingAnalysisService
                 SELECT 
                     meeting_id,
                     'reduce_duration',
-                    'Esta reunión de ' || duration_minutes || ' minutos podría reducirse a 30-45 minutos',
-                    (duration_minutes - 45) / 60.0 * participant_count as potential_savings_hours,
+                    'Sesión de ' || duration_minutes || ' min. Reducir un 25% o dividir en bloques de 45 min para mantener el enfoque.',
+                    ROUND(CAST(GREATEST(0.5, ((duration_minutes - 45) / 60.0) * participant_count) AS NUMERIC), 1) as potential_savings_hours,
                     'high'
                 FROM meeting_efficiency_scores
                 WHERE duration_minutes > 60
@@ -229,8 +231,8 @@ class MeetingAnalysisService
                 SELECT 
                     meeting_id,
                     'reduce_participants',
-                    'Esta reunión tiene ' || participant_count || ' participantes. Considera reducir a los esenciales.',
-                    duration_minutes / 60.0 * (participant_count - 5) as potential_savings_hours,
+                    'Reunión con ' || participant_count || ' participantes. Considera reducir a los 5 esenciales para mejorar la agilidad.',
+                    ROUND(CAST(GREATEST(0.5, (duration_minutes / 60.0) * (participant_count - 5)) AS NUMERIC), 1) as potential_savings_hours,
                     'medium'
                 FROM meeting_efficiency_scores
                 WHERE participant_count > 8
@@ -243,8 +245,8 @@ class MeetingAnalysisService
                 SELECT 
                     meeting_id,
                     'could_be_email',
-                    'Reunión corta con pocos participantes. ¿Podría ser un email?',
-                    cost_hours as potential_savings_hours,
+                    'Reunión corta y pequeña. Podría gestionarse de forma asíncrona por email o chat.',
+                    ROUND(CAST(COALESCE(cost_hours, 0) AS NUMERIC), 1) as potential_savings_hours,
                     'low'
                 FROM meeting_efficiency_scores
                 WHERE duration_minutes <= 15

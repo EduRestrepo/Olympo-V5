@@ -3,12 +3,19 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } fro
 import { Target, Users, Zap, Briefcase } from 'lucide-react';
 
 const DiversityStats = ({ diversity }) => {
+    // Ensure diversity is an array
+    const diversityData = Array.isArray(diversity) ? diversity : [];
+
     // Top 5 most diverse individuals
-    const topDiversity = [...diversity].sort((a, b) => b.diversity_score - a.diversity_score).slice(0, 5);
+    const topDiversity = [...diversityData].sort((a, b) => (b.diversity_score || 0) - (a.diversity_score || 0)).slice(0, 5);
 
     // Aggregate averages
-    const avgDiversity = diversity.length > 0 ? diversity.reduce((acc, curr) => acc + curr.diversity_score, 0) / diversity.length : 0;
-    const avgDepts = diversity.length > 0 ? diversity.reduce((acc, curr) => acc + curr.unique_departments_connected, 0) / diversity.length : 0;
+    const avgDiversity = diversityData.length > 0
+        ? diversityData.reduce((acc, curr) => acc + (curr.diversity_score || 0), 0) / diversityData.length
+        : 0;
+    const avgDepts = diversityData.length > 0
+        ? diversityData.reduce((acc, curr) => acc + (curr.unique_departments_connected || 0), 0) / diversityData.length
+        : 0;
 
     // Data for a summary radar chart (mocking some dimensions to enrich it)
     const radarData = [
@@ -29,8 +36,10 @@ const DiversityStats = ({ diversity }) => {
                             <Target size={20} />
                             <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>SALUD DE RED</span>
                         </div>
-                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fff' }}>{Math.round(avgDiversity)}%</div>
-                        <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#8b949e' }}>Puntuación media de pluralidad inter-departamental</p>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fff' }}>
+                            {isNaN(avgDiversity) ? '0%' : `${Math.round(avgDiversity)}%`}
+                        </div>
+                        <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#8b949e' }}>Puntuación media de pluralidad inter-departamental (Salud de Red)</p>
                     </div>
 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -38,7 +47,7 @@ const DiversityStats = ({ diversity }) => {
                             <Zap size={20} />
                             <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>AGILIDAD</span>
                         </div>
-                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fff' }}>{avgDepts.toFixed(1)}</div>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#fff' }}>{(avgDepts || 0).toFixed(1)}</div>
                         <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#8b949e' }}>Promedio de departamentos por conexión individual</p>
                     </div>
 

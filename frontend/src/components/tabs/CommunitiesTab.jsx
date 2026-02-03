@@ -28,7 +28,6 @@ const CommunitiesTab = () => {
         { id: 'communities', label: 'Mapa de Comunidades', icon: <Network size={18} />, description: 'Agrupaciones naturales de usuarios segun su interaccion' },
         { id: 'silos', label: 'Detector de Silos', icon: <Layers size={18} />, description: 'Departamentos con alta concentracion de interaccion interna' },
         { id: 'bridges', label: 'Conectores', icon: <Users size={18} />, description: 'Personas clave que unen diferentes areas' },
-        { id: 'diversity', label: 'Pluralidad', icon: <Target size={18} />, description: 'Salud de la red y apertura de colaboracion' }
     ];
 
     // Load ALL data once on mount
@@ -151,7 +150,26 @@ const CommunitiesTab = () => {
                 </div>
 
                 <div className="view-disclaimer" style={{ marginTop: '24px', padding: '16px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.2)', borderRadius: '8px', fontSize: '0.9rem', color: '#c9d1d9' }}>
-                    <p style={{ margin: 0 }}><strong>💡 Nota:</strong> Este mapa de comunidades se genera dinámicamente analizando patrones de comunicación. Los "Silos" indican áreas con alto aislamiento, mientras que los "Conectores" son usuarios clave que facilitan el flujo de información entre grupos.</p>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <Info size={20} style={{ color: '#0a84ff', flexShrink: 0, marginTop: '2px' }} />
+                        <div>
+                            {activeView === 'communities' && (
+                                <p style={{ margin: '0 0 8px 0' }}><strong>💡 Mapa de Comunidades:</strong> Visualiza cómo fluye realmente la información en tu organización, agrupando usuarios por frecuencia de interacción.</p>
+                            )}
+                            {activeView === 'silos' && (
+                                <p style={{ margin: '0 0 8px 0' }}><strong>💡 Detector de Silos:</strong> Los silos representan grupos con alta comunicación interna pero bajo contacto con el exterior.</p>
+                            )}
+                            {activeView === 'bridges' && (
+                                <p style={{ margin: '0 0 8px 0' }}><strong>💡 Conectores Clave:</strong> Estos usuarios actúan como 'puentes humanos' entre departamentos.</p>
+                            )}
+                            {activeView === 'diversity' && (
+                                <p style={{ margin: '0 0 8px 0' }}><strong>💡 Pluralidad y Salud de Red:</strong> Muestra la riqueza de las conexiones inter-departamentales y la agilidad organizacional.</p>
+                            )}
+                            <div style={{ fontSize: '0.85rem', opacity: 0.8, borderTop: '1px solid rgba(10, 132, 255, 0.1)', paddingTop: '8px', marginTop: '8px' }}>
+                                <strong>Privacidad y Datos:</strong> Procesamiento anonimizado de metadatos (quién contacta a quién y cuándo). No se lee el contenido de las comunicaciones.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

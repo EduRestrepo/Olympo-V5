@@ -245,7 +245,8 @@ class GraphIngestionService
 
         try {
             // Fetch call records (Note: $top is not supported here by Graph API)
-            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}");
+            // Added expand=participants_v2 to get actual participant counts
+            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}&\$expand=participants_v2");
             $response = $request->execute();
             
             $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
@@ -283,7 +284,8 @@ class GraphIngestionService
                 if (!is_array($record)) continue;
                 
                 $organizer = $record['organizer'] ?? null;
-                $participants = $record['participants'] ?? [];
+                // Use participants_v2 (recommended) and fallback to participants
+                $participants = $record['participants_v2'] ?? $record['participants'] ?? [];
                 
                 $involvedUsers = []; // Graph User ID => [isOrganizer, displayName, email]
                 
@@ -345,7 +347,11 @@ class GraphIngestionService
 
                 if (empty($involvedUsers)) continue;
 
-                $participantCount = count($participants);
+                // Ensure we have at least 1 participant (the organizer)
+                $participantCount = max(count($participants), 1);
+                
+                // If it's a large meeting but participants weren't expanded correctly 
+                // we might want to check other fields, but expand=participants_v2 should handle it.
                 $type = $record['type'] ?? 'unknown';
                 $start = isset($record['startDateTime']) ? new \DateTime($record['startDateTime']) : new \DateTime();
                 $end = isset($record['endDateTime']) ? new \DateTime($record['endDateTime']) : new \DateTime();

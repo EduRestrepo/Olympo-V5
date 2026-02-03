@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOMServer from 'react-dom/server';
-import { Clock, AlertTriangle, Timer, Globe, TrendingUp, User, Users, Activity } from 'lucide-react';
+
+import { Clock, AlertTriangle, Timer, Globe, TrendingUp, User, Users, Activity, Info } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import analyticsApi from '../../services/analyticsApi';
 import { LoadingSpinner } from '../shared/LoadingStates';
@@ -153,39 +153,66 @@ const TemporalTab = () => {
     };
 
     const HeatmapCell = ({ data, opacity }) => {
-        const tooltipContent = (
-            <div style={{ padding: '8px', fontSize: '0.8rem', color: '#fff', background: '#1c1c1e', borderRadius: '6px', border: '1px solid #333' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Actividad: {data.total}</div>
-                <div>Emails: {data.email}</div>
-                <div>Reuniones: {data.meeting}</div>
-            </div>
-        );
+        const { total, email, meeting } = data;
+
+        // Dynamic color: transition from dark to bright cyan
+        const backgroundColor = total > 0 ? `rgba(10, 132, 255, ${Math.min(1, opacity * 1.2)})` : 'rgba(255, 255, 255, 0.03)';
 
         return (
             <div
                 className="heatmap-cell"
                 style={{
-                    backgroundColor: `rgba(10, 132, 255, ${opacity})`,
-                    borderRadius: '4px',
                     height: '28px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.7rem',
-                    color: opacity > 0.5 ? '#fff' : '#eee',
+                    backgroundColor,
+                    boxShadow: opacity > 0.8 ? `0 0 10px rgba(10, 132, 255, 0.5)` : 'none',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(255,255,255,0.05)',
                     position: 'relative',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s ease-in-out'
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer'
                 }}
-                data-tooltip-id="heatmap-tooltip"
-                data-tooltip-html={ReactDOMServer.renderToStaticMarkup(tooltipContent)}
             >
-                {data.total > 0 && (
-                    <div style={{ display: 'flex', gap: '2px' }}>
-                        {data.email > 0 && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#0a84ff' }} />}
-                        {data.meeting > 0 && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#30d158' }} />}
+                <div className="cell-tooltip" style={{
+                    position: 'absolute',
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#1c1c1e',
+                    border: '1px solid #444',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    width: '160px',
+                    pointerEvents: 'none',
+                    zIndex: 100,
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease',
+                    marginBottom: '8px',
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.4)',
+                    textAlign: 'left'
+                }}>
+                    <div style={{ color: '#0a84ff', fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem' }}>Detalle de Actividad</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#888' }}>Emails:</span>
+                            <span style={{ color: '#fff' }}>{email}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#888' }}>Reuniones:</span>
+                            <span style={{ color: '#30d158' }}>{meeting}</span>
+                        </div>
+                        <div style={{ height: '1px', background: '#333', margin: '4px 0' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                            <span style={{ color: '#fff' }}>Total:</span>
+                            <span style={{ color: '#fff' }}>{total}</span>
+                        </div>
                     </div>
-                )}
+                </div>
+
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    .heatmap-cell:hover { transform: scale(1.15); z-index: 10; border-color: rgba(255,255,255,0.3) !important; }
+                    .heatmap-cell:hover .cell-tooltip { opacity: 1 !important; }
+                `}} />
             </div>
         );
     };
@@ -386,7 +413,13 @@ const TemporalTab = () => {
                     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #444; }
                 `}} />
                 <div className="view-disclaimer">
-                    <p><strong>💡 Vista de Actividad:</strong> Este mapa de calor visualiza la intensidad de la colaboración digital (correos y reuniones). Las celdas más brillantes indican momentos de alta demanda. Use esta vista para detectar patrones de trabajo fuera de horario o validar el respeto al tiempo personal.</p>
+                    <Info size={20} style={{ color: '#0a84ff', flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                        <p style={{ margin: '0 0 8px 0' }}><strong>💡 Vista de Actividad:</strong> Este mapa de calor visualiza la intensidad de la colaboración digital (correos y reuniones). Las celdas más brillantes indican momentos de alta demanda.</p>
+                        <div style={{ fontSize: '0.85rem', opacity: 0.8, borderTop: '1px solid rgba(10, 132, 255, 0.1)', paddingTop: '8px' }}>
+                            <strong>Privacidad:</strong> Los emails se distribuyen heurísticamente para proteger la privacidad. Solo se analiza el "cuándo" y "quién", nunca el contenido.
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -529,7 +562,13 @@ const TemporalTab = () => {
                         </div>
                     </div>
                     <div className="view-disclaimer">
-                        <p><strong>💡 Score de Sobrecarga:</strong> Índice compuesto que pondera volumen de trabajo, reuniones y actividad fuera de horario. Un riesgo 'Alto' sugiere saturación sostenida que puede llevar al burnout. Se recomienda revisar la distribución de cargas.</p>
+                        <Info size={20} style={{ color: '#0a84ff', flexShrink: 0, marginTop: '2px' }} />
+                        <div>
+                            <p style={{ margin: '0 0 8px 0' }}><strong>💡 Score de Sobrecarga:</strong> Índice compuesto que pondera volumen de trabajo, reuniones y actividad fuera de horario. Un riesgo 'Alto' sugiere saturación sostenida.</p>
+                            <div style={{ fontSize: '0.85rem', opacity: 0.8, borderTop: '1px solid rgba(10, 132, 255, 0.1)', paddingTop: '8px' }}>
+                                <strong>Análisis:</strong> Basado en patrones de actividad detectados en los últimos 30 días mediante Microsoft Graph.
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
@@ -655,7 +694,13 @@ const TemporalTab = () => {
                 </div>
 
                 <div className="view-disclaimer">
-                    <p><strong>💡 Latencia de Respuesta:</strong> Tiempo medio entre recibir un correo y responderlo. Tiempos muy largos pueden indicar cuellos de botella; tiempos inmediatos constantes pueden señalar una cultura de interrupción que afecta el trabajo profundo.</p>
+                    <Info size={20} style={{ color: '#0a84ff', flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                        <p style={{ margin: '0 0 8px 0' }}><strong>💡 Latencia de Respuesta:</strong> Tiempo medio entre recibir un correo y responderlo. Tiempos muy largos pueden indicar cuellos de botella; tiempos inmediatos pueden señalar falta de "trabajo profundo".</p>
+                        <div style={{ fontSize: '0.85rem', opacity: 0.8, borderTop: '1px solid rgba(10, 132, 255, 0.1)', paddingTop: '8px' }}>
+                            <strong>Metodología:</strong> Cálculo basado en hilos de conversación detectados en los metadatos de mensajería de los últimos 30 días.
+                        </div>
+                    </div>
                 </div>
             </div >
         );
@@ -759,7 +804,13 @@ const TemporalTab = () => {
                 </div>
 
                 <div className="view-disclaimer">
-                    <p><strong>💡 Flujo de Interacción:</strong> Visualiza la estructura de colaboración global. Un equilibrio entre 'envíos' y 'recepciones' indica colaboración saludable. Desequilibrios fuertes pueden señalar dependencias unidireccionales entre departamentos.</p>
+                    <Info size={20} style={{ color: '#0a84ff', flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                        <p style={{ margin: '0 0 8px 0' }}><strong>💡 Flujo de Interacción:</strong> Visualiza la estructura de colaboración global entre departamentos. Un equilibrio entre 'envíos' y 'recepciones' indica colaboración saludable.</p>
+                        <div style={{ fontSize: '0.85rem', opacity: 0.8, borderTop: '1px solid rgba(10, 132, 255, 0.1)', paddingTop: '8px' }}>
+                            <strong>Transparencia:</strong> Este mapa no expone el contenido de los mensajes, solo el volumen agregado de interacciones entre áreas.
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -839,69 +890,6 @@ const TemporalTab = () => {
 };
 
 
-const HeatmapCell = ({ data, opacity }) => {
-    const { total, email, meeting } = data;
 
-    // Dynamic color: transition from dark to bright cyan
-    const backgroundColor = total > 0 ? `rgba(10, 132, 255, ${Math.min(1, opacity * 1.2)})` : 'rgba(255, 255, 255, 0.03)';
-
-    return (
-        <div
-            className="heatmap-cell"
-            style={{
-                height: '28px',
-                backgroundColor,
-                boxShadow: opacity > 0.8 ? `0 0 10px rgba(10, 132, 255, 0.5)` : 'none',
-                borderRadius: '4px',
-                border: '1px solid rgba(255,255,255,0.05)',
-                position: 'relative',
-                transition: 'all 0.2s ease',
-                cursor: 'pointer'
-            }}
-        >
-            <div className="cell-tooltip" style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: '#1c1c1e',
-                border: '1px solid #444',
-                borderRadius: '8px',
-                padding: '10px',
-                width: '160px',
-                pointerEvents: 'none',
-                zIndex: 100,
-                opacity: 0,
-                transition: 'opacity 0.2s ease',
-                marginBottom: '8px',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.4)',
-                textAlign: 'left'
-            }}>
-                <div style={{ color: '#0a84ff', fontWeight: 'bold', marginBottom: '6px', fontSize: '0.85rem' }}>Detalle de Actividad</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#888' }}>Emails:</span>
-                        <span style={{ color: '#fff' }}>{email}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: '#888' }}>Reuniones:</span>
-                        <span style={{ color: '#30d158' }}>{meeting}</span>
-                    </div>
-                    <div style={{ height: '1px', background: '#333', margin: '4px 0' }} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
-                        <span style={{ color: '#fff' }}>Total:</span>
-                        <span style={{ color: '#fff' }}>{total}</span>
-                    </div>
-                </div>
-            </div>
-
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .heatmap-cell:hover { transform: scale(1.15); z-index: 10; border-color: rgba(255,255,255,0.3) !important; }
-                .heatmap-cell:hover .cell-tooltip { opacity: 1 !important; }
-            `}} />
-        </div>
-    );
-};
 
 export default TemporalTab;
