@@ -24,6 +24,18 @@ class AnalyticsController
         $this->db = $db;
     }
 
+    public function getSystemStatus(Request $request)
+    {
+        $repo = new \Olympus\Db\SettingRepository();
+        $status = [
+            'status' => $repo->getByKey('ingestion_status', 'Idle'),
+            'progress' => (int)$repo->getByKey('ingestion_progress', 0),
+            'message' => $repo->getByKey('ingestion_message', ''),
+            'last_run' => $repo->getByKey('ingestion_last_run', null)
+        ];
+        return new \Symfony\Component\HttpFoundation\JsonResponse($status);
+    }
+
     // ========================================================================
     // TEMPORAL ANALYSIS ENDPOINTS
     // ========================================================================

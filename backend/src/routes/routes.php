@@ -201,4 +201,9 @@ $routes->add('create_extraction_scope', (new Route('/api/analytics/extraction-sc
     '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'createExtractionScope']
 ]))->setMethods(['POST']));
 
+// System Status
+$routes->add('get_system_status', (new Route('/api/system/status', [
+    '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'getSystemStatus']
+]))->setMethods(['GET']));
+
 return $routes;

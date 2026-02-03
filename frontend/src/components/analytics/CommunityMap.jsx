@@ -112,11 +112,11 @@ const CommunityMap = ({ communities }) => {
         // --- Simulation ---
 
         const simulation = d3.forceSimulation(nodes)
-            .force("charge", d3.forceManyBody().strength(50))
-            .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.value) * 15 + 20).strength(0.7).iterations(3))
+            .force("charge", d3.forceManyBody().strength(-400)) // Changed from 50 (attract) to -400 (repel)
+            .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.value) * 15 + 40).strength(0.8).iterations(3)) // Increased padding
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("y", d3.forceY(height / 2).strength(0.05))
-            .force("x", d3.forceX(width / 2).strength(0.05));
+            .force("y", d3.forceY(height / 2).strength(0.08)) // Slightly stronger center pull to counteract repulsion
+            .force("x", d3.forceX(width / 2).strength(0.08));
 
         // --- Rendering ---
 

@@ -85,16 +85,35 @@ class GraphIngestionService
         }
     }
 
+    private function updateStatus(string $status, int $progress, string $message): void
+    {
+        $repo = new \Olympus\Db\SettingRepository();
+        $repo->updateMultiple([
+            ['key' => 'ingestion_status', 'value' => $status],
+            ['key' => 'ingestion_progress', 'value' => (string)$progress],
+            ['key' => 'ingestion_message', 'value' => $message],
+            ['key' => 'ingestion_last_run', 'value' => date('Y-m-d H:i:s')]
+        ]);
+    }
+
     public function ingestAll(): void
     {
         $this->authenticate();
 
         $this->log("Starting ingestion in mode: " . $this->ingestionMode);
+        $this->updateStatus("Running", 0, "Starting ingestion...");
 
         $users = $this->getUsersToProcess();
         $this->log("Found " . count($users) . " users to process.");
 
+        $totalUsers = count($users);
+        $processedCount = 0;
+
         foreach ($users as $user) {
+            $processedCount++;
+            $progress = (int)(($processedCount / max(1, $totalUsers)) * 80);
+            $this->updateStatus("Running", $progress, "Processing emails for user $processedCount of $totalUsers");
+
             // $user is now array
             $email = $user['mail'] ?? ($user['userPrincipalName'] ?? null);
             
@@ -113,9 +132,12 @@ class GraphIngestionService
         }
 
         // 2. Teams Calls Metadata - Fetch ONCE for all users to optimize
+        $this->updateStatus("Running", 85, "Fetching Teams call records...");
         $this->getTeamsCallMetadataGlobal($users);
 
         $this->log("Calculating Aggregated Metrics (Pulse, Totals, Tone)...");
+        $this->updateStatus("Running", 90, "Calculating analytics...");
+        
         try {
             $metricService = new \Olympus\Services\MetricService();
             $metricService->calculateAggregates();
@@ -124,6 +146,7 @@ class GraphIngestionService
         }
 
         $this->log("Ingestion completed successfully.");
+        $this->updateStatus("Idle", 100, "Ingestion completed successfully.");
     }
 
     private function getUsersToProcess(): array
@@ -442,7 +465,6 @@ class GraphIngestionService
         $startDate = (new \DateTime())->modify("-{$lookbackDays} days")->format('Y-m-d\TH:i:s\Z');
         $queryParams = '$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime ge ' . $startDate . '&$top=100';
 
-        try {
         try {
             // Initial Request
             $requestUrl = "/users/$userId/messages?$queryParams";

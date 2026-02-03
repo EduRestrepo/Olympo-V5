@@ -14,6 +14,7 @@ import CommunitiesTab from './components/tabs/CommunitiesTab';
 import MeetingsTab from './components/tabs/MeetingsTab';
 import IntelligenceTab from './components/tabs/IntelligenceTab';
 import BenchmarksTab from './components/tabs/BenchmarksTab';
+import IngestionProgress from './components/shared/IngestionProgress';
 import { api } from './services/api';
 import { Info, EyeOff, Eye, ShieldCheck, Activity, LayoutDashboard, Settings as SettingsIcon } from 'lucide-react';
 
@@ -32,6 +33,7 @@ function App() {
 
     return (
         <div className="container">
+            <IngestionProgress />
             <header style={{
                 display: 'flex',
                 justifyContent: 'space-between',
