@@ -443,41 +443,54 @@ class GraphIngestionService
         $queryParams = '$select=subject,sentDateTime,receivedDateTime,sender,from,toRecipients,ccRecipients,importance&$filter=receivedDateTime ge ' . $startDate . '&$top=100';
 
         try {
-            // Remove setReturnType(Model\Message::class)
-            $request = $this->graph->createRequest('GET', "/users/$userId/messages?$queryParams");
-            $response = $request->execute();
-            
-            if (method_exists($response, 'getBody')) {
-                $body = $response->getBody();
-            } else {
-                $body = $response;
-            }
+        try {
+            // Initial Request
+            $requestUrl = "/users/$userId/messages?$queryParams";
+            $totalMessages = 0;
+            $pageInfo = 1;
 
-            $messages = $body['value'] ?? [];
-            
-            $count = count($messages);
-            $this->log("  - Imported $count message headers (last {$lookbackDays} days).");
-
-            $totalEscalations = 0;
-            foreach ($messages as $msg) {
-                if ($this->calculateEscalationImpact($msg)) {
-                    $totalEscalations++;
-                    $stmt = $this->db->prepare("UPDATE actors SET escalation_score = escalation_score + 1 WHERE id = ?");
-                    $stmt->execute([$dbUserId]);
-                }
+            do {
+                // $this->log("    Fetching email page $pageInfo...");
+                $request = $this->graph->createRequest('GET', $requestUrl);
+                $response = $request->execute();
                 
-                // NEW: Process Interaction (Influence Graph)
-                $dateStr = $msg['receivedDateTime'] ?? ($msg['sentDateTime'] ?? ($msg['createdDateTime'] ?? null));
-                
-                if ($dateStr) {
-                    $msgDate = (new \DateTime($dateStr))->format('Y-m-d');
-                } else {
-                    $this->log("  ⚠️ Warning: No date found for message {$msg['id']}. Using import date.");
-                    $msgDate = date('Y-m-d');
+                $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
+                $messages = $body['value'] ?? [];
+                $count = count($messages);
+
+                if ($count === 0) break;
+
+                // $this->log("    - Parsing $count messages (Page $pageInfo)...");
+                $totalMessages += $count;
+
+                foreach ($messages as $msg) {
+                    if ($this->calculateEscalationImpact($msg)) {
+                        $stmt = $this->db->prepare("UPDATE actors SET escalation_score = escalation_score + 1 WHERE id = ?");
+                        $stmt->execute([$dbUserId]);
+                    }
+                    
+                    // NEW: Process Interaction (Influence Graph)
+                    $dateStr = $msg['receivedDateTime'] ?? ($msg['sentDateTime'] ?? ($msg['createdDateTime'] ?? null));
+                    
+                    if ($dateStr) {
+                        $msgDate = (new \DateTime($dateStr))->format('Y-m-d');
+                    } else {
+                        $msgDate = date('Y-m-d');
+                    }
+
+                    $this->processEmailInteractions($msg, $dbUserId, $msgDate);
                 }
 
-                $this->processEmailInteractions($msg, $dbUserId, $msgDate);
-            }
+                // Check for next page
+                $requestUrl = null;
+                if (isset($body['@odata.nextLink'])) {
+                    $requestUrl = $body['@odata.nextLink'];
+                    $pageInfo++;
+                }
+
+            } while ($requestUrl !== null);
+
+            $this->log("  - Imported total $totalMessages message headers (last {$lookbackDays} days).");
 
             if ($totalEscalations > 0) {
                 $this->log("  - Detected $totalEscalations escalation events.");
