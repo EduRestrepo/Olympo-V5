@@ -57,6 +57,73 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
         });
     }, [debouncedFilters]);
 
+    // State Refs for D3 Event Handlers (prevents stale closures without re-rendering)
+    const pathSelectionRef = useRef(pathSelection);
+    const isSimulationModeRef = useRef(isSimulationMode);
+    const removedNodesRef = useRef(removedNodes);
+
+    // Sync refs
+    useEffect(() => { pathSelectionRef.current = pathSelection; }, [pathSelection]);
+    useEffect(() => { isSimulationModeRef.current = isSimulationMode; }, [isSimulationMode]);
+    useEffect(() => { removedNodesRef.current = removedNodes; }, [removedNodes]);
+
+    // Visual Update Effect (Runs on interactions, DOES NOT reset simulation)
+    useEffect(() => {
+        if (!svgRef.current) return;
+
+        const svg = d3.select(svgRef.current);
+        const container = svg.select("g");
+
+        if (container.empty()) return;
+
+        try {
+            // Update Links - Scoped to .links-wrapper
+            const linksSelection = container.select(".links-wrapper").selectAll("line");
+            if (!linksSelection.empty()) {
+                linksSelection
+                    .attr("class", d => {
+                        if (!d) return '';
+                        const sId = typeof d.source === 'object' ? d.source.id : d.source;
+                        const tId = typeof d.target === 'object' ? d.target.id : d.target;
+                        const isPath = pathLinks.has(`${sId}-${tId}`) || pathLinks.has(`${tId}-${sId}`);
+                        const isRemoved = removedNodes.has(sId) || removedNodes.has(tId);
+                        return `${isPath ? 'link-path-active' : ''} ${isRemoved ? 'link-sim-removed' : ''}`;
+                    })
+                    .attr("stroke", d => {
+                        if (!d) return "#30363d";
+                        const sId = typeof d.source === 'object' ? d.source.id : d.source;
+                        const tId = typeof d.target === 'object' ? d.target.id : d.target;
+                        return (pathLinks.has(`${sId}-${tId}`) || pathLinks.has(`${tId}-${sId}`)) ? 'var(--accent-tertiary)' : "#30363d";
+                    });
+            }
+
+            // Update Nodes - Scoped to .nodes-wrapper
+            const nodesWrapper = container.select(".nodes-wrapper");
+            if (!nodesWrapper.empty()) {
+                // Update node groups
+                nodesWrapper.selectAll(".node-group")
+                    .attr("class", d => {
+                        if (!d) return 'node-group';
+                        return `node-group ${removedNodes.has(d.id) ? 'node-sim-removed' : ''} ${pathNodes.has(d.id) ? 'node-path-active' : ''}`;
+                    })
+                    .style("filter", d => (d && (removedNodes.has(d.id) || pathNodes.has(d.id))) ? "url(#glow)" : "none");
+
+                // Update circles within nodes
+                nodesWrapper.selectAll("circle")
+                    .attr("stroke", d => {
+                        if (!d) return "#fff";
+                        if (pathSelection.includes(d.id)) return 'var(--accent-tertiary)';
+                        return removedNodes.has(d.id) ? "#30363d" : "#fff";
+                    })
+                    .attr("stroke-width", d => (d && pathSelection.includes(d.id)) ? 4 : 2);
+            }
+
+        } catch (e) {
+            console.error("Visual update error:", e);
+        }
+
+    }, [pathSelection, pathNodes, pathLinks, removedNodes]);
+
     useEffect(() => {
         if (!data.nodes || data.nodes.length === 0) return;
         if (!svgRef.current) return;
@@ -163,33 +230,25 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                 .force("collision", d3.forceCollide().radius(45));
 
             const link = container.append("g")
+                .attr("class", "links-wrapper") // Class added for safe selection
                 .attr("stroke", "#30363d")
                 .attr("stroke-opacity", 0.6)
                 .selectAll("line")
                 .data(filteredLinks)
                 .join("line")
-                .attr("class", d => {
-                    const sId = typeof d.source === 'object' ? d.source.id : d.source;
-                    const tId = typeof d.target === 'object' ? d.target.id : d.target;
-                    const isPath = pathLinks.has(`${sId}-${tId}`) || pathLinks.has(`${tId}-${sId}`);
-                    const isRemoved = removedNodes.has(sId) || removedNodes.has(tId);
-                    return `${isPath ? 'link-path-active' : ''} ${isRemoved ? 'link-sim-removed' : ''}`;
-                })
-                .attr("stroke", d => {
-                    const sId = typeof d.source === 'object' ? d.source.id : d.source;
-                    const tId = typeof d.target === 'object' ? d.target.id : d.target;
-                    return (pathLinks.has(`${sId}-${tId}`) || pathLinks.has(`${tId}-${sId}`)) ? 'var(--accent-tertiary)' : "#30363d";
-                })
                 .attr("stroke-width", d => Math.sqrt((d.weight || 0.1) * 10))
                 .attr("marker-end", "url(#arrowhead)");
+            // Attributes now handled by visual effect
 
             const node = container.append("g")
+                .attr("class", "nodes-wrapper") // Class added for safe selection
                 .selectAll("g")
                 .data(filteredNodes)
                 .join("g")
-                .attr("class", d => `${removedNodes.has(d.id) ? 'node-sim-removed' : ''} ${pathNodes.has(d.id) ? 'node-path-active' : ''}`)
+                .attr("class", "node-group") // Class added for safe selection
                 .style("cursor", "pointer")
                 .call(drag(simulation));
+            // Classes and Filters handled by visual effect
 
             node.append("circle")
                 .attr("r", 20)
@@ -214,17 +273,46 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
                     const colors = { '♚': '#f85149', '♛': '#f85149', '♜': '#a371f7', '♞': '#2da44e', '♗': '#d29922', '♙': '#58a6ff' };
                     return colors[d.badge] || '#58a6ff';
                 })
-                .style("filter", d => (removedNodes.has(d.id) || pathNodes.has(d.id)) ? "url(#glow)" : "none")
-                .attr("stroke", d => {
-                    if (pathSelection.includes(d.id)) return 'var(--accent-tertiary)';
-                    return removedNodes.has(d.id) ? "#30363d" : "#fff";
-                })
-                .attr("stroke-width", d => pathSelection.includes(d.id) ? 4 : 2)
                 .on("click", (e, d) => {
-                    if (isSimulationMode) {
+                    // Use Refs to get latest state without closure issues
+                    const isSim = isSimulationModeRef.current;
+                    const pathSel = pathSelectionRef.current;
+
+                    if (isSim) {
                         toggleNode(d.id);
                     } else if (e.shiftKey) {
-                        togglePathSelection(d.id);
+                        // Logic inlined or call helper that reads ref? 
+                        // Helper "togglePathSelection" relies on setPathSelection(prev) which is fine, 
+                        // but logic to decide "includes" needs current value.
+                        // We can just rely on the existing togglePathSelection if it uses functional update correctly?
+                        // Actually togglePathSelection uses `pathSelection` state variable. 
+                        // To avoid closing over stale state, we should pass the ref value or rewrite logic here.
+
+                        let newSelection = [...pathSel];
+                        if (newSelection.includes(d.id)) {
+                            newSelection = newSelection.filter(id => id !== d.id);
+                        } else {
+                            if (newSelection.length >= 2) newSelection.shift();
+                            newSelection.push(d.id);
+                        }
+                        setPathSelection(newSelection);
+                        // Calculation logic stays in effect? No, calculation logic is in togglePathSelection.
+                        // We need to trigger the calculation too.
+
+                        if (newSelection.length === 2 && data.links) {
+                            const pathData = findShortestPath(newSelection[0], newSelection[1], data.links);
+                            if (pathData) {
+                                setPathNodes(new Set(pathData.nodes));
+                                setPathLinks(new Set(pathData.links));
+                            } else {
+                                setPathNodes(new Set());
+                                setPathLinks(new Set());
+                            }
+                        } else {
+                            setPathNodes(new Set());
+                            setPathLinks(new Set());
+                        }
+
                     } else {
                         onSelectActor(d);
                     }
@@ -330,7 +418,7 @@ export default function InfluenceGraph({ onSelectActor, isAnonymous }) {
             console.error("Critical D3 Error:", err);
             setError("Error visualizing graph: " + err.message);
         }
-    }, [data, depth, selectedGraphActor, removedNodes, isSimulationMode, isAnonymous, viewMode, pathNodes, pathLinks, pathSelection]);
+    }, [data, depth, selectedGraphActor, isAnonymous, viewMode]); // Removed visual-only deps: pathSelection, pathNodes, pathLinks, removedNodes, isSimulationMode
 
     // Helpers
     const toggleNode = (nodeId) => {

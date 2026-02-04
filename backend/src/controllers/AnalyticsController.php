@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Olympus\Services\TemporalAnalysisService;
 use Olympus\Services\CommunityDetectionService;
-use Olympus\Services\MeetingAnalysisService;
+
 use Olympus\Services\PredictiveAnalyticsService;
 use Olympus\Services\BenchmarkingService;
 use Olympus\Services\BatchProcessingService;
@@ -40,19 +40,7 @@ class AnalyticsController
     // TEMPORAL ANALYSIS ENDPOINTS
     // ========================================================================
 
-    public function getActivityHeatmap(Request $request)
-    {
-        $service = new TemporalAnalysisService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getActivityHeatmap(
-            $params['actor_id'] ?? null,
-            $params['start_date'] ?? null,
-            $params['end_date'] ?? null
-        );
 
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
-    }
 
     public function getOverloadedUsers(Request $request)
     {
@@ -88,29 +76,23 @@ class AnalyticsController
         $metricService = new MetricService();
         
         try {
-            // Updated: Use MetricService for Heatmap (Activity Breakdown)
-            $metricService->calculateActivityHeatmap();
-            $heatmapCount = 1; // Service returns void, assume success
-
             $overloadCount = $service->calculateOverloadMetrics();
             $responseTimeCount = $service->calculateResponseTimeMetrics();
             $timezoneCount = $service->calculateTimezoneMetrics();
 
             $result = [
                 'success' => true,
-                'heatmap_records' => $heatmapCount,
-                'overload_records' => $overloadCount,
-                'response_time_records' => $responseTimeCount,
-                'timezone_records' => $timezoneCount
+                'metrics' => [
+                    'overload' => $overloadCount,
+                    'responseTime' => $responseTimeCount,
+                    'timezone' => $timezoneCount
+                ]
             ];
+
+            return new \Symfony\Component\HttpFoundation\JsonResponse($result);
         } catch (\Exception $e) {
             error_log("Error in calculateTemporalMetrics: " . $e->getMessage());
             error_log("Trace: " . $e->getTraceAsString());
-            $result = [
-                'success' => false,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ];
             return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
         }
 
@@ -204,67 +186,6 @@ class AnalyticsController
     }
 
     // ========================================================================
-    // MEETING ANALYSIS ENDPOINTS
-    // ========================================================================
-
-    public function getMeetingEfficiency(Request $request)
-    {
-        $service = new MeetingAnalysisService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getMeetingEfficiency(
-            $params['organizer_id'] ?? null,
-            $params['min_score'] ?? null
-        );
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
-    }
-
-    public function getMeetingCosts(Request $request)
-    {
-        $service = new MeetingAnalysisService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getMeetingCosts($params['group_by'] ?? 'organizer');
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
-    }
-
-    public function getMeetingRecommendations(Request $request)
-    {
-        $service = new MeetingAnalysisService($this->db);
-        $params = $request->query->all();
-        
-        $data = $service->getRecommendations($params['type'] ?? null);
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($data);
-    }
-
-    public function calculateMeetingMetrics(Request $request)
-    {
-        $service = new MeetingAnalysisService($this->db);
-        
-        try {
-            $efficiencyCount = $service->calculateMeetingEfficiency();
-            $attendanceCount = $service->calculateAttendancePatterns();
-            $recommendationsCount = $service->generateRecommendations();
-
-            $result = [
-                'success' => true,
-                'efficiency_records' => $efficiencyCount,
-                'attendance_records' => $attendanceCount,
-                'recommendations' => $recommendationsCount
-            ];
-        } catch (\Exception $e) {
-            error_log("Error in calculateMeetingMetrics: " . $e->getMessage());
-            $result = [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
-            return new \Symfony\Component\HttpFoundation\JsonResponse($result, 500);
-        }
-
-        return new \Symfony\Component\HttpFoundation\JsonResponse($result);
     }
 
     // ========================================================================

@@ -1,0 +1,5 @@
+=== PredictiveAnalyticsService ===
+ChurnRisk: 234 OK
+BurnoutIndicators: 159 OK
+IsolationAlerts: 234 OK
+calculatePredictiveMetrics ERROR: Call to undefined method Olympus\Services\PredictiveAnalyticsService::calculatePredictiveMetrics()

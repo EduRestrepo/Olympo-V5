@@ -281,7 +281,8 @@ class CommunityDetectionService
                     silo_risk,
                     detection_date
                 FROM organizational_silos
-                WHERE detection_date >= CURRENT_DATE - INTERVAL '30 days'";
+                WHERE detection_date = (SELECT MAX(detection_date) FROM organizational_silos)
+";
 
         if ($riskLevel) {
             $sql .= " AND silo_risk = :risk_level";

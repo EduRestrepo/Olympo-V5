@@ -97,7 +97,26 @@ Evaluación de la calidad y eficiencia de las reuniones.
 | **`meeting_efficiency_scores`** | Puntuación de eficiencia por reunión. Considera duración, asistentes y puntualidad. |
 | **`meeting_recommendations`** | Sugerencias generadas por IA para mejorar reuniones (e.g., "Reducir participantes"). |
 
-### 6. Analítica Predictiva (IA)
+### 6. Analítica Predictiva (IA) && Gamificación
+Tablas para modelos de predicción y elementos de juego.
+
+| Tabla | Descripción |
+| :--- | :--- |
+| **`churn_risk_scores`** | Puntuaciones de riesgo de fuga. Basado en disminución de interacciones y contracción de red. |
+| **`burnout_indicators`** | Indicadores de agotamiento: trabajo fuera de horario, reuniones excesivas. |
+| **`collaboration_forecasts`** | Pronósticos de tendencias de colaboración futura. |
+| **`badges_earned`** | Insignias ganadas por los usuarios (e.g., "Conector", "Estratega"). |
+| **`rankings`** | Posiciones históricas en leaderboards. |
+
+### 7. Reportes y Sistema
+Tablas de infraestructura y generación de informes.
+
+| Tabla | Descripción |
+| :--- | :--- |
+| **`batch_jobs`** | Control de ejecución de tareas en segundo plano (ingestión, cálculos). |
+| **`report_templates`** | Plantillas definidas para reportes PDF/PPT. |
+| **`scheduled_reports`** | Configuración de envíos automáticos de reportes. |
+| **`export_history`** | Log de exportaciones de datos realizadas. |
 Modelos predictivos sobre riesgos y tendencias.
 
 | Tabla | Descripción |

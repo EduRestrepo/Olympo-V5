@@ -17,9 +17,7 @@ $routes->add('influence_graph', (new Route('/api/influence-graph', [
     '_controller' => ['Olympus\Controllers\InfluencerController', 'getInfluenceGraph']
 ])));
 
-$routes->add('channel_totals', (new Route('/api/channel-totals', [
-    '_controller' => ['Olympus\Controllers\MetricController', 'getChannelTotals']
-])));
+
 
 $routes->add('network_pulse', (new Route('/api/network-pulse', [
     '_controller' => ['Olympus\Controllers\MetricController', 'getNetworkPulse']
@@ -66,9 +64,7 @@ $routes->add('get_logs', (new Route('/api/settings/logs', [
 // ============================================================================
 
 // Temporal Analysis
-$routes->add('activity_heatmap', (new Route('/api/analytics/temporal/heatmap', [
-    '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'getActivityHeatmap']
-]))->setMethods(['GET']));
+
 
 $routes->add('overloaded_users', (new Route('/api/analytics/temporal/overload', [
     '_controller' => ['Olympus\\Controllers\\AnalyticsController', 'getOverloadedUsers']

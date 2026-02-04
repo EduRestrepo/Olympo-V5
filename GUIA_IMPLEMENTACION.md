@@ -1,4 +1,4 @@
-# Guía de Implementación y Actualización - Olympus v5.1
+# Guía de Implementación y Actualización - Olympus v5.0 Stable
 
 ## Resumen de Cambios (Changelog)
 La versión 5.1 introduce capacidades avanzadas de analítica predictiva y benchmarking. Esta actualización requiere cambios en el esquema de base de datos.

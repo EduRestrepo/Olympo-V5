@@ -1,0 +1,4 @@
+=== BenchmarkingService ===
+Benchmarks: 120 OK
+calculateRankings: OK
+Rankings (top_collaborators): 20 OK

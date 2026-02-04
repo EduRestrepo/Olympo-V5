@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import TopInfluencers from './components/TopInfluencers';
 import ScoreExplanation from './components/ScoreExplanation';
 import PowerBalance from './components/PowerBalance';
-import ChannelTotals from './components/ChannelTotals';
+
 import NetworkPulse from './components/NetworkPulse';
 import ToneIndex from './components/ToneIndex';
 import InfluenceGraph from './components/InfluenceGraph';
@@ -11,7 +11,6 @@ import Settings from './components/Settings';
 import TabContainer from './components/shared/TabContainer';
 import TemporalTab from './components/tabs/TemporalTab';
 import CommunitiesTab from './components/tabs/CommunitiesTab';
-import MeetingsTab from './components/tabs/MeetingsTab';
 import IntelligenceTab from './components/tabs/IntelligenceTab';
 import BenchmarksTab from './components/tabs/BenchmarksTab';
 import IngestionProgress from './components/shared/IngestionProgress';
@@ -155,7 +154,6 @@ function App() {
                         { id: 'overview', label: 'Dashboard', icon: '📊', description: 'Vista general de la red' },
                         { id: 'temporal', label: 'Temporal', icon: '⏰', description: 'Análisis temporal' },
                         { id: 'communities', label: 'Comunidades', icon: '👥', description: 'Detección de comunidades' },
-                        { id: 'meetings', label: 'Reuniones', icon: '📞', description: 'Análisis de reuniones' },
                         { id: 'intelligence', label: 'Inteligencia', icon: '🔮', description: 'Analytics predictivos' },
                         { id: 'benchmarks', label: 'Benchmarks', icon: '📈', description: 'Comparaciones y rankings' }
                     ]}
@@ -168,7 +166,6 @@ function App() {
                             <ScoreExplanation />
 
                             <PowerBalance />
-                            <ChannelTotals />
 
                             <NetworkPulse />
                             <ToneIndex />
@@ -177,7 +174,6 @@ function App() {
                     )}
                     {activeTab === 'temporal' && <TemporalTab />}
                     {activeTab === 'communities' && <CommunitiesTab />}
-                    {activeTab === 'meetings' && <MeetingsTab />}
                     {activeTab === 'intelligence' && <IntelligenceTab />}
                     {activeTab === 'benchmarks' && <BenchmarksTab />}
                 </TabContainer>

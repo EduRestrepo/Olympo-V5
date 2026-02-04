@@ -16,46 +16,7 @@ class TemporalAnalysisService
         $this->db = $db;
     }
 
-    /**
-     * Generate activity heatmap data for all users or specific user
-     * @param int|null $actorId Optional actor ID to filter
-     * @param string $startDate Start date (Y-m-d)
-     * @param string $endDate End date (Y-m-d)
-     * @return array Heatmap data grouped by date and hour
-     */
-    public function getActivityHeatmap(?int $actorId = null, string $startDate = null, string $endDate = null): array
-    {
-        $endDate = $endDate ?? date('Y-m-d');
-        $startDate = $startDate ?? date('Y-m-d', strtotime('-30 days'));
 
-        $sql = "SELECT 
-                    ah.actor_id,
-                    a.name as actor_name,
-                    ah.activity_date,
-                    ah.hour_of_day,
-                    ah.email_count,
-                    ah.meeting_count,
-                    ah.total_activity
-                FROM activity_heatmap ah
-                LEFT JOIN actors a ON ah.actor_id = a.id
-                WHERE ah.activity_date BETWEEN :start_date AND :end_date";
-
-        if ($actorId) {
-            $sql .= " AND ah.actor_id = :actor_id";
-        }
-
-        $sql .= " ORDER BY ah.activity_date, ah.hour_of_day";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':start_date', $startDate);
-        $stmt->bindParam(':end_date', $endDate);
-        if ($actorId) {
-            $stmt->bindParam(':actor_id', $actorId, PDO::PARAM_INT);
-        }
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
     /**
      * Get users with overload risk
@@ -221,9 +182,9 @@ class TemporalAnalysisService
     {
         $stats = [];
 
-        // Total activity records
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM activity_heatmap");
-        $stats['total_heatmap_records'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        // Total activity records (Approximation from network_pulse_daily)
+        $stmt = $this->db->query("SELECT SUM(activity_level) as total FROM network_pulse_daily");
+        $stats['total_heatmap_records'] = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
         // Users with overload
         $stmt = $this->db->query("SELECT COUNT(DISTINCT actor_id) as count FROM overload_metrics WHERE risk_level IN ('warning', 'critical')");
@@ -234,9 +195,10 @@ class TemporalAnalysisService
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $stats['avg_response_time_hours'] = $result['avg'] ?? 0;
 
-        // Off-hours workers
-        $stmt = $this->db->query("SELECT COUNT(DISTINCT actor_id) as count FROM timezone_collaboration WHERE (off_hours_emails + late_night_activity) > 10");
-        $stats['off_hours_workers'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        // Off-hours workers (Approximation based on teams_call_records as interactions table only has DATE)
+        $stmt = $this->db->query("SELECT COUNT(DISTINCT user_id) as count FROM teams_call_records 
+                                 WHERE EXTRACT(HOUR FROM call_timestamp) < 7 OR EXTRACT(HOUR FROM call_timestamp) > 20");
+        $stats['off_hours_workers'] = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
         return $stats;
     }

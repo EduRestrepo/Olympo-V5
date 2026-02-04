@@ -29,7 +29,6 @@
 - **Detailed Explanations**: New technical disclaimers explaining the exact algorithms used.
 
 **⏰ Temporal Analysis**
-- Activity heatmaps by hour/day
 - Overload detection (burnout risk)
 - Response time analysis by department
 - Timezone collaboration patterns
@@ -39,12 +38,6 @@
 - Organizational silo identification
 - Bridge connector detection
 - Network diversity metrics
-
-**📞 Meeting Analysis**
-- Efficiency scoring
-- Cost analysis (hours × participants)
-- Attendance pattern detection
-- Automated recommendations
 
 **📈 Benchmarking & Export**
 - Department comparisons

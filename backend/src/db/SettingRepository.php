@@ -50,7 +50,11 @@ class SettingRepository
             
             foreach ($settings as $key => $value) {
                 // Ensure value is string
-                $valStr = is_bool($value) ? ($value ? 'true' : 'false') : (string) $value;
+                if (is_array($value)) {
+                    $valStr = json_encode($value);
+                } else {
+                    $valStr = is_bool($value) ? ($value ? 'true' : 'false') : (string) $value;
+                }
                 $stmt->execute([
                     'key' => $key,
                     'value' => $valStr

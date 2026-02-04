@@ -1,4 +1,4 @@
-# Manual de Usuario - Olympus v5.1
+# Manual de Usuario - Olympus v5.0 Stable
 
 ## Introducción
 Olympus es su plataforma de inteligencia organizacional. Esta guía le ayudará a navegar por las nuevas funcionalidades de la versión 5.1, con foco especial en la Analítica Predictiva.

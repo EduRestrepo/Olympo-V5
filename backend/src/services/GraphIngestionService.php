@@ -124,11 +124,16 @@ class GraphIngestionService
 
             $this->log("Processing User: $email");
             
-            // 0. Upsert Actor (Sync Department/Country)
-            $userId = $this->upsertActor($user);
+            try {
+                // 0. Upsert Actor (Sync Department/Country)
+                $userId = $this->upsertActor($user);
 
-            // 1. Emails Metadata
-            $this->getMailMetadata($user['id'], $email, $userId);
+                // 1. Emails Metadata
+                $this->getMailMetadata($user['id'], $email, $userId);
+            } catch (\Exception $e) {
+                $this->log("Error processing user $email: " . $e->getMessage());
+                // Continue to next user
+            }
         }
 
         // 2. Teams Calls Metadata - Fetch ONCE for all users to optimize
@@ -141,6 +146,9 @@ class GraphIngestionService
         try {
             $metricService = new \Olympus\Services\MetricService();
             $metricService->calculateAggregates();
+            
+
+            
         } catch (\Exception $e) {
             $this->log("Error calculating metrics: " . $e->getMessage());
         }
@@ -267,20 +275,30 @@ class GraphIngestionService
         $this->log("Fetching global Teams call records (last $lookbackDays days)...");
 
         try {
-            // Fetch call records (Note: $top is not supported here by Graph API)
-            // Added expand=participants_v2 to get actual participant counts
-            $request = $this->graph->createRequest('GET', "/communications/callRecords?\$filter=startDateTime ge {$startDate}");
-            $response = $request->execute();
+            // Fetch call records with pagination and participants expansion
+            // Using $expand=participants is standard
+            $requestUrl = "/communications/callRecords?\$filter=startDateTime ge {$startDate}&\$expand=participants";
             
-            $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
-            $callRecords = $body['value'] ?? []; 
-            
-            if (empty($callRecords)) {
-                $this->log("No Teams call records found for this period.");
-                return;
-            }
+            $totalSynced = 0;
+            $pageCount = 0;
 
-            $this->log("Syncing " . count($callRecords) . " Teams call records...");
+            do {
+                $pageCount++;
+                $this->updateStatus("Running", 85, "Fetching Teams records (Page $pageCount)...");
+                // $this->log("Fetching Teams call records page $pageCount...");
+
+                $request = $this->graph->createRequest('GET', $requestUrl);
+                $response = $request->execute();
+                
+                $body = method_exists($response, 'getBody') ? $response->getBody() : $response;
+                $callRecords = $body['value'] ?? []; 
+                
+                if (empty($callRecords)) {
+                    $this->log("No Teams call records found on page $pageCount.");
+                    break;
+                }
+
+                $this->log("Parsing " . count($callRecords) . " Teams call records (Page $pageCount)...");
 
             // Create a map of Graph User ID -> DB Actor ID for fast lookup
             $userMap = [];
@@ -400,14 +418,23 @@ class GraphIngestionService
                 }
             }
 
-            $this->log("Teams sync: Processed $count record-user involvements.");
-            if ($newActorsCreated > 0) {
-                $this->log("Created $newActorsCreated new actors from Teams call participants.");
-            }
-            if (!empty($unmappedIds)) {
-                $names = array_unique(array_values($unmappedIds));
-                $this->log("Found " . count($unmappedIds) . " users in calls without email (Top 10: " . implode(', ', array_slice($names, 0, 10)) . ")");
-            }
+                $this->log("Teams sync: Processed $count record-user involvements (Page $pageCount).");
+                $totalSynced += $count;
+                
+                if ($newActorsCreated > 0) {
+                    $this->log("Created $newActorsCreated new actors from Teams call participants (Page $pageCount).");
+                }
+                
+                // Pagination Check
+                if (isset($body['@odata.nextLink'])) {
+                    $requestUrl = $body['@odata.nextLink'];
+                } else {
+                    $requestUrl = null;
+                }
+
+            } while ($requestUrl !== null && $pageCount < 50); // Safety limit
+
+            $this->log("Syncing Teams records complete. Total records processed: $totalSynced");
 
 
         } catch (\Exception $e) {
@@ -469,6 +496,7 @@ class GraphIngestionService
             // Initial Request
             $requestUrl = "/users/$userId/messages?$queryParams";
             $totalMessages = 0;
+            $totalEscalations = 0;
             $pageInfo = 1;
 
             do {

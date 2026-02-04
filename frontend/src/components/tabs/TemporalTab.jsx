@@ -36,13 +36,12 @@ if (!document.getElementById('temporal-disclaimer-styles')) {
 }
 
 const TemporalTab = () => {
-    const [activeView, setActiveView] = useState('heatmap');
+    const [activeView, setActiveView] = useState('overload');
     const [loading, setLoading] = useState(false);
     const [calculating, setCalculating] = useState(false);
     const [error, setError] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
     const [data, setData] = useState({
-        heatmap: [],
         overload: [],
         responseTime: [],
         timezone: []
@@ -54,7 +53,6 @@ const TemporalTab = () => {
     const [selectedDep, setSelectedDep] = useState('all');
 
     const views = [
-        { id: 'heatmap', label: 'Análisis de Actividad', icon: <Activity size={18} /> },
         { id: 'overload', label: 'Sobrecarga', icon: <AlertTriangle size={18} /> },
         { id: 'responseTime', label: 'Tiempo de Respuesta', icon: <Timer size={18} /> },
         { id: 'timezone', label: 'Interacción ', icon: <Globe size={18} /> }
@@ -72,15 +70,13 @@ const TemporalTab = () => {
         setError(null);
 
         try {
-            const [heatmap, overload, responseTime, timezone] = await Promise.all([
-                analyticsApi.temporal.getHeatmap(),
+            const [overload, responseTime, timezone] = await Promise.all([
                 analyticsApi.temporal.getOverload(),
                 analyticsApi.temporal.getResponseTime(),
                 analyticsApi.temporal.getTimezone()
             ]);
 
             const needsCalculation =
-                !heatmap || heatmap.length === 0 ||
                 !overload || overload.length === 0 ||
                 !responseTime || responseTime.length === 0 ||
                 !timezone || timezone.length === 0;
@@ -92,22 +88,19 @@ const TemporalTab = () => {
                 setCalculating(false);
                 setLoading(true);
 
-                const [newHeatmap, newOverload, newResponseTime, newTimezone] = await Promise.all([
-                    analyticsApi.temporal.getHeatmap(),
+                const [newOverload, newResponseTime, newTimezone] = await Promise.all([
                     analyticsApi.temporal.getOverload(),
                     analyticsApi.temporal.getResponseTime(),
                     analyticsApi.temporal.getTimezone()
                 ]);
 
                 setData({
-                    heatmap: newHeatmap || [],
                     overload: newOverload || [],
                     responseTime: newResponseTime || [],
                     timezone: newTimezone || []
                 });
             } else {
                 setData({
-                    heatmap: heatmap || [],
                     overload: overload || [],
                     responseTime: responseTime || [],
                     timezone: timezone || []
